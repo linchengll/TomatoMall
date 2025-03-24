@@ -19,36 +19,36 @@ public class Account {
     private Integer id;
 
     @Basic
-    @Column(name = "username")
+    @Column(name = "username")//用户名 UNIQUE
     private String username;
 
     @Basic
-    @Column(name = "password")
+    @Column(name = "password")//密码 NOT NULL 应加密
     private String password;
 
     @Basic
-    @Column(name = "name")
+    @Column(name = "name")//真名 NOT NULL 居然必填？
     private String name;
 
     @Basic
-    @Column(name = "avatar")
+    @Column(name = "avatar")//头像url
     private String avatar;
 
     @Basic
-    @Column(name = "role")
+    @Column(name = "role")//身份 NOT NULL
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
 
     @Basic
-    @Column(name = "telephone")
+    @Column(name = "telephone")//手机号 1开头 前端验证
     private String telephone;
 
     @Basic
-    @Column(name = "email")
+    @Column(name = "email")//邮箱 *神秘正则表达式* 前端验证
     private String email;
 
     @Basic
-    @Column(name = "location")
+    @Column(name = "location")//
     private String location;
 
     public AccountVO toVO() {

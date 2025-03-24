@@ -1,6 +1,7 @@
 package com.example.tomatomall.configure;
 
 import com.example.tomatomall.exception.TomatoMallException;
+import com.example.tomatomall.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;

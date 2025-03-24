@@ -1,6 +1,8 @@
 package com.example.tomatomall.controller;
 
+import com.example.tomatomall.po.Account;
 import com.example.tomatomall.service.AccountService;
+import com.example.tomatomall.vo.AccountVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,15 +18,15 @@ public class AccountController {
     /**
      * 获取用户详情
      */
-    @GetMapping()
-    public Response getUser() {
-        return null;
+    @GetMapping("/{username}")
+    public Response<AccountVO> getUser(@RequestParam String username) {
+        return Response.buildSuccess(accountService.getUser(username));
     }
 
     /**
      * 创建新的用户
      */
-    @PostMapping()
+    @PostMapping("/")
     public Response createUser() {
         return null;
     }
@@ -32,9 +34,9 @@ public class AccountController {
     /**
      * 更新用户信息
      */
-    @PutMapping()
-    public Response updateUser() {
-        return null;
+    @PutMapping("/")
+    public Response<Boolean> updateUser(@RequestBody AccountVO accountVO) {
+        return Response.buildSuccess(accountService.updateUser(accountVO));
     }
 
     /**
