@@ -41,13 +41,13 @@ public class Product {
     @Column(name = "detail")
     private String detail;//描述分两块是想干什么
 
-    @Basic
-    @Column(name = "specifications")
-    private Set<Spec> specifications;
-
-    private class Spec{
-        private String item;//名称
-        private String value;//规格内容 这参数名什么鬼
-        private Integer productId;//毫无意义，除非products不持有它的引用
-    }
+//    @Basic
+//    @Column(name = "specifications")
+//    private Set<Spec> specifications;
+//
+//    private class Spec{
+//        private String item;//名称
+//        private String value;//规格内容 这参数名什么鬼
+//        private Integer productId;//毫无意义，除非products不持有它的引用
+//    }
 }
