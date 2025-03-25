@@ -15,7 +15,7 @@ const router = createRouter({
         meta: {title: '用户注册'}
     }, {
         path: '/home',
-        redirect: '/allStore',
+        redirect: '/dashboard',
         component: () => import('../views/Home.vue'),
         children: [
             {
@@ -23,12 +23,6 @@ const router = createRouter({
                 name: 'Dashboard',
                 component: () => import('../views/user/Dashboard.vue'),
                 meta: {title: '个人信息'}
-            },
-            {
-                path: '/allStore',
-                name: 'allStore',
-                component: () => import('../views/store/AllStore.vue'),
-                meta: {title: '商品列表界面/主页'}
             }
         ]
     }, {
