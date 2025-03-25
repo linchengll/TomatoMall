@@ -1,11 +1,15 @@
 package com.example.tomatomall.service.serviceImpl;
 
+import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Account;
 import com.example.tomatomall.repository.AccountRepository;
 import com.example.tomatomall.service.AccountService;
 import com.example.tomatomall.util.SecurityUtil;
+import com.example.tomatomall.util.TokenUtil;
 import com.example.tomatomall.vo.AccountVO;
+import com.example.tomatomall.configure.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,10 +18,39 @@ public class AccountServiceImpl implements AccountService {
     SecurityUtil securityUtil;
     @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    private TokenUtil tokenUtil;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @Override
+    public Boolean register(AccountVO accountVO){
+        Account account=accountRepository.findByUsername(accountVO.getUsername());
+        if(account!=null){
+            throw TomatoMallException.usernameAlreadyExists();
+        }
+        String rawPassword=accountVO.getPassword();
+        String encodedPassword=passwordEncoder.encode(rawPassword);
+        accountVO.setPassword(encodedPassword);
+        Account newAccount=accountVO.toPO();
+        accountRepository.save(newAccount);
+        return true;
+    }
+    @Override
+    public String login(String username, String password){
+        Account account=accountRepository.findByUsername(username);
+        if(account==null){
+            throw TomatoMallException.usernameNotExists();
+        }
+        if(!passwordEncoder.matches(password,account.getPassword())){
+        return tokenUtil.getToken(account);
+        }else{
+            throw TomatoMallException.passwordError();
+        }
+    }
+    @Override
     public AccountVO getUser(String username) {
-        //Account account=securityUtil.getCurrentUser();
         //路由传参
         Account account=accountRepository.findByUsername(username);
         return account.toVO();
@@ -29,8 +62,11 @@ public class AccountServiceImpl implements AccountService {
         //必填用户名？用户名可修改？其他均非必填等于可以更新完全没变化？？？
         Account account=accountRepository.findByUsername(accountVO.getUsername());
 
-        if (accountVO.getPassword()!=null)
-            account.setPassword(accountVO.getPassword());//这里也设置了密码，需要加密
+        if (accountVO.getPassword()!=null){
+            String rawPassword=accountVO.getPassword();
+            String encodedPassword=passwordEncoder.encode(rawPassword);
+            account.setPassword(encodedPassword);
+        }
 
         if (accountVO.getName()!=null)
             account.setName(accountVO.getName());
