@@ -24,31 +24,12 @@ const router = createRouter({
                 component: () => import('../views/user/Dashboard.vue'),
                 meta: {title: '个人信息'}
             },
-            //lab2新增
             {
                 path: '/allStore',
                 name: 'allStore',
                 component: () => import('../views/store/AllStore.vue'),
                 meta: {title: '商品列表界面/主页'}
-            },
-            {
-                path: '/storeDetail/:storeId',
-                name: 'storeDetail',
-                component: () => import('../views/store/StoreDetail.vue'),
-                meta: {title: '店铺详情'}
-            },
-            {
-                path: '/createProduct/:storeId',
-                name: 'createProduct',
-                component: () => import('../views/product/CreateProduct.vue'),
-                meta: {title: '创建商品'}
-            },
-            {
-                path: '/createStore',
-                name: 'createStore',
-                component: () => import('../views/store/CreateStore.vue'),
-                meta: {title: '创建商店'}
-            },
+            }
         ]
     }, {
         path: '/404',
