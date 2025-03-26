@@ -341,7 +341,7 @@ const handleFileUpload = (event: Event) => {  // Added: Function to handle file 
 }
 
 .bgimage {
-  background-image: url("../../assets/login_bg.jfif");
+  background-image: url("../../assets/login.jpg");
 }
 
 .login-card {
