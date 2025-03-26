@@ -36,7 +36,7 @@ export const userLogin = async (loginInfo: LoginInfo) => {
 }
 
 // 用户注册
-export const userRegister = (registerInfo: RegisterInfo) => {
+export const userRegister = async (registerInfo: RegisterInfo) => {
     return axios.post(`${USER_MODULE}`, registerInfo, {
         headers: { 'Content-Type': 'application/json' }
     }).then(res => {
@@ -60,3 +60,4 @@ export const userInfoUpdate = (updateInfo: UpdateInfo) => {
         return res
     })
 }
+

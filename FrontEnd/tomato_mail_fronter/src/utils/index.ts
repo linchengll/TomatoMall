@@ -4,8 +4,6 @@ export function parseRole(role: string | null) {
         return "管理员"
     } else if (role === 'CUSTOMER') {
         return "顾客"
-    } else if (role === 'STAFF') {
-        return "商家"
     }
 }
 
