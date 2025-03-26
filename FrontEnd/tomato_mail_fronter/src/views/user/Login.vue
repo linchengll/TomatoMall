@@ -78,6 +78,9 @@ function handleLogin() {
             <router-link to="/main">
               <el-button>伪登录</el-button>
             </router-link>
+            <router-link to="/dashboard">
+              <el-button>伪修改</el-button>
+            </router-link>
             <router-link to="/register">
               <el-button>去注册</el-button>
             </router-link>

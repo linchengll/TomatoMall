@@ -18,17 +18,9 @@ const router = createRouter({
        component: () => import('../views/Main.vue'),
        meta: {title: '主页面'}
     }, {
-        path: '/home',
-        redirect: '/dashboard',
-        component: () => import('../views/Home.vue'),
-        children: [
-            {
-                path: '/dashboard',
-                name: 'Dashboard',
-                component: () => import('../views/user/Dashboard.vue'),
-                meta: {title: '个人信息'}
-            }
-        ]
+        path: '/dashboard',
+        component: () => import('../views/user/Dashboard.vue'),
+        meta: {title: '个人信息'}
     }, {
         path: '/404',
         name: '404',
