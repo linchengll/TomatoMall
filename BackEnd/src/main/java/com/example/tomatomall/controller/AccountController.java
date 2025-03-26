@@ -46,4 +46,5 @@ public class AccountController {
     public Response<String> login(@RequestParam("username") String username, @RequestParam("password") String password) {
         return Response.buildSuccess(accountService.login(username, password));
     }
+
 }
