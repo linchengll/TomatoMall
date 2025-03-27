@@ -51,7 +51,11 @@ public class Product {
         VO.setId(this.id);
         VO.setTitle(this.title);
         VO.setPrice(this.price);
-
+        VO.setRate(this.rate);
+        VO.setDescription(this.description);
+        VO.setCover(this.cover);
+        VO.setDetail(this.detail);
+        VO.setSpecification(this.specification);
         return VO;
     }
 }//specifications已分离
