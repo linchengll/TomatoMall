@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "products")
 public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -42,9 +44,8 @@ public class Product {
     @Column(name = "detail")
     private String detail;
 
-    @Basic
-    @Column(name ="specification")
-    private Set<ProductSpecification> specification;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval=true)
+    private Set<ProductSpecification> specifications;
 
     public ProductVO toVO(){
         ProductVO VO=new ProductVO();
@@ -55,7 +56,7 @@ public class Product {
         VO.setDescription(this.description);
         VO.setCover(this.cover);
         VO.setDetail(this.detail);
-        VO.setSpecification(this.specification);
+        VO.setSpecifications(this.specifications);
         return VO;
     }
 }//specifications已分离
