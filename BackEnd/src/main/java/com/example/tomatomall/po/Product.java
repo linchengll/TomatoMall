@@ -3,19 +3,21 @@ package com.example.tomatomall.po;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import com.example.tomatomall.vo.ProductVO;
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "product")
 public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "productId")
-    private Integer productId;//文档里id用了两种名称，这里统一
+    @Column(name = "id")
+    private Integer Id;
 
     @Basic
     @Column(name = "title")
@@ -23,7 +25,7 @@ public class Product {
 
     @Basic
     @Column(name = "price")
-    private Double price;//书籍价格 NOT NULL 非负 与商品规格有矛盾，无意义
+    private Float price;//书籍价格 NOT NULL 非负 与商品规格有矛盾，无意义
 
     @Basic
     @Column(name = "rate")
@@ -41,13 +43,20 @@ public class Product {
     @Column(name = "detail")
     private String detail;//描述分两块是想干什么
 
-//    @Basic
-//    @Column(name = "specifications")
-//    private Set<Spec> specifications;
-//
-//    private class Spec{
-//        private String item;//名称
-//        private String value;//规格内容 这参数名什么鬼
-//        private Integer productId;//毫无意义，除非products不持有它的引用
-//    }
+    @OneToMany(mappedBy = "product", cascade = {CascadeType.ALL},orphanRemoval = true)
+    private List<ProductSpecification> product_specification;
+
+    @OneToMany(mappedBy = "products", cascade = {CascadeType.ALL},orphanRemoval = true)
+    private List<ProductStockpile> product_stockpile;
+    public ProductVO toVO() {
+        ProductVO productVO = new ProductVO();
+        productVO.setId(Id);
+        productVO.setTitle(title);
+        productVO.setPrice(price);
+        productVO.setRate(rate);
+        productVO.setDescription(description);
+        productVO.setCover(cover);
+        productVO.setDetail(detail);
+        return productVO;
+    }
 }
