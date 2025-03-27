@@ -18,12 +18,13 @@ public class LoginInterceptor implements HandlerInterceptor {
     TokenUtil tokenUtil;
 
     private static final List<String> WHITE_LIST = Arrays.asList(
+            "/api/accounts/login"
     );
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String requestURI = request.getRequestURI();
-
+        System.out.println("请求路径：" + requestURI);
         if (WHITE_LIST.contains(requestURI)) {
             return true;
         }

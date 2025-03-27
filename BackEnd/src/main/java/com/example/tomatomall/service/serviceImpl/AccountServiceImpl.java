@@ -25,7 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public Boolean register(AccountVO accountVO){
+    public String register(AccountVO accountVO){
         Account account=accountRepository.findByUsername(accountVO.getUsername());
         if(account!=null){
             throw TomatoMallException.usernameAlreadyExists();
@@ -35,7 +35,7 @@ public class AccountServiceImpl implements AccountService {
         accountVO.setPassword(encodedPassword);
         Account newAccount=accountVO.toPO();
         accountRepository.save(newAccount);
-        return true;
+        return "注册成功";
     }
     @Override
     public String login(String username, String password){
@@ -43,7 +43,7 @@ public class AccountServiceImpl implements AccountService {
         if(account==null){
             throw TomatoMallException.usernameNotExists();
         }
-        if(!passwordEncoder.matches(password,account.getPassword())){
+        if(passwordEncoder.matches(password,account.getPassword())){
         return tokenUtil.getToken(account);
         }else{
             throw TomatoMallException.passwordError();
