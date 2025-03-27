@@ -69,7 +69,7 @@ const registerDisabled = computed(() => {
   //   return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value &&
   //       hasStoreName.value && telLegal.value && isPasswordIdentical.value)
   // }
-  return (hasUserNameInput.value && hasPasswordInput.value && hasNameInput.value && hasRoleInput.value && telLegal.value && isPasswordIdentical.value && emailLegal.value)
+  return !(hasUserNameInput.value && hasPasswordInput.value && hasNameInput.value && hasRoleInput.value && telLegal.value && isPasswordIdentical.value && emailLegal.value)
 })
 
 // 注册按钮触发
