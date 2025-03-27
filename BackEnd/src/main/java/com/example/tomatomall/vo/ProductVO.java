@@ -31,7 +31,4 @@ public class ProductVO {
         product.setDetail(this.detail);
         return product;
     }
-    public ProductSpecification StoPO(){
-        ProductSpecification productSpecification = new ProductSpecification();
-    }
 }
