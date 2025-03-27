@@ -4,6 +4,7 @@ import com.example.tomatomall.po.Account;
 import com.example.tomatomall.service.AccountService;
 import com.example.tomatomall.vo.AccountVO;
 import com.example.tomatomall.vo.Response;
+import lombok.Data;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,15 +27,15 @@ public class AccountController {
     /**
      * 创建新的用户
      */
-    @PostMapping("/")
-    public Response<Boolean> createUser(@RequestBody AccountVO accountVO) {
+    @PostMapping
+    public Response<String> createUser(@RequestBody AccountVO accountVO) {
         return Response.buildSuccess(accountService.register(accountVO));
     }
 
     /**
      * 更新用户信息
      */
-    @PutMapping("/")
+    @PutMapping
     public Response<Boolean> updateUser(@RequestBody AccountVO accountVO) {
         return Response.buildSuccess(accountService.updateUser(accountVO));
     }
@@ -42,9 +43,10 @@ public class AccountController {
     /**
      * 登录
      */
+
     @PostMapping("/login")
-    public Response<String> login(@RequestParam("username") String username, @RequestParam("password") String password) {
-        return Response.buildSuccess(accountService.login(username, password));
+    public Response<String> login(@RequestBody AccountVO accountVO) {
+        return Response.buildSuccess(accountService.login(accountVO.getUsername(), accountVO.getPassword()));
     }
 
 }

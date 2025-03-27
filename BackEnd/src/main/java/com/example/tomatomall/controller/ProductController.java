@@ -19,7 +19,7 @@ public class ProductController {
     @Resource
     private ProductService productService;
 
-    @GetMapping("/")
+    @GetMapping
     public Response<List<ProductVO>> getProducts(){
         return Response.buildSuccess(productService.getProductList());
     }
@@ -29,12 +29,12 @@ public class ProductController {
         return Response.buildSuccess(productService.getProductById(id));
     }
 
-    @PutMapping("/")
+    @PutMapping
     public Response<Boolean> updateProduct(@RequestBody ProductVO productVO){
         return Response.buildSuccess(productService.updateProduct(productVO));
     }
 
-    @PostMapping("/")
+    @PostMapping
     public Response<ProductVO> createProduct(@RequestBody ProductVO productVO){
         return Response.buildSuccess(productService.createProduct(productVO));
     }
