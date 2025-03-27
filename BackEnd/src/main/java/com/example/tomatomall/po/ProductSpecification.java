@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "product_specification")
+@Table(name ="specifications")
 public class ProductSpecification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -25,7 +25,7 @@ public class ProductSpecification {
     @Column(name = "value")
     private String value;
 
-    @Basic
-    @Column(name = "product_id")
-    private Integer productId;
+    @ManyToOne
+    @JoinColumn(name = "product_id",nullable = false)
+    private Product product;
 }
