@@ -19,7 +19,7 @@ public class AccountController {
      * 获取用户详情
      */
     @GetMapping("/{username}")
-    public Response<AccountVO> getUser(@RequestParam String username) {
+    public Response<AccountVO> getUser(@PathVariable String username) {
         return Response.buildSuccess(accountService.getUser(username));
     }
 
