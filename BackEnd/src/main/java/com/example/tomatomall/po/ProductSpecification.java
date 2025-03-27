@@ -25,7 +25,7 @@ public class ProductSpecification {
     @Column(name = "value")
     private String value;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id",nullable = false,referencedColumnName = "id")
-    private Product product;
+    @Basic
+    @Column(name = "product_id")
+    private Integer productId;
 }
