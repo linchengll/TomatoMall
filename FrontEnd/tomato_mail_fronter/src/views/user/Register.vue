@@ -8,7 +8,7 @@ import {getAllStoreInfo, Store} from "../../api/store.ts";
 const username = ref('')
 const password = ref('')
 const name = ref('')
-const avatar = ref('')
+const avatar = ref(null)
 const role = ref('')
 const telephone = ref('')
 const email = ref('')
@@ -69,7 +69,7 @@ const registerDisabled = computed(() => {
   //   return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value &&
   //       hasStoreName.value && telLegal.value && isPasswordIdentical.value)
   // }
-  return (hasUserNameInput.value && hasPasswordInput.value && hasNameInput.value && hasRoleInput.value && telLegal.value && isPasswordIdentical.value && emailLegal.value)
+  return !(hasUserNameInput.value && hasPasswordInput.value && hasNameInput.value && hasRoleInput.value && telLegal.value && isPasswordIdentical.value && emailLegal.value)
 })
 
 // 注册按钮触发
