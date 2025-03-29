@@ -38,7 +38,7 @@ function handleLogin() {
         console.log(res)
         sessionStorage.setItem('username', res.data.data.username)
         sessionStorage.setItem('role', res.data.data.role)
-        router.push({path: "/dashboard"})
+        router.push({path: "/main"})
       })
     } else if (res.data.code === '400') {
       ElMessage({
@@ -77,12 +77,6 @@ function handleLogin() {
           <span class="button-group">
             <el-button @click.prevent="handleLogin" :disabled="loginDisabled"
                        type="primary">登入</el-button>
-            <router-link to="/main">
-              <el-button>伪登录</el-button>
-            </router-link>
-            <router-link to="/dashboard">
-              <el-button>伪修改</el-button>
-            </router-link>
             <router-link to="/register">
               <el-button>去注册</el-button>
             </router-link>
@@ -106,6 +100,11 @@ function handleLogin() {
 
 .bgimage {
   background-image: url("../../assets/login.jpg");
+  background-size: cover; /* 让背景图片覆盖整个容器 */
+  background-position: center; /* 居中显示 */
+  background-repeat: no-repeat; /* 防止图片重复 */
+  width: 100vw; /* 适应整个视口宽度 */
+  height: 100vh; /* 适应整个视口高度 */
 }
 
 .login-card {

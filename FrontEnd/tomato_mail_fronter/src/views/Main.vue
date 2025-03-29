@@ -1,5 +1,7 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed, nextTick } from 'vue'
+import { userInfo, userInfoUpdate } from '../api/user.ts'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const search = ref("");
 const categories = ref(["惊悚", "穿越", "科幻", "经典", "爱情", "励志"]);
@@ -12,6 +14,30 @@ const products = ref([
   { name: "红楼梦", price: "299", image: null }
 ]);
 const user = ref({ name: "tb123", balance: 100 });
+
+const username = ref(sessionStorage.getItem("username") || '')
+const telephone = ref('')
+const location = ref('')
+const name = ref('')
+const password = ref('')
+const email = ref('')
+const avatar = ref('')
+
+function getUserInfo() {
+  if (!username.value) {
+    ElMessage({ type: 'error', message: '用户名不能为空！' })
+    return
+  }
+  userInfo(username.value).then(res => {
+    username.value = res.data.data.username
+    telephone.value = res.data.data.telephone || ''
+    location.value = res.data.data.location || ''
+    email.value = res.data.data.email || ''
+    avatar.value = res.data.data.avatar || ''
+  })
+}
+
+getUserInfo()
 </script>
 
 <template>
@@ -53,9 +79,11 @@ const user = ref({ name: "tb123", balance: 100 });
 
       <!-- 用户信息面板 -->
       <el-aside width="250px" class="user-panel">
-        <el-card>
-          <p>用户名: {{ user.name }}</p>
-          <p>余额: ¥{{ user.balance }}</p>
+        <el-card class="user-card">
+          <el-link @click="$router.push('/dashboard')" class="user-avatar-link">
+            <el-avatar :src="avatar" class="user-avatar" />
+          </el-link>
+          <p class="welcome-text">欢迎：{{ username }}</p>
         </el-card>
       </el-aside>
     </el-container>
@@ -104,5 +132,26 @@ const user = ref({ name: "tb123", balance: 100 });
 }
 .user-panel {
   padding: 10px;
+}
+.user-card {
+  text-align: center;
+  padding: 20px;
+  height: 270px;
+}
+.user-avatar-link {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+}
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.welcome-text {
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>

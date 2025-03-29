@@ -1,51 +1,75 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { userInfo, userInfoUpdate } from '../../api/user.ts'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { imageInfoUpdate } from "../../api/tools.ts"
 import userImage from '../../assets/login.jpg';
 
 const role = sessionStorage.getItem("role")
 
-// 用户信息的响应式变量
-
-const username= ref('')
-username.value = sessionStorage.getItem("username")
+// 原始用户信息
+const username = ref(sessionStorage.getItem("username") || '')
 const telephone = ref('')
 const location = ref('')
 const name = ref('')
-const newName = ref('') // 新用户名
-const displayInfoCard = ref(false)
-const password = ref('') // 新密码
-const confirmPassword = ref('')// 确认密码
+const password = ref('')
 const email = ref('')
 const avatar = ref('')
-const image = ref(userImage)
 
+// 新的编辑数据
+const new_telephone = ref('')
+const new_location = ref('')
+const new_name = ref('')
+const new_password = ref('')
+const new_email = ref('')
+const new_avatar = ref('')
+
+const displayInfoCard = ref(false)
+
+// 获取用户信息
 function getUserInfo() {
-  console.log(username.value)
   if (!username.value) {
     ElMessage({ type: 'error', message: '用户名不能为空！' })
     return
   }
   userInfo(username.value).then(res => {
-    username.value = res.data.data.username // 确保使用 API 返回的 username
+    username.value = res.data.data.username
     telephone.value = res.data.data.telephone || ''
     location.value = res.data.data.location || ''
     email.value = res.data.data.email || ''
-    avatar.value = res.data.data.avatar || '' // 头像
+    avatar.value = res.data.data.avatar || ''
   })
 }
 
 getUserInfo()
 
 // 处理头像上传
-const handleAvatarUpload = (file: File) => {
-  const reader = new FileReader()
-  reader.onload = (e: any) => {
-    avatar.value = e.target.result // 预览新头像
-  }
-  reader.readAsDataURL(file)
-}
+const handleAvatarUpload = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (!input.files || input.files.length === 0) return;
+
+  const file = input.files[0];
+  const reader = new FileReader();
+
+  reader.onload = async (e: any) => {
+    new_avatar.value = e.target.result; // 本地预览
+    try {
+      const response = await imageInfoUpdate(file);
+      if (response.data.code === '200') {
+        new_avatar.value = response.data.data;
+        await nextTick();
+        ElMessage.success('头像上传成功！');
+      } else {
+        ElMessage.error('头像上传失败！');
+      }
+    } catch (error) {
+      ElMessage.error('头像上传失败，请重试！');
+      console.error('上传失败:', error);
+    }
+  };
+
+  reader.readAsDataURL(file);
+};
 
 // 更新用户信息
 function updateInfo() {
@@ -54,40 +78,59 @@ function updateInfo() {
     return
   }
 
-  // 仅提交非空字段
+  if (new_name == '') new_name.value = name.value
+  if (new_email == '') new_email.value = email.value
+  if (new_avatar == '') avatar.value = new_avatar.value
+  if (new_telephone == '') new_telephone.value = telephone.value
+  if (new_location == '') new_location.value = location.value
+  if (new_password == '') new_password.value = password.value
+
   const updateData = {
-    username: username.value.trim(), // 必须包含用户名
-    password: password.value.trim() || undefined,
-    telephone: telephone.value.trim() || undefined,
-    location: location.value.trim() || undefined,
-    email: email.value.trim() || undefined,
-    avatar: avatar.value, // 头像
+    username: username.value.trim(),
+    password: new_password.value.trim() || undefined,
+    telephone: new_telephone.value.trim() || undefined,
+    location: new_location.value.trim() || undefined,
+    email: new_email.value.trim() || undefined,
+    avatar: new_avatar.value,
   }
 
   userInfoUpdate(updateData).then(res => {
-    console.log(res)
     if (res.data.code === '200') {
       ElMessage({ type: 'success', message: '更新成功！' })
-      password.value = '' // 清空密码字段
-      getUserInfo() // 重新获取信息
-      displayInfoCard.value = false // 关闭对话框
+
+      // 更新原始数据
+      telephone.value = new_telephone.value
+      location.value = new_location.value
+      email.value = new_email.value
+      avatar.value = new_avatar.value
+      password.value = ''
+
+      displayInfoCard.value = false
     } else {
       ElMessage({ type: 'error', message: res.data.msg })
     }
   })
+
+  getUserInfo()
+  new_telephone.value = ''
+  new_name.value = ''
+  new_email.value = ''
+  new_avatar.value = ''
+  new_telephone.value = ''
+  new_location.value = ''
 }
 </script>
 
 <template>
   <el-main class="main-frame bgimage">
-    <div class="user-info" >
+    <div class="user-info">
       <!-- 个人信息卡片 -->
       <div class="user-card">
         <div class="user_image">
           <img :src="avatar" class="image" />
         </div>
         <div class="user-name">
-            {{ username }}
+          {{ username }}
         </div>
 
         <div class="user-details">
@@ -96,34 +139,32 @@ function updateInfo() {
           <p><strong>地址：</strong> {{ location || '这个人很懒，还没填这个东西' }}</p>
         </div>
         <el-button type="primary" @click="displayInfoCard = true" class="edit-button">编辑信息</el-button>
-
-        <el-dialog title="编辑用户信息" v-model="displayInfoCard" width="400px">
-          <el-form label-width="100px">
-            <el-form-item label="用户名">
-              <el-input v-model="username" placeholder="输入用户名"></el-input>
-            </el-form-item>
-            <el-form-item label="姓名">
-              <el-input v-model="name" placeholder="输入姓名"></el-input>
-            </el-form-item>
-            <el-form-item label="电话">
-              <el-input v-model="telephone" placeholder="输入电话"></el-input>
-            </el-form-item>
-            <el-form-item label="地址">
-              <el-input v-model="location" placeholder="输入地址"></el-input>
-            </el-form-item>
-            <el-form-item label="邮箱">
-              <el-input v-model="email" placeholder="输入邮箱"></el-input>
-            </el-form-item>
-            <el-form-item label="新密码">
-              <el-input v-model="password" type="password" placeholder="输入新密码"></el-input>
-            </el-form-item>
-            <el-form-item label="头像">
-              <img :src="avatar " class="image" />
-              <input type="file" accept="image/*" @change="handleAvatarUpload($event.target.files[0])" />
-            </el-form-item>
-            <el-button type="primary" @click="updateInfo">保存修改</el-button>
-          </el-form>
-        </el-dialog>
+        <div>
+          <el-dialog title="编辑用户信息" v-model="displayInfoCard" width="400px">
+            <el-form label-width="100px">
+              <el-form-item label="电话">
+                <el-input v-model="new_telephone" placeholder="输入电话"></el-input>
+              </el-form-item>
+              <el-form-item label="地址">
+                <el-input v-model="new_location" placeholder="输入地址"></el-input>
+              </el-form-item>
+              <el-form-item label="邮箱">
+                <el-input v-model="new_email" placeholder="输入邮箱"></el-input>
+              </el-form-item>
+              <el-form-item label="新密码">
+                <el-input v-model="new_password" type="password" placeholder="输入新密码"></el-input>
+              </el-form-item>
+              <el-form-item label="头像">
+                <img :src="new_avatar" class="image" />
+                <input type="file" accept="image/*" @change="handleAvatarUpload" />
+              </el-form-item>
+              <el-button type="primary" @click="updateInfo">保存修改</el-button>
+            </el-form>
+          </el-dialog>
+        </div>
+        <div>
+          <el-button class="back-button" @click="$router.push('/main')" type="info" plain>返回</el-button>
+        </div>
       </div>
     </div>
   </el-main>
@@ -167,47 +208,51 @@ function updateInfo() {
 
 .user-details {
   text-align: left;
-  margin: 30px 0; /* 整体增加外边距，使其在上下居中 */
+  margin: 30px 0;
   display: flex;
   flex-direction: column;
-  align-items: center; /* 保持文本居中 */
-  gap: 20px; /* 使每个字段之间有均匀的间隔 */
+  align-items: center;
+  gap: 20px;
 }
 
 .user-details p {
   font-size: 16px;
   margin: 0;
-  padding: 10px 0; /* 增加内部间距 */
+  padding: 10px 0;
   color: #666;
   width: 100%;
   text-align: center;
-  border-bottom: 1px solid #eee; /* 增加下边框，使信息更清晰 */
+  border-bottom: 1px solid #eee;
 }
 
 .user-details p:last-child {
-  border-bottom: none; /* 最后一项去掉下边框 */
-}
-
-.edit-container {
-  display: flex;
-  justify-content: center; /* 让按钮居中 */
-  margin-top: 20px; /* 增加上边距，使其与上方信息分隔 */
-  padding-top: 15px;
-  border-top: 1px solid #ddd; /* 添加分割线，视觉更清晰 */
+  border-bottom: none;
 }
 
 .edit-button {
-  width: 80%; /* 让按钮宽度更大，更易点击 */
+  width: 80%;
   font-size: 16px;
   padding: 10px;
-  border-radius: 8px; /* 圆角设计，视觉更友好 */
+  border-radius: 8px;
   background-color: #de6b6b;
   color: white;
   transition: all 0.3s ease;
 }
 
+.back-button {
+  width: 80%;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
 .bgimage {
   background-image: url("../../assets/login.jpg");
+  background-size: cover; /* 让背景图片覆盖整个容器 */
+  background-position: center; /* 居中显示 */
+  background-repeat: no-repeat; /* 防止图片重复 */
+  width: 100vw; /* 适应整个视口宽度 */
+  height: 100vh; /* 适应整个视口高度 */
 }
 
 .el-button {
