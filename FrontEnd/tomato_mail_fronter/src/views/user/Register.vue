@@ -372,6 +372,11 @@ const handleFileUpload: UploadProps['onChange'] = async (uploadFile) => {
 
 .bgimage {
   background-image: url("../../assets/login.jpg");
+  background-size: cover; /* 让背景图片覆盖整个容器 */
+  background-position: center; /* 居中显示 */
+  background-repeat: no-repeat; /* 防止图片重复 */
+  width: 100vw; /* 适应整个视口宽度 */
+  height: 100vh; /* 适应整个视口高度 */
 }
 
 .login-card {
