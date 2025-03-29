@@ -43,10 +43,9 @@ public class AccountController {
     /**
      * 登录
      */
-
     @PostMapping("/login")
     public Response<String> login(@RequestBody AccountVO accountVO) {
         return Response.buildSuccess(accountService.login(accountVO.getUsername(), accountVO.getPassword()));
     }
-
+    //惨痛教训：默认路由不用写，接受数据结构应当匹配
 }
