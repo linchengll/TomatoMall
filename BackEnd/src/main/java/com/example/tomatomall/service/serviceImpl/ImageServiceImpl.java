@@ -11,6 +11,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public String upload(MultipartFile file) {
+        System.out.println("上传图片");
         try {
             return OssUtil.upload(file.getOriginalFilename(),file.getInputStream());
         }catch (Exception e){

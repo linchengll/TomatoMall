@@ -13,6 +13,6 @@ public class GlobalExceptionHandler {
         if(e.getMessage().equals("未登录!")){
         return Response.buildFailure(e.getMessage(), "401");
         }else
-            return Response.buildFailure(e.getMessage(), "500");
+            return Response.buildFailure(e.getMessage(), "400");
     }
 }

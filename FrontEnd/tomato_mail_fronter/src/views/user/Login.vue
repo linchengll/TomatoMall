@@ -32,10 +32,11 @@ function handleLogin() {
         center: true,
       })
       const token = res.data.data
+      sessionStorage.setItem('token', token)
 
       userInfo(username.value).then(res => {
         console.log(res)
-        sessionStorage.setItem('name', res.data.data.name)
+        sessionStorage.setItem('username', res.data.data.username)
         sessionStorage.setItem('role', res.data.data.role)
         router.push({path: "/dashboard"})
       })
