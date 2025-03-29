@@ -8,7 +8,7 @@ import {imageInfoUpdate} from "../../api/tools.ts"
 const username = ref('')
 const password = ref('')
 const name = ref('')
-const avatar = ref(null)
+const avatar = ref('')
 const role = ref('')
 const telephone = ref('')
 const email = ref('')
@@ -109,9 +109,9 @@ async function handleRegister() {
         center: true,
       })
       router.push({path: "/login"})
-    } else if (infoRes.data.code === '400') {
+    } else {
       ElMessage({
-        message: res.data.msg,
+        message: infoRes.data.msg,
         type: 'error',
         center: true,
       })

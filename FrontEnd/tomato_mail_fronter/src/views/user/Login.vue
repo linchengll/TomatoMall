@@ -32,6 +32,7 @@ function handleLogin() {
         center: true,
       })
       const token = res.data.data
+      sessionStorage.setItem('token', token)
 
       userInfo(username.value).then(res => {
         console.log(res)
