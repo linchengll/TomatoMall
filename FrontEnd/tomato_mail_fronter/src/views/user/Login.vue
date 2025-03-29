@@ -73,11 +73,17 @@ function handleLogin() {
           </el-form-item>
 
           <span class="button-group">
-              <el-button @click.prevent="handleLogin" :disabled="loginDisabled"
-                         type="primary">登入</el-button>
-              <router-link to="/register" v-slot="{navigate}">
-                <el-button @click="navigate">去注册</el-button>
-              </router-link>
+            <el-button @click.prevent="handleLogin" :disabled="loginDisabled"
+                       type="primary">登入</el-button>
+            <router-link to="/main">
+              <el-button>伪登录</el-button>
+            </router-link>
+            <router-link to="/dashboard">
+              <el-button>伪修改</el-button>
+            </router-link>
+            <router-link to="/register">
+              <el-button>去注册</el-button>
+            </router-link>
           </span>
         </el-form>
       </div>
@@ -97,7 +103,7 @@ function handleLogin() {
 }
 
 .bgimage {
-  background-image: url("../../assets/login_bg.jfif");
+  background-image: url("../../assets/login.jpg");
 }
 
 .login-card {

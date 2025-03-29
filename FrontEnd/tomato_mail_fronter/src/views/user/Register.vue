@@ -2,13 +2,13 @@
 import {ref, computed, onMounted} from 'vue'
 import {router} from '../../router'
 import {userRegister} from "../../api/user.ts"
-import {getAllStoreInfo, Store} from "../../api/store.ts";
+import {imageInfoUpdate} from "../../api/tools.ts"
 
 // 输入框值（需要在前端拦截不合法输入：是否为空+额外规则）
 const username = ref('')
 const password = ref('')
 const name = ref('')
-const avatar = ref('')
+const avatar = ref(null)
 const role = ref('')
 const telephone = ref('')
 const email = ref('')
@@ -86,7 +86,7 @@ async function handleRegister() {
         center: true,
       });
       is_succ = false;
-    }else if(imageRes.data.code === '000'){
+    }else if(imageRes.data.code === '200'){
       avatar.value = imageRes.data.result;
     }
   }
@@ -341,7 +341,7 @@ const handleFileUpload = (event: Event) => {  // Added: Function to handle file 
 }
 
 .bgimage {
-  background-image: url("../../assets/login_bg.jfif");
+  background-image: url("../../assets/login.jpg");
 }
 
 .login-card {
