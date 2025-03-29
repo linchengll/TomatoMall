@@ -8,12 +8,13 @@ import {imageInfoUpdate} from "../../api/tools.ts"
 const username = ref('')
 const password = ref('')
 const name = ref('')
-const avatar = ref(null)
+const avatar = ref('')
 const role = ref('')
 const telephone = ref('')
 const email = ref('')
 const location = ref('')
 const confirmPassword = ref('')
+const fileList = ref<UploadUserFile[]>([])
 // const identity = ref('')
 // const tel = ref('')
 // const address = ref('')
@@ -76,19 +77,20 @@ const registerDisabled = computed(() => {
 async function handleRegister() {
   let is_succ = true;
 
-  if(avatar.value != ''){
-    const imageRes = await imageInfoUpdate(avatar.value); // 使用 await 等待 imageInfoUpdate 完成
-    if (imageRes.data.code === '400'){
-      ElMessage({
-        message: imageRes.data.msg,
-        type: 'error',
-        center: true,
-      });
-      is_succ = false;
-    }else if(imageRes.data.code === '200'){
-      avatar.value = imageRes.data.result;
-    }
-  }
+  // if(avatar.value != ''){
+  //   const imageRes = await imageInfoUpdate(avatar.value); // 使用 await 等待 imageInfoUpdate 完成
+  //   if (imageRes.data.code === '400'){
+  //     ElMessage({
+  //       message: imageRes.data.msg,
+  //       type: 'error',
+  //       center: true,
+  //     });
+  //     is_succ = false;
+  //   }else if(imageRes.data.code === '200'){
+  //     console.log("图片上传成功");
+  //     avatar.value = imageRes.data.data;
+  //   }
+  // }
 
   if (is_succ){
     const infoRes = await userRegister({
@@ -109,9 +111,9 @@ async function handleRegister() {
         center: true,
       })
       router.push({path: "/login"})
-    } else if (infoRes.data.code === '400') {
+    } else {
       ElMessage({
-        message: res.data.msg,
+        message: infoRes.data.msg,
         type: 'error',
         center: true,
       })
@@ -149,12 +151,33 @@ async function handleRegister() {
   // })
 // }
 
-const handleFileUpload = (event: Event) => {  // Added: Function to handle file selection
-  const target = event.target as HTMLInputElement;
-  if (target.files && target.files.length > 0) {
-    avatar.value = target.files[0];
-  } else {
-    avatar.value = null;
+const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
+  console.log(uploadFile);
+  fileList.value = uploadFiles;
+};
+
+const handlePreview: UploadProps['onPreview'] = (file) => {
+  console.log(file)
+}
+
+const handleFileUpload: UploadProps['onChange'] = async (uploadFile) => {
+  if (uploadFile.raw) {
+    try {
+      const response = await imageInfoUpdate(uploadFile.raw);
+      if (response.data.code === '200') {
+        avatar.value = response.data.data;// 保存返回的图片 URL
+        ElMessage.success('图片上传成功！');
+      } else {
+        ElMessage({
+          message: '图片上传失败！',
+          type: 'error',
+          center: true,
+        });
+      }
+    } catch (error) {
+      ElMessage.error('图片上传失败，请重试！');
+      console.error('上传失败:', error);
+    }
   }
 };
 
@@ -300,10 +323,18 @@ const handleFileUpload = (event: Event) => {  // Added: Function to handle file 
 
           <el-form-item>
             <label for="avatar">个人头像</label>
-            <input type="file" id="avatar" accept="image/*" @change="handleFileUpload" />
-            <div v-if="avatar">
-              已选择文件: {{ avatar.name }}
-            </div>
+            <el-upload
+                v-model:file-list="fileList"
+                class="upload-demo"
+                :on-remove="handleRemove"
+                :on-preview="handlePreview"
+                :on-change="handleFileUpload"
+                :limit="1"
+                list-type="picture"
+                :auto-upload="false"
+            >
+              <el-button type="primary">点击上传</el-button>
+            </el-upload>
           </el-form-item>
 
           <span class="button-group">

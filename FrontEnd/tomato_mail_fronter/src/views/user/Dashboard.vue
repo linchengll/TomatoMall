@@ -7,7 +7,9 @@ import userImage from '../../assets/login.jpg';
 const role = sessionStorage.getItem("role")
 
 // 用户信息的响应式变量
-const username = ref('')
+
+const username= ref('')
+username.value = sessionStorage.getItem("username")
 const telephone = ref('')
 const location = ref('')
 const name = ref('')
@@ -20,6 +22,7 @@ const avatar = ref('')
 const image = ref(userImage)
 
 function getUserInfo() {
+  console.log(username.value)
   if (!username.value) {
     ElMessage({ type: 'error', message: '用户名不能为空！' })
     return
@@ -81,11 +84,10 @@ function updateInfo() {
       <!-- 个人信息卡片 -->
       <div class="user-card">
         <div class="user_image">
-          <img :src="image" class="image" />
+          <img :src="avatar" class="image" />
         </div>
         <div class="user-name">
-<!--          {{ name }}-->
-          一只番茄
+            {{ username }}
         </div>
 
         <div class="user-details">
@@ -116,7 +118,7 @@ function updateInfo() {
               <el-input v-model="password" type="password" placeholder="输入新密码"></el-input>
             </el-form-item>
             <el-form-item label="头像">
-              <img :src="avatar" class="image" />
+              <img :src="avatar " class="image" />
               <input type="file" accept="image/*" @change="handleAvatarUpload($event.target.files[0])" />
             </el-form-item>
             <el-button type="primary" @click="updateInfo">保存修改</el-button>

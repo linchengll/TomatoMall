@@ -19,19 +19,20 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     private static final List<String> WHITE_LIST = Arrays.asList(
             "/api/accounts/login",
-            "/api/accounts"
+            "/api/accounts",
+            "/api/images"
     );
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String requestURI = request.getRequestURI();
-        //System.out.println("请求路径：" + requestURI);
+        System.out.println("请求路径：" + requestURI);
         if (WHITE_LIST.contains(requestURI)) {
             return true;
         }
 
         String token = request.getHeader("token");
-        //System.out.println("token: "+token);
+        System.out.println("token: "+token);
         if (token != null && tokenUtil.verifyToken(token)) {
             request.getSession().setAttribute("currentUser",tokenUtil.getUser(token));
             return true;
