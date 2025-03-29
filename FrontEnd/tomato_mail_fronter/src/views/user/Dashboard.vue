@@ -7,7 +7,9 @@ import userImage from '../../assets/login.jpg';
 const role = sessionStorage.getItem("role")
 
 // 用户信息的响应式变量
-const username = ref('')
+
+const username= ref('')
+username.value = sessionStorage.getItem("name")
 const telephone = ref('')
 const location = ref('')
 const name = ref('')
@@ -20,6 +22,7 @@ const avatar = ref('')
 const image = ref(userImage)
 
 function getUserInfo() {
+  console.log(username.value)
   if (!username.value) {
     ElMessage({ type: 'error', message: '用户名不能为空！' })
     return
