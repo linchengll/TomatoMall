@@ -25,11 +25,11 @@ function getUserInfo() {
     return
   }
   userInfo(username.value).then(res => {
-    username.value = res.data.result.username // 确保使用 API 返回的 username
-    telephone.value = res.data.result.telephone || ''
-    location.value = res.data.result.location || ''
-    email.value = res.data.result.email || ''
-    avatar.value = res.data.result.avatar || '' // 头像
+    username.value = res.data.data.username // 确保使用 API 返回的 username
+    telephone.value = res.data.data.telephone || ''
+    location.value = res.data.data.location || ''
+    email.value = res.data.data.email || ''
+    avatar.value = res.data.data.avatar || '' // 头像
   })
 }
 
@@ -62,7 +62,8 @@ function updateInfo() {
   }
 
   userInfoUpdate(updateData).then(res => {
-    if (res.data.code === '000') {
+    console.log(res)
+    if (res.data.code === '200') {
       ElMessage({ type: 'success', message: '更新成功！' })
       password.value = '' // 清空密码字段
       getUserInfo() // 重新获取信息
