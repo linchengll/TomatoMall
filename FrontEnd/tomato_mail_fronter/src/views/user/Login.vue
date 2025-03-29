@@ -25,17 +25,18 @@ function handleLogin() {
     password: password.value
   }).then(res => {
     if (res.data.code === '200') {
+      console.log(res.data)
       ElMessage({
         message: "登录成功！",
         type: 'success',
         center: true,
       })
-      const token = res.data.result
-      sessionStorage.setItem('token', token)
+      const token = res.data.data
 
-      userInfo().then(res => {
-        sessionStorage.setItem('name', res.data.result.name)
-        sessionStorage.setItem('role', res.data.result.role)
+      userInfo(username.value).then(res => {
+        console.log(res)
+        sessionStorage.setItem('name', res.data.data.name)
+        sessionStorage.setItem('role', res.data.data.role)
         router.push({path: "/dashboard"})
       })
     } else if (res.data.code === '400') {

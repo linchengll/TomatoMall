@@ -76,9 +76,8 @@ const registerDisabled = computed(() => {
 async function handleRegister() {
   let is_succ = true;
 
-  if(avatar.value != null){
+  if(avatar.value != ''){
     const imageRes = await imageInfoUpdate(avatar.value); // 使用 await 等待 imageInfoUpdate 完成
-
     if (imageRes.data.code === '400'){
       ElMessage({
         message: imageRes.data.msg,
@@ -196,8 +195,8 @@ const handleFileUpload = (event: Event) => {  // Added: Function to handle file 
                            placeholder="请选择"
                            style="width: 100%;"
                 >
-                  <el-option value="CUSTOMER" label="顾客"/>
-                  <el-option value="MANAGER" label="管理员"/>
+                  <el-option value="customer" label="顾客"/>
+                  <el-option value="admin" label="管理员"/>
                 </el-select>
               </el-form-item>
             </el-col>
