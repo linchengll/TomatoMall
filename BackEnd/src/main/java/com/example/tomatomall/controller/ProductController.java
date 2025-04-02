@@ -40,12 +40,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public Response<Boolean> deleteProduct(@PathVariable String id){
+    public Response<String> deleteProduct(@PathVariable String id){
         return Response.buildSuccess(productService.deleteProduct(id));
     }
 
     @PatchMapping("/stockpile/{productId}")
-    public Response<Boolean> updateProductStockpile(@PathVariable("productId") String productId, @RequestParam("amount") Integer amount){
+    public Response<String> updateProductStockpile(@PathVariable("productId") String productId, @RequestParam("amount") Integer amount){
         return Response.buildSuccess(productService.updateStockpile(productId, amount));
     }
 
