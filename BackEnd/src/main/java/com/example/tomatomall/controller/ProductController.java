@@ -19,17 +19,17 @@ public class ProductController {
     @Resource
     private ProductService productService;
 
-    @GetMapping
+    @GetMapping //获取所有用户
     public Response<List<ProductVO>> getProducts(){
         return Response.buildSuccess(productService.getProductList());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}") //获取指定用户 目标：id
     public Response<ProductVO> getProductById(@PathVariable String id){
         return Response.buildSuccess(productService.getProductById(id));
     }
 
-    @PutMapping
+    @PutMapping //更新商品信息 目标：productVO.id
     public Response<Boolean> updateProduct(@RequestBody ProductVO productVO){
         return Response.buildSuccess(productService.updateProduct(productVO));
     }
