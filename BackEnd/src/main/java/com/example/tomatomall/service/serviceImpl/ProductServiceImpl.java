@@ -61,14 +61,8 @@ public class ProductServiceImpl implements ProductService {
             product.setCover(productVO.getCover());
         if(productVO.getDetail()!=null)
             product.setDetail(productVO.getDetail());
-        if(productVO.getSpecifications()!=null&&!productVO.getSpecifications().isEmpty()){
-            Set<ProductSpecification> specList=product.getSpecifications();
-            for(ProductSpecification spec:productVO.getSpecifications()){
-                specList.removeIf(original -> spec.getId().equals(original.getId()));//存在相同ID则修改
-                specList.add(spec);//无ID则直接添加
-            }
-            product.setSpecifications(specList);
-        }
+        if(productVO.getSpecifications()!=null&&!productVO.getSpecifications().isEmpty())
+            product.setSpecifications(product.getSpecifications());
         return true;
     }
 
