@@ -7,7 +7,7 @@ public interface ProductService {
     ProductVO getProductById(String id);
     Boolean updateProduct(ProductVO productVO);
     ProductVO createProduct(ProductVO productVO);
-    Boolean deleteProduct(String id);
-    Boolean updateStockpile(String id, Integer amount);
+    String deleteProduct(String id);
+    String updateStockpile(String id, Integer amount);
     ProductStockpileVO getStockpile(String id);
 }
