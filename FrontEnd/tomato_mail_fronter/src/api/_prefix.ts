@@ -8,4 +8,7 @@ export const USER_MODULE = `${API_MODULE}/accounts`
 export const STORE_MODULE = `${API_MODULE}/stores`
 
 //书籍模块
-export const BOOk_MODULE = `${API_MODULE}/books`
+export const PRODUCTS_MODULE = `${API_MODULE}/products`
+
+//库存模块
+export const STOCKPILE_MODULE = `${PRODUCTS_MODULE}/stockpile`
