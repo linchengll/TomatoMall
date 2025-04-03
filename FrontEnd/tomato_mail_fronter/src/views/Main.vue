@@ -30,7 +30,7 @@ const productList = ref<Product[]>([]);
 async function getProductList() {
   try {
     const res = await getListInfo();
-    if (res.data.code === "000") {
+    if (res.data.code === '200') {
       // 使用 map 只提取需要的字段
       productList.value = (res.data.result || []).map((item: any) => ({
         title: item.title,

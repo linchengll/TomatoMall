@@ -26,6 +26,14 @@ const router = createRouter({
         component: () => import('../views/product/ProductDetail.vue'),
         meta: {title: '商品详情'}
     }, {
+      path:'/changeInfo/:id',
+      component: () => import('../views/product/ChangeInfo.vue'),
+      meta:{title: '修改商品'}
+    },{
+        path: '/createProduct',
+        component: () => import('../views/product/CreateProduct.vue'),
+        meta: {title: '创建商品'}
+    },{
         path: '/404',
         name: '404',
         component: () => import('../views/NotFound.vue'),

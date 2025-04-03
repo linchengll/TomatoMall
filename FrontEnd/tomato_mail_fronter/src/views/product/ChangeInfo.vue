@@ -97,7 +97,7 @@ const handleDelete = (index) => {
 const fetchProduct = async () => {
   try {
     const response = await getInfo(productId);
-    if (response.data.code === 200) {
+    if (response.data.code === '200') {
       response.data.data;
 
       id.value = response.data.data.id;
@@ -143,7 +143,7 @@ const fetchProduct = async () => {
 
       // 3. 更新 specificationsTableData
       specificationsTableData.value = specificationsArray;
-    } else if (response.data.code === 400) {
+    } else if (response.data.code === '400') {
       ElMessage.error(response.data.msg);
     }
   } catch (error) {
@@ -165,7 +165,7 @@ const handleUpdate = async () => {
         id: item.id,
         item: item.item,
         value: item.value,
-        product: item.product,
+        productId: item.productId,
       });
     });
 
@@ -184,9 +184,9 @@ const handleUpdate = async () => {
     const response = await updateInfo(updateData);
 
     // 3. 处理响应
-    if (response.data.code === 200) { // 替换为你的实际 code
+    if (response.data.code === '200') { // 替换为你的实际 code
       ElMessage.success('更新成功');
-    } else if(response.data.code === 400) {
+    } else if(response.data.code === '400') {
       ElMessage.error(response.data.msg); // 替换为你的实际 msg
     }
   } catch (error) {
@@ -203,13 +203,13 @@ const fetchStockpileInfo = async () => {
   try {
     const response = await getStockpileInfo(productId);
 
-    if (response.data.code === 200) {
+    if (response.data.code === '200') {
       const stockpileData = response.data.data;
 
       // 更新 ref 变量的值
       amount.value = stockpileData.amount || 0;
       frozen.value = stockpileData.frozen || 0;
-    } else if (response.data.code === 400) {
+    } else if (response.data.code === '400') {
       ElMessage.error(response.data.msg);
     }
   } catch (error) {
@@ -228,9 +228,9 @@ const handleAdjustStockpile = async () => {
     const response = await adjustStockpile(productId, amount.value);
 
     // 2. 处理响应
-    if (response.data.code === 200) { // 替换为你的实际 code
+    if (response.data.code === '200') { // 替换为你的实际 code
       ElMessage.success('调整库存成功');
-    } else if(response.data.code === 400) {
+    } else if(response.data.code === '400') {
       ElMessage.error(response.data.msg); // 替换为你的实际 msg
     }
   } catch (error) {

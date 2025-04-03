@@ -99,6 +99,9 @@ onMounted(() => {
         <el-input-number v-model="quantity" :min="1" :max="10" />
         <el-button type="danger" @click="buyNow">立即购买</el-button>
         <el-button type="primary" @click="addToCart">加入购物车</el-button>
+        <router-link to="/changeInfo/${productId}">
+          <el-button>去注册</el-button>
+        </router-link>
       </div>
     </div>
   </div>
