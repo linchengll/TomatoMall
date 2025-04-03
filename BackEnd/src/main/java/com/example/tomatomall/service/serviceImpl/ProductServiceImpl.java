@@ -11,7 +11,7 @@ import com.example.tomatomall.vo.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,25 +23,53 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductVO> getProductList() {
-        return Collections.emptyList();
+        List<Product> raw=productRepository.findAll();
+        List<ProductVO> VO=new ArrayList<>();
+        if(raw.isEmpty())
+            return VO;
+        for(Product po:raw)
+            VO.add(po.toVO());
+        return VO;
     }
 
     @Override
     public ProductVO getProductById(String id) {
-        return null;
+        Product product;
+        if(productRepository.findById(new Integer(id)).isPresent())
+            product=productRepository.findById(new Integer(id)).get();
+        else
+            throw TomatoMallException.productNotExists();
+        return product.toVO();
     }
 
     @Override
-    public Boolean updateProduct(ProductVO productVO) {
-        return null;
+    public String updateProduct(ProductVO productVO) {
+        Product product;
+        if(productRepository.findById(productVO.getId()).isPresent())
+            product=productRepository.findById(productVO.getId()).get();
+        else
+            throw TomatoMallException.productNotExists();
+        if(productVO.getTitle()!=null)
+            product.setTitle(productVO.getTitle());
+        if(productVO.getPrice()!=null)
+            product.setPrice(productVO.getPrice());
+        if(productVO.getRate()!=null)
+            product.setRate(productVO.getRate());
+        if(productVO.getDescription()!=null)
+            product.setDescription(productVO.getDescription());
+        if(productVO.getCover()!=null)
+            product.setCover(productVO.getCover());
+        if(productVO.getDetail()!=null)
+            product.setDetail(productVO.getDetail());
+        if(productVO.getSpecifications()!=null&&!productVO.getSpecifications().isEmpty())
+            product.setSpecifications(product.getSpecifications());
+        return "更新成功";
     }
 
     @Override
     public ProductVO createProduct(ProductVO productVO) {
-        Product product = productRepository.findByTitle(productVO.getTitle());
-        if(product!=null){
+        if(productRepository.findByTitle(productVO.getTitle())!=null)
             throw TomatoMallException.productAlreadyExist();
-        }
         Product newProduct =productVO.toPO();
         productRepository.save(newProduct);
         ProductStockpile productStockpile = new ProductStockpile();
@@ -54,19 +82,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String deleteProduct(String id) {
-        Product product = productRepository.findById(id);
-        if(product==null){
+        Product product;
+        if(productRepository.findById(new Integer(id)).isPresent())
+            product=productRepository.findById(new Integer(id)).get();
+        else
             throw TomatoMallException.productNotExists();
-        }
         productRepository.delete(product);
-        ProductStockpile productStockpile =productStockpileRepository.findByProductId(id);
+        ProductStockpile productStockpile =productStockpileRepository.findByProductId(new Integer(id));
         productStockpileRepository.delete(productStockpile);
         return "删除成功";
     }
 
     @Override
     public String updateStockpile(String id, Integer amount) {
-        ProductStockpile productStockpile =productStockpileRepository.findByProductId(id);
+        ProductStockpile productStockpile =productStockpileRepository.findByProductId(new Integer(id));
         if(productStockpile==null){
             throw TomatoMallException.productNotExists();
         }
@@ -77,7 +106,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductStockpileVO getStockpile(String id) {
-        ProductStockpile productStockpile =productStockpileRepository.findByProductId(id);
+        ProductStockpile productStockpile =productStockpileRepository.findByProductId(new Integer(id));
         if(productStockpile==null){
             throw TomatoMallException.productNotExists();
         }

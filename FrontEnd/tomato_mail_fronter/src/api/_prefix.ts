@@ -11,4 +11,4 @@ export const STORE_MODULE = `${API_MODULE}/stores`
 export const PRODUCTS_MODULE = `${API_MODULE}/products`
 
 //库存模块
-export const STOCKPILE_MODULE = `${PRODUCTS_MODULE}/stockpile`
+export const STOCKPILES_MODULE = `${PRODUCTS_MODULE}/stockpile`
