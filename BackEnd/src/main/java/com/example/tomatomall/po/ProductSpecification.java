@@ -15,7 +15,7 @@ public class ProductSpecification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
-    private Integer id;//需要建立一个ID
+    private Integer id;
 
     @Basic
     @Column(name = "item")
