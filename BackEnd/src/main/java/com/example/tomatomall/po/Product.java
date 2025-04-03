@@ -1,17 +1,12 @@
 package com.example.tomatomall.po;
 
 import com.example.tomatomall.vo.ProductVO;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 import javax.persistence.*;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
