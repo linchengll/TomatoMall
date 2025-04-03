@@ -12,10 +12,6 @@ public class TomatoMallException extends RuntimeException {
 
     public static TomatoMallException  passwordError() {return new TomatoMallException("用户密码错误");}
 
-    //product
-    public static TomatoMallException  productNotExists() {return new TomatoMallException("商品不存在：无效的ID");}
-
-
     //utility
     public static TomatoMallException  fileUploadFail() {return new TomatoMallException("文件上传失败!");}
 
