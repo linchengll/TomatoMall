@@ -1,19 +1,22 @@
 package com.example.tomatomall.po;
 
 import com.example.tomatomall.vo.ProductVO;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 import javax.persistence.*;
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "products")
 public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -44,9 +47,6 @@ public class Product {
     @Column(name = "detail")
     private String detail;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval=true)
-    private Set<ProductSpecification> specifications;
-
     public ProductVO toVO(){
         ProductVO VO=new ProductVO();
         VO.setId(this.id);
@@ -56,7 +56,6 @@ public class Product {
         VO.setDescription(this.description);
         VO.setCover(this.cover);
         VO.setDetail(this.detail);
-        VO.setSpecifications(this.specifications);
         return VO;
     }
 }

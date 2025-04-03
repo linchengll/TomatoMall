@@ -1,5 +1,7 @@
 package com.example.tomatomall.po;
 
+import com.example.tomatomall.vo.ProductSpecificationVO;
+import com.example.tomatomall.vo.ProductStockpileVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +12,6 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name ="specifications")
 public class ProductSpecification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -25,7 +26,16 @@ public class ProductSpecification {
     @Column(name = "value")
     private String value;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id",nullable = false)
-    private Product product;
+    @Basic
+    @Column(name = "product_id")
+    private Integer productId;
+
+    public ProductSpecificationVO toVO(){
+        ProductSpecificationVO VO=new ProductSpecificationVO();
+        VO.setId(this.id);
+        VO.setItem(this.item);
+        VO.setValue(this.value);
+        VO.setProductId(this.productId);
+        return VO;
+    }
 }
