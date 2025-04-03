@@ -1,20 +1,53 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { userInfo, userInfoUpdate } from '../api/user.ts'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getListInfo } from '../api/Book/products.ts'
 
+// === 侧边栏和搜索栏 ===============================
 const search = ref("");
 const categories = ref(["惊悚", "穿越", "科幻", "经典", "爱情", "励志"]);
+// =================================================
+
+// === 广告 ========================================
 import banner1 from '../assets/banners1.jpg';
 import banner2 from '../assets/banners2.jpg';
-
 const banners = ref([banner1, banner2]);
 const products = ref([
   { name: "三体", price: "149", image: null },
   { name: "红楼梦", price: "299", image: null }
 ]);
-const user = ref({ name: "tb123", balance: 100 });
+// =================================================
 
+// === 商品列表 =====================================
+interface Product {
+  title: string;
+  price: number;
+  cover: string;
+}
+const productList = ref<Product[]>([]);
+
+async function getProductList() {
+  try {
+    const res = await getListInfo();
+    if (res.data.code === "000") {
+      // 使用 map 只提取需要的字段
+      productList.value = (res.data.result || []).map((item: any) => ({
+        title: item.title,
+        price: item.price,
+        cover: item.cover?.trim() ? item.cover : "../assets/DefaultCover.png",
+      }));
+    } else {
+      ElMessage.error(res.data.msg || "获取失败");
+    }
+  } catch (err) {
+    console.error("加载商品列表失败", err);
+    ElMessage.error("加载商品列表失败");
+  }
+}
+// =================================================
+
+// === 用户信息 ======================================
 const username = ref(sessionStorage.getItem("username") || '')
 const telephone = ref('')
 const location = ref('')
@@ -36,8 +69,10 @@ function getUserInfo() {
     avatar.value = res.data.data.avatar || ''
   })
 }
-
 getUserInfo()
+// =================================================
+
+
 </script>
 
 <template>
@@ -66,15 +101,16 @@ getUserInfo()
         </el-carousel>
 
         <!-- 商品展示 -->
-        <div class="product-grid">
-          <el-card v-for="(product, index) in products" :key="index" class="product-card">
-            <img :src="product.image" class="product-img" />
-            <div class="product-info">
-              <p>{{ product.name }}</p>
-              <p class="price">¥{{ product.price }}</p>
-            </div>
-          </el-card>
-        </div>
+        <el-card v-for="(product, index) in productList"
+                 :key="index"
+                 class="product-card"
+                 @click="$router.push(`/productDetail/${product.id}`)">
+          <img :src="product.cover" class="product-img" />
+          <div class="product-info">
+            <p>{{ product.title }}</p>
+            <p class="price">{{ product.price }}¥</p>
+          </div>
+        </el-card>
       </el-main>
 
       <!-- 用户信息面板 -->
@@ -127,8 +163,8 @@ getUserInfo()
 }
 .product-img {
   width: 100%;
-  height: 150px;
-  object-fit: cover;
+  height: 180px;
+  object-fit: cover
 }
 .user-panel {
   padding: 10px;
