@@ -5,7 +5,7 @@ import com.example.tomatomall.vo.ProductStockpileVO;
 public interface ProductService {
     List<ProductVO> getProductList();
     ProductVO getProductById(String id);
-    Boolean updateProduct(ProductVO productVO);
+    String updateProduct(ProductVO productVO);
     ProductVO createProduct(ProductVO productVO);
     String deleteProduct(String id);
     String updateStockpile(String id, Integer amount);

@@ -1,16 +1,17 @@
 package com.example.tomatomall.controller;
 
-import com.example.tomatomall.po.Product;
-import com.example.tomatomall.po.ProductSpecification;
-import com.example.tomatomall.po.ProductStockpile;
+import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.service.ProductService;
+import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.ProductStockpileVO;
 import com.example.tomatomall.vo.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -18,38 +19,48 @@ import java.util.List;
 public class ProductController {
     @Resource
     private ProductService productService;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-    @GetMapping //获取所有用户
+    @GetMapping //获取所有商品 权限：无
     public Response<List<ProductVO>> getProducts(){
         return Response.buildSuccess(productService.getProductList());
     }
 
-    @GetMapping("/{id}") //获取指定用户 目标：id
+    @GetMapping("/{id}") //获取指定商品 目标：id 权限：无
     public Response<ProductVO> getProductById(@PathVariable String id){
         return Response.buildSuccess(productService.getProductById(id));
     }
 
-    @PutMapping //更新商品信息 目标：productVO.id
-    public Response<Boolean> updateProduct(@RequestBody ProductVO productVO){
-        return Response.buildSuccess(productService.updateProduct(productVO));
+    @PutMapping //更新商品信息 目标：productVO.id 权限：admin
+    public Response<String> updateProduct(@RequestBody ProductVO productVO){
+        if(securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
+            return Response.buildSuccess(productService.updateProduct(productVO));
+        return Response.buildFailure("unauthorized","401");
     }
 
-    @PostMapping
+    @PostMapping //创建商品 权限：admin
     public Response<ProductVO> createProduct(@RequestBody ProductVO productVO){
-        return Response.buildSuccess(productService.createProduct(productVO));
+        if(securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
+            return Response.buildSuccess(productService.createProduct(productVO));
+        return Response.buildFailure("unauthorized","401");
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}") //删除商品 目标：id 权限：admin
     public Response<String> deleteProduct(@PathVariable String id){
-        return Response.buildSuccess(productService.deleteProduct(id));
+        if(securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
+            return Response.buildSuccess(productService.deleteProduct(id));
+        return Response.buildFailure("unauthorized","401");
     }
 
-    @PatchMapping("/stockpile/{productId}")
-    public Response<String> updateProductStockpile(@PathVariable("productId") String productId, @RequestParam("amount") Integer amount){
-        return Response.buildSuccess(productService.updateStockpile(productId, amount));
+    @PatchMapping("/stockpile/{productId}") //更新库存 目标：id 权限：admin
+    public Response<String> updateProductStockpile(@PathVariable("productId") String productId, @RequestBody Map<Object,Integer> Body){
+        if(securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
+            return Response.buildSuccess(productService.updateStockpile(productId, Body.get("amount")));
+        return Response.buildFailure("unauthorized","401");
     }
 
-    @GetMapping("/stockpile/{productId}")
+    @GetMapping("/stockpile/{productId}") //获取库存 目标：id 权限：无
     public Response<ProductStockpileVO> getProductStockpile(@PathVariable("productId") String productId){
         return Response.buildSuccess(productService.getStockpile(productId));
     }

@@ -59,4 +59,4 @@ public class Product {
         VO.setSpecifications(this.specifications);
         return VO;
     }
-}//specifications已分离
+}
