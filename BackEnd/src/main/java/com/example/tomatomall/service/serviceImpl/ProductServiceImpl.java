@@ -129,10 +129,11 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setTitle(productsVO.getTitle());
         productRepository.save(newProduct);
         Set<ProductSpecificationVO> productSpecificationVO =productsVO.getSpecifications();
-        for(ProductSpecificationVO ps:productSpecificationVO){
-            ProductSpecification po=ps.toPO();
-            productSpecificationRepository.save(po);
-        }
+        if(productSpecificationVO!=null&&!productSpecificationVO.isEmpty())
+            for(ProductSpecificationVO ps:productSpecificationVO){
+                ProductSpecification po=ps.toPO();
+                productSpecificationRepository.save(po);
+            }
         ProductStockpile productStockpile = new ProductStockpile();
         productStockpile.setProductId(newProduct.getId());
         productStockpile.setAmount(0);
