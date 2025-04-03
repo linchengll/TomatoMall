@@ -120,27 +120,27 @@ const handleUpdate = async () => {
       specificationsSet.add({
         item: item.item,
         value: item.value,
-      });
+        id: 1
+    });
     });
 
     const addData: AddInfo = {
       title: title.value,
-      price: price,
-      rate: rate,
+      price: price.value,
+      rate: rate.value,
       description: description.value,
       cover: cover.value,
       detail: detail.value,
-      specifications: specificationsSet,
+      specifications: Array.from(specificationsSet),
     };
 
     // 2. 调用 updateInfo 函数
     const response = await addInfo(addData);
 
     // 3. 处理响应
-    if (response.data.code === 200) { // 替换为你的实际 code
+    if (response.data.code === '200') { // 替换为你的实际 code
       ElMessage.success('添加成功');
-      router.push({path: "/login"})
-    } else if(response.data.code === 400) {
+    } else if(response.data.code === '400') {
       ElMessage.error(response.data.msg); // 替换为你的实际 msg
     }
   } catch (error) {
