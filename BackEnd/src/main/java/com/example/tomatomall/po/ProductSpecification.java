@@ -1,7 +1,6 @@
 package com.example.tomatomall.po;
 
 import com.example.tomatomall.vo.ProductSpecificationVO;
-import com.example.tomatomall.vo.ProductStockpileVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,8 +12,9 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 public class ProductSpecification {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+
+    @Basic
     @Column(name = "id")
     private Integer id;
 

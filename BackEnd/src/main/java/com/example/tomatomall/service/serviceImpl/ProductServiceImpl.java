@@ -10,7 +10,6 @@ import com.example.tomatomall.repository.ProductStockpileRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.ProductSpecificationVO;
 import com.example.tomatomall.vo.ProductStockpileVO;
-import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.ProductsVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,9 +49,8 @@ public class ProductServiceImpl implements ProductService {
                 productSpecificationsVO.add(ps.toVO());
             }
             productsVO.setSpecifications(productSpecificationsVO);
-
+            VO.add(productsVO);
         }
-
         return VO;
     }
 
@@ -75,7 +73,6 @@ public class ProductServiceImpl implements ProductService {
                 productSpecificationsVO.add(ps.toVO());
             }
             productsVO.setSpecifications(productSpecificationsVO);
-
         }
         else
             throw TomatoMallException.productNotExists();
@@ -107,10 +104,8 @@ public class ProductServiceImpl implements ProductService {
             if(productSpecification!=null&&!productSpecification.isEmpty()){
             productSpecificationRepository.deleteAll(productSpecification);
             }
-            productSpecification =productsVO.toPO();
+            productSpecification =productsVO.toSpecificationPO();
             productSpecificationRepository.saveAll(productSpecification);
-
-
         }
         return "更新成功";
     }
@@ -123,16 +118,18 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setCover(productsVO.getCover());
         newProduct.setDescription(productsVO.getDescription());
         newProduct.setDetail(productsVO.getDetail());
-        newProduct.setId(productsVO.getId());
         newProduct.setPrice(productsVO.getPrice());
         newProduct.setRate(productsVO.getRate());
         newProduct.setTitle(productsVO.getTitle());
         productRepository.save(newProduct);
+        productsVO.setId(productRepository.findByTitle(productsVO.getTitle()).getId());
         Set<ProductSpecificationVO> productSpecificationVO =productsVO.getSpecifications();
-        for(ProductSpecificationVO ps:productSpecificationVO){
-            ProductSpecification po=ps.toPO();
-            productSpecificationRepository.save(po);
-        }
+        if(productSpecificationVO!=null&&!productSpecificationVO.isEmpty())
+            for(ProductSpecificationVO ps:productSpecificationVO){
+                ProductSpecification po=ps.toPO();
+                po.setProductId(productsVO.getId());
+                productSpecificationRepository.save(po);
+            }
         ProductStockpile productStockpile = new ProductStockpile();
         productStockpile.setProductId(newProduct.getId());
         productStockpile.setAmount(0);
