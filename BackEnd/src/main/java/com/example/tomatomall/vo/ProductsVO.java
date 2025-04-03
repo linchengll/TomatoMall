@@ -24,9 +24,10 @@ public class ProductsVO {
     private String detail;
     private Set<ProductSpecificationVO> specifications;
 
-    public Set<ProductSpecification> toPO(){
+    public Set<ProductSpecification> toSpecificationPO(){
         Set<ProductSpecification> productSpecifications=new HashSet<>();
         for(ProductSpecificationVO specificationVO : this.specifications){
+            specificationVO.setProductId(this.id);
             productSpecifications.add(specificationVO.toPO());
         }
         return productSpecifications;
