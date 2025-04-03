@@ -1,9 +1,6 @@
 package com.example.tomatomall.controller;
 
 import com.example.tomatomall.enums.RoleEnum;
-import com.example.tomatomall.po.Product;
-import com.example.tomatomall.po.ProductSpecification;
-import com.example.tomatomall.po.ProductStockpile;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.ProductVO;
