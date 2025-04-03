@@ -22,6 +22,10 @@ const router = createRouter({
         component: () => import('../views/user/Dashboard.vue'),
         meta: {title: '个人信息'}
     }, {
+        path: '/productDetail/:id',
+        component: () => import('../views/product/ProductDetail.vue'),
+        meta: {title: '商品详情'}
+    }, {
         path: '/404',
         name: '404',
         component: () => import('../views/NotFound.vue'),
