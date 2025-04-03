@@ -1,35 +1,32 @@
 import {axios} from '../../utils/request'
 import {PRODUCTS_MODULE} from '../_prefix'
 
-type UpdateInfo = {
-    id: string,
+export type UpdateInfo = {
+    id?: string,
     title: string,
     price?: number,
     rate?: number,
     description?: string,
     cover?: string,
     detail?: string,
-    specifications?: {
-        id: string,
-        item: string,
-        value: string,
-        product: string,
-    }
+    specifications?: Set<Specification>;
 }
 
-type AddInfo = {
+export interface Specification {
+    id?: string;
+    item: string;
+    value: string;
+    productId?: string;
+}
+
+export type AddInfo = {
     title: string,
     price: number,
     rate: number,
     description?: string,
     cover?: string,
     detail?: string,
-    specifications?: {
-        id: string,
-        item: string,
-        value: string,
-        product: string,
-    }
+    specifications?: Set<Specification>;
 }
 
 
