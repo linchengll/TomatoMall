@@ -1,22 +1,18 @@
 package com.example.tomatomall.po;
 
+import com.example.tomatomall.po.compositKey.SpecificationId;
 import com.example.tomatomall.vo.ProductSpecificationVO;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
 public class ProductSpecification {
-    @Id
-
-    @Basic
-    @Column(name = "id")
-    private Integer id;
+    @EmbeddedId
+    private SpecificationId specId;
 
     @Basic
     @Column(name = "item")
@@ -26,16 +22,29 @@ public class ProductSpecification {
     @Column(name = "value")
     private String value;
 
-    @Basic
-    @Column(name = "product_id")
-    private Integer productId;
 
+    public ProductSpecification() {
+        this.specId = new SpecificationId();
+    }
     public ProductSpecificationVO toVO(){
         ProductSpecificationVO VO=new ProductSpecificationVO();
-        VO.setId(this.id);
-        VO.setItem(this.item);
-        VO.setValue(this.value);
-        VO.setProductId(this.productId);
+        VO.setId(this.getId());
+        VO.setItem(this.getItem());
+        VO.setValue(this.getValue());
+        VO.setProductId(this.getProductId());
         return VO;
+    }
+
+    public Integer getId() {
+        return this.getSpecId().getId();
+    }
+    public Integer getProductId(){
+        return this.getSpecId().getProductId();
+    }
+    public void setId(Integer id){
+        this.getSpecId().setId(id);
+    }
+    public void setProductId(Integer productId){
+        this.getSpecId().setProductId(productId);
     }
 }

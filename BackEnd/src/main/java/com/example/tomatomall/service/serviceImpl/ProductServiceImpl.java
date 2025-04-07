@@ -126,8 +126,8 @@ public class ProductServiceImpl implements ProductService {
         Set<ProductSpecificationVO> productSpecificationVO =productsVO.getSpecifications();
         if(productSpecificationVO!=null&&!productSpecificationVO.isEmpty())
             for(ProductSpecificationVO ps:productSpecificationVO){
+                ps.setProductId(productsVO.getId());
                 ProductSpecification po=ps.toPO();
-                po.setProductId(productsVO.getId());
                 productSpecificationRepository.save(po);
             }
         ProductStockpile productStockpile = new ProductStockpile();
