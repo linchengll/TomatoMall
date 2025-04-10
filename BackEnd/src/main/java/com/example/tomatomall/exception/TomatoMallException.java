@@ -24,4 +24,11 @@ public class TomatoMallException extends RuntimeException {
     public static TomatoMallException unauthorized() {return new TomatoMallException("没有权限进行此操作!");}
 
     public static TomatoMallException userMismatch() {return new TomatoMallException("当前用户与请求不符!");}
+
+    //cart
+    public static TomatoMallException cartProductNotExists() {return new TomatoMallException("购物车商品不存在！");}
+
+    public static TomatoMallException cartProductQuantityNotEnough() {return new TomatoMallException("商品数量不足！");}
+
+
 }
