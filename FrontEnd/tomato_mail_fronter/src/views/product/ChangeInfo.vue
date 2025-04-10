@@ -60,12 +60,14 @@ const handleSave = () => {
 
   if (editIndex.value !== null) {
     // 编辑模式
+
     specificationsTableData.value[editIndex.value].item = form.value.item;
     specificationsTableData.value[editIndex.value].value = form.value.value;
     ElMessage.success('更新成功');
   } else {
     // 添加模式
     const newItem = {
+      id:specificationsTableData.value.length + 1,
       item: form.value.item,
       value: form.value.value
     };
@@ -165,7 +167,6 @@ const handleUpdate = async () => {
         id: item.id,
         item: item.item,
         value: item.value,
-        productId: item.productId,
       });
     });
 
@@ -177,7 +178,7 @@ const handleUpdate = async () => {
       description: description.value, // 描述
       cover: cover.value, // 封面链接
       detail: detail.value, // 详细信息
-      specifications: specificationsSet, // 规格信息
+      specifications: Array.from(specificationsSet), // 规格信息
     };
 
     // 2. 调用 updateInfo 函数
@@ -265,7 +266,7 @@ onMounted(() => {
         <h2>商品信息</h2>
         <el-form label-width="120px">
           <el-form-item label="商品名称">
-            <el-input v-model="title" />
+            <el-text>{{ title }}</el-text>
           </el-form-item>
           <el-form-item label="价格">
             <el-input v-model.number="price" type="number" />
