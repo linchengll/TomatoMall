@@ -3,6 +3,14 @@ package com.example.tomatomall.exception;
 public class TomatoMallException extends RuntimeException {
     public TomatoMallException(String message) {super(message)
     ;}
+    //utility
+    public static TomatoMallException fileUploadFail() {return new TomatoMallException("文件上传失败!");}
+
+    //auth
+    public static TomatoMallException unauthorized() {return new TomatoMallException("没有权限进行此操作!");}
+
+    public static TomatoMallException userMismatch() {return new TomatoMallException("当前用户与请求不符!");}
+
     //user
     public static TomatoMallException usernameAlreadyExists() {return new TomatoMallException("用户名已存在!");}
 
@@ -16,14 +24,6 @@ public class TomatoMallException extends RuntimeException {
     public static TomatoMallException productAlreadyExist() {return new TomatoMallException("商品已存在!");}
 
     public static TomatoMallException productNotExists() {return new TomatoMallException("商品不存在!");}
-
-    //utility
-    public static TomatoMallException fileUploadFail() {return new TomatoMallException("文件上传失败!");}
-
-    //auth
-    public static TomatoMallException unauthorized() {return new TomatoMallException("没有权限进行此操作!");}
-
-    public static TomatoMallException userMismatch() {return new TomatoMallException("当前用户与请求不符!");}
 
     //cart
     public static TomatoMallException cartProductNotExists() {return new TomatoMallException("购物车商品不存在！");}
