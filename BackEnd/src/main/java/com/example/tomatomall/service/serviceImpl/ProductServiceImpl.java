@@ -94,8 +94,9 @@ public class ProductServiceImpl implements ProductService {
             productSpecification = productSpecificationRepository.findByProductId(product.getId());
         }else
             throw TomatoMallException.productNotExists();
-        if(productsVO.getTitle()!=null)
+        if(productsVO.getTitle()!=null){
             product.setTitle(productsVO.getTitle());
+        }
         if(productsVO.getPrice()!=null)
             product.setPrice(productsVO.getPrice());
         if(productsVO.getRate()!=null)
