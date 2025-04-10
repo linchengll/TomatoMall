@@ -4,18 +4,19 @@ import { userInfo, userInfoUpdate } from '../../api/user.ts'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { imageInfoUpdate } from "../../api/tools.ts"
 import userImage from '../../assets/login.jpg';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const role = sessionStorage.getItem("role")
 
 // 原始用户信息
-const username = ref(sessionStorage.getItem("username") || '')
+const username = ref(sessionStorage.getItem("username"))
 const telephone = ref('')
 const location = ref('')
-const name = ref('')
 const password = ref('')
 const email = ref('')
 const avatar = ref('')
-
+const name = ref('')
 // 新的编辑数据
 const new_telephone = ref('')
 const new_location = ref('')
@@ -38,6 +39,8 @@ function getUserInfo() {
     location.value = res.data.data.location || ''
     email.value = res.data.data.email || ''
     avatar.value = res.data.data.avatar || ''
+    name.value = res.data.data.name || ''
+    password.value = res.data.data.password || ''
   })
 }
 
@@ -78,184 +81,18 @@ function updateInfo() {
     return
   }
 
-  if (new_name == '') new_name.value = name.value
-  if (new_email == '') new_email.value = email.value
-  if (new_avatar == '') avatar.value = new_avatar.value
-  if (new_telephone == '') new_telephone.value = telephone.value
-  if (new_location == '') new_location.value = location.value
-  if (new_password == '') new_password.value = password.value
+  // 检查是否修改了密码且新密码与旧密码不同
+  const isPasswordChanged = new_password.value !== '' && new_password.value !== password.value;
+
+  if (new_name.value === '') new_name.value = name.value
+  if (new_email.value === '') new_email.value = email.value
+  if (new_avatar.value === '') new_avatar.value = avatar.value
+  if (new_telephone.value === '') new_telephone.value = telephone.value
+  if (new_location.value === '') new_location.value = location.value
+  if (new_password.value === '') new_password.value = password.value
 
   const updateData = {
+    name: new_name.value.trim(),
     username: username.value.trim(),
-    password: new_password.value.trim() || undefined,
-    telephone: new_telephone.value.trim() || undefined,
-    location: new_location.value.trim() || undefined,
-    email: new_email.value.trim() || undefined,
-    avatar: new_avatar.value,
-  }
-
-  userInfoUpdate(updateData).then(res => {
-    if (res.data.code === '200') {
-      ElMessage({ type: 'success', message: '更新成功！' })
-
-      // 更新原始数据
-      telephone.value = new_telephone.value
-      location.value = new_location.value
-      email.value = new_email.value
-      avatar.value = new_avatar.value
-      password.value = ''
-
-      displayInfoCard.value = false
-    } else {
-      ElMessage({ type: 'error', message: res.data.msg })
-    }
-  })
-
-  getUserInfo()
-  new_telephone.value = ''
-  new_name.value = ''
-  new_email.value = ''
-  new_avatar.value = ''
-  new_telephone.value = ''
-  new_location.value = ''
-}
-</script>
-
-<template>
-  <el-main class="main-frame bgimage">
-    <div class="user-info">
-      <!-- 个人信息卡片 -->
-      <div class="user-card">
-        <div class="user_image">
-          <img :src="avatar" class="image" />
-        </div>
-        <div class="user-name">
-          {{ username }}
-        </div>
-
-        <div class="user-details">
-          <p><strong>电话：</strong> {{ telephone || '这个人很懒，还没填这个东西' }}</p>
-          <p><strong>邮箱：</strong> {{ email || '这个人很懒，还没填这个东西' }}</p>
-          <p><strong>地址：</strong> {{ location || '这个人很懒，还没填这个东西' }}</p>
-        </div>
-        <el-button type="primary" @click="displayInfoCard = true" class="edit-button">编辑信息</el-button>
-        <div>
-          <el-dialog title="编辑用户信息" v-model="displayInfoCard" width="400px">
-            <el-form label-width="100px">
-              <el-form-item label="电话">
-                <el-input v-model="new_telephone" placeholder="输入电话"></el-input>
-              </el-form-item>
-              <el-form-item label="地址">
-                <el-input v-model="new_location" placeholder="输入地址"></el-input>
-              </el-form-item>
-              <el-form-item label="邮箱">
-                <el-input v-model="new_email" placeholder="输入邮箱"></el-input>
-              </el-form-item>
-              <el-form-item label="新密码">
-                <el-input v-model="new_password" type="password" placeholder="输入新密码"></el-input>
-              </el-form-item>
-              <el-form-item label="头像">
-                <img :src="new_avatar" class="image" />
-                <input type="file" accept="image/*" @change="handleAvatarUpload" />
-              </el-form-item>
-              <el-button type="primary" @click="updateInfo">保存修改</el-button>
-            </el-form>
-          </el-dialog>
-        </div>
-        <div>
-          <el-button class="back-button" @click="$router.push('/main')" type="info" plain>返回</el-button>
-        </div>
-      </div>
-    </div>
-  </el-main>
-</template>
-
-<style scoped>
-.user-info {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.user-card {
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 30px;
-  height: 600px;
-  width: 500px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  border: 2px solid #f0f0f0;
-}
-
-.user_image {
-  margin-bottom: 20px;
-}
-
-.image {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.user-name {
-  font-family: "幼圆", "宋体", "微软雅黑", sans-serif;
-  font-weight: bold;
-  font-size: 25px;
-}
-
-.user-details {
-  text-align: left;
-  margin: 30px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.user-details p {
-  font-size: 16px;
-  margin: 0;
-  padding: 10px 0;
-  color: #666;
-  width: 100%;
-  text-align: center;
-  border-bottom: 1px solid #eee;
-}
-
-.user-details p:last-child {
-  border-bottom: none;
-}
-
-.edit-button {
-  width: 80%;
-  font-size: 16px;
-  padding: 10px;
-  border-radius: 8px;
-  background-color: #de6b6b;
-  color: white;
-  transition: all 0.3s ease;
-}
-
-.back-button {
-  width: 80%;
-  font-size: 16px;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.bgimage {
-  background-image: url("../../assets/login.jpg");
-  background-size: cover; /* 让背景图片覆盖整个容器 */
-  background-position: center; /* 居中显示 */
-  background-repeat: no-repeat; /* 防止图片重复 */
-  width: 100vw; /* 适应整个视口宽度 */
-  height: 100vh; /* 适应整个视口高度 */
-}
-
-.el-button {
-  margin-top: 10px;
-}
-</style>
+    password: new_password.value.trim(),
+   
