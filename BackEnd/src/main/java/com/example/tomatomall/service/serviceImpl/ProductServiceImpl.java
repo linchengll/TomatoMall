@@ -3,8 +3,10 @@ package com.example.tomatomall.service.serviceImpl;
 import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Product;
+import com.example.tomatomall.po.Cart;
 import com.example.tomatomall.po.ProductSpecification;
 import com.example.tomatomall.po.ProductStockpile;
+import com.example.tomatomall.repository.CartRepository;
 import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.repository.ProductSpecificationRepository;
 import com.example.tomatomall.repository.ProductStockpileRepository;
@@ -29,6 +31,8 @@ public class ProductServiceImpl implements ProductService {
     ProductStockpileRepository productStockpileRepository;
     @Autowired
     ProductSpecificationRepository productSpecificationRepository;
+    @Autowired
+    CartRepository cartRepository;
     @Autowired
     private SecurityUtil securityUtil;
 
@@ -161,6 +165,8 @@ public class ProductServiceImpl implements ProductService {
         productSpecificationRepository.deleteAll(productSpecifications);
         ProductStockpile productStockpile =productStockpileRepository.findByProductId(new Integer(id));
         productStockpileRepository.delete(productStockpile);
+        List<Cart> carts=cartRepository.findByProductId(new Integer(id));
+        cartRepository.deleteAll(carts);
         return "删除成功";
     }
 
