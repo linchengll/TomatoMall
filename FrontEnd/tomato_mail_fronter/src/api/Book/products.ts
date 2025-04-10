@@ -13,10 +13,10 @@ export type UpdateInfo = {
 }
 
 export interface Specification {
-    id?: string;
+    id: string;
     item: string;
     value: string;
-    productId?: string;
+    productId: string;
 }
 
 export type AddInfo = {

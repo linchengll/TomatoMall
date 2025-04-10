@@ -154,7 +154,7 @@ const handleUpdate = async () => {
 <template>
   <div class="top">
     <div class="Name">
-      <p class="title">TOMATOMAIL</p>
+      <p class="title">TOMATO MALL</p>
     </div>
   </div>
 
@@ -179,7 +179,7 @@ const handleUpdate = async () => {
         </el-form-item>
 
         <el-form-item>
-          <label for="avatar">个人头像</label>
+          <label for="cover">商品图片</label>
           <el-upload
               v-model:file-list="fileList"
               class="upload-demo"
