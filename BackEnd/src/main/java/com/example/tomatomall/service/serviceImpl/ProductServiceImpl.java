@@ -1,5 +1,6 @@
 package com.example.tomatomall.service.serviceImpl;
 
+import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Product;
 import com.example.tomatomall.po.ProductSpecification;
@@ -8,6 +9,7 @@ import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.repository.ProductSpecificationRepository;
 import com.example.tomatomall.repository.ProductStockpileRepository;
 import com.example.tomatomall.service.ProductService;
+import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.ProductSpecificationVO;
 import com.example.tomatomall.vo.ProductStockpileVO;
 import com.example.tomatomall.vo.ProductsVO;
@@ -27,6 +29,8 @@ public class ProductServiceImpl implements ProductService {
     ProductStockpileRepository productStockpileRepository;
     @Autowired
     ProductSpecificationRepository productSpecificationRepository;
+    @Autowired
+    private SecurityUtil securityUtil;
 
     @Override
     public List<ProductsVO> getProductList() {
@@ -81,6 +85,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String updateProduct(ProductsVO productsVO) {
+        if(!securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
+            throw TomatoMallException.unauthorized();
         Product product;
         Set<ProductSpecification> productSpecification;
         if(productRepository.findById(productsVO.getId()).isPresent()) {
@@ -88,8 +94,9 @@ public class ProductServiceImpl implements ProductService {
             productSpecification = productSpecificationRepository.findByProductId(product.getId());
         }else
             throw TomatoMallException.productNotExists();
-        if(productsVO.getTitle()!=null)
+        if(productsVO.getTitle()!=null){
             product.setTitle(productsVO.getTitle());
+        }
         if(productsVO.getPrice()!=null)
             product.setPrice(productsVO.getPrice());
         if(productsVO.getRate()!=null)
@@ -112,6 +119,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductsVO createProduct(ProductsVO productsVO) {
+        if(!securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
+            throw TomatoMallException.unauthorized();
         if(productRepository.findByTitle(productsVO.getTitle())!=null)
             throw TomatoMallException.productAlreadyExist();
         Product newProduct=new Product();
@@ -140,6 +149,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String deleteProduct(String id) {
+        if(!securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
+            throw TomatoMallException.unauthorized();
         Product product;
         if(productRepository.findById(new Integer(id)).isPresent())
             product=productRepository.findById(new Integer(id)).get();
@@ -155,6 +166,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String updateStockpile(String id, Integer amount) {
+        if(!securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
+            throw TomatoMallException.unauthorized();
         ProductStockpile productStockpile =productStockpileRepository.findByProductId(new Integer(id));
         if(productStockpile==null){
             throw TomatoMallException.productNotExists();

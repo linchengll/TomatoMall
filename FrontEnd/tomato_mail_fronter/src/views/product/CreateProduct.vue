@@ -87,6 +87,7 @@ const handleSave = () => {
   } else {
     // 添加模式
     const newItem = {
+      id: specificationsTableData.value.length + 1,
       item: form.value.item,
       value: form.value.value
     };
@@ -120,7 +121,7 @@ const handleUpdate = async () => {
       specificationsSet.add({
         item: item.item,
         value: item.value,
-        id: 1
+        id: item.id
     });
     });
 
@@ -145,7 +146,7 @@ const handleUpdate = async () => {
     }
   } catch (error) {
     console.error('Error updating product info:', error);
-    ElMessage.error('更新失败，请检查网络');
+    ElMessage.error('添加失败，请检查网络');
   }
 };
 
@@ -154,7 +155,7 @@ const handleUpdate = async () => {
 <template>
   <div class="top">
     <div class="Name">
-      <p class="title">TOMATO MALL</p>
+      <p class="title">TOMATOMAIL</p>
     </div>
   </div>
 
@@ -178,8 +179,7 @@ const handleUpdate = async () => {
           <el-input type="textarea" v-model="detail" />
         </el-form-item>
 
-        <el-form-item>
-          <label for="cover">商品图片</label>
+        <el-form-item label="封面图片">
           <el-upload
               v-model:file-list="fileList"
               class="upload-demo"
