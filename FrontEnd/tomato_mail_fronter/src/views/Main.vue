@@ -24,6 +24,7 @@ interface Product {
   title: string;
   price: number;
   cover: string;
+  id: string;
 }
 const productList = ref<Product[]>([]);
 
@@ -32,19 +33,22 @@ async function getProductList() {
     const res = await getListInfo();
     if (res.data.code === '200') {
       // 使用 map 只提取需要的字段
-      productList.value = (res.data.result || []).map((item: any) => ({
+      productList.value = (res.data.data || []).map((item: any) => ({
         title: item.title,
         price: item.price,
-        cover: item.cover?.trim() ? item.cover : "../assets/DefaultCover.png",
+        id: item.id,
+        cover: item.cover? item.cover : "../assets/DefaultCover.png",
       }));
+      console.log("hello");
+      console.log(productList);
     } else {
       ElMessage.error(res.data.msg || "获取失败");
     }
   } catch (err) {
-    console.error("加载商品列表失败", err);
     ElMessage.error("加载商品列表失败");
   }
 }
+getProductList();
 // =================================================
 
 // === 用户信息 ======================================
@@ -55,6 +59,7 @@ const name = ref('')
 const password = ref('')
 const email = ref('')
 const avatar = ref('')
+const role = ref('')
 
 function getUserInfo() {
   if (!username.value) {
@@ -63,6 +68,7 @@ function getUserInfo() {
   }
   userInfo(username.value).then(res => {
     username.value = res.data.data.username
+    role.value = res.data.data.role
     telephone.value = res.data.data.telephone || ''
     location.value = res.data.data.location || ''
     email.value = res.data.data.email || ''
@@ -101,16 +107,18 @@ getUserInfo()
         </el-carousel>
 
         <!-- 商品展示 -->
-        <el-card v-for="(product, index) in productList"
-                 :key="index"
-                 class="product-card"
-                 @click="$router.push(`/productDetail/${product.id}`)">
-          <img :src="product.cover" class="product-img" />
-          <div class="product-info">
-            <p>{{ product.title }}</p>
-            <p class="price">{{ product.price }}¥</p>
-          </div>
-        </el-card>
+        <div class="product-list">
+          <el-card v-for="(product, index) in productList"
+                   :key="index"
+                   class="product-card"
+                   @click="$router.push(`/productDetail/${product.id}`)">
+            <img :src="product.cover" class="product-img" />
+            <div class="product-info">
+              <p>{{ product.title }}</p>
+              <p class="price">{{ product.price }}¥</p>
+            </div>
+          </el-card>
+        </div>
       </el-main>
 
       <!-- 用户信息面板 -->
@@ -120,6 +128,9 @@ getUserInfo()
             <el-avatar :src="avatar" class="user-avatar" />
           </el-link>
           <p class="welcome-text">欢迎：{{ username }}</p>
+          <el-link @click="$router.push('/createProduct')" v-if="role === 'admin'" top="10px">
+            <el-button>创建商店</el-button>
+          </el-link>
         </el-card>
       </el-aside>
     </el-container>
@@ -152,19 +163,37 @@ getUserInfo()
   height: 100%;
   object-fit: cover;
 }
-.product-grid {
+.product-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
-  margin-top: 20px;
+  grid-template-columns: repeat(6, 1fr); /* 一行六列 */
+  gap: 20px; /* 卡片间距 */
+  padding: 20px;
 }
+
 .product-card {
+  cursor: pointer;
+  transition: transform 0.2s;
   text-align: center;
 }
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
 .product-img {
   width: 100%;
-  height: 180px;
-  object-fit: cover
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.product-info {
+  margin-top: 10px;
+}
+
+.price {
+  color: #fa0056;
+  font-weight: bold;
 }
 .user-panel {
   padding: 10px;
