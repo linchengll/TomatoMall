@@ -3,7 +3,6 @@ import { ref, computed, nextTick } from 'vue'
 import { userInfo, userInfoUpdate } from '../../api/user.ts'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { imageInfoUpdate } from "../../api/tools.ts"
-import userImage from '../../assets/login.jpg';
 
 const role = sessionStorage.getItem("role")
 
@@ -87,6 +86,7 @@ function updateInfo() {
 
   const updateData = {
     username: username.value.trim(),
+    name: new_name.value.trim() || undefined,
     password: new_password.value.trim() || undefined,
     telephone: new_telephone.value.trim() || undefined,
     location: new_location.value.trim() || undefined,
@@ -103,9 +103,20 @@ function updateInfo() {
       location.value = new_location.value
       email.value = new_email.value
       avatar.value = new_avatar.value
-      password.value = ''
+      password.value = new_password.value
+      name.value = new_name.value
 
       displayInfoCard.value = false
+
+      if (new_password.value.trim() !== '') {
+        ElMessage.success('密码修改成功，请重新登录！')
+        // 清除 sessionStorage 中的用户信息
+        sessionStorage.clear()
+        // 跳转到登录页
+        nextTick(() => {
+          window.location.href = '/login'
+        })
+      }
     } else {
       ElMessage({ type: 'error', message: res.data.msg })
     }
@@ -142,6 +153,9 @@ function updateInfo() {
         <div>
           <el-dialog title="编辑用户信息" v-model="displayInfoCard" width="400px">
             <el-form label-width="100px">
+              <el-form-item label="姓名">
+                <el-input v-model="new_name" placeholder="输入姓名"></el-input>
+              </el-form-item>
               <el-form-item label="电话">
                 <el-input v-model="new_telephone" placeholder="输入电话"></el-input>
               </el-form-item>
