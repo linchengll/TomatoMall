@@ -5,7 +5,6 @@ import com.example.tomatomall.po.Cart;
 import com.example.tomatomall.po.Product;
 import com.example.tomatomall.repository.CartRepository;
 import com.example.tomatomall.repository.ProductRepository;
-import com.example.tomatomall.repository.ProductSpecificationRepository;
 import com.example.tomatomall.repository.ProductStockpileRepository;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.util.SecurityUtil;
@@ -24,8 +23,6 @@ public class CartServiceImpl implements CartService {
     ProductRepository productRepository;
     @Autowired
     ProductStockpileRepository productStockpileRepository;
-    @Autowired
-    ProductSpecificationRepository productSpecificationRepository;
     @Autowired
     CartRepository cartRepository;
     @Autowired
@@ -82,9 +79,10 @@ public class CartServiceImpl implements CartService {
             throw TomatoMallException.cartProductNotExists();
         if(!Objects.equals(securityUtil.getCurrentUser().getId(), cartItem.getUserId()))
             throw TomatoMallException.userMismatch();
-        if(!productStockpileRepository.findById(cartItem.getProductId()).isPresent()||quantity-cartItem.getQuantity()<productStockpileRepository.findById(cartItem.getProductId()).get().getAmount())
+        if(productStockpileRepository.findByProductId(cartItem.getProductId())==null||quantity>productStockpileRepository.findByProductId(cartItem.getProductId()).getAmount())
             throw TomatoMallException.cartProductQuantityNotEnough();
         cartItem.setQuantity(quantity);
+        cartRepository.save(cartItem);
         return "修改数量成功";
     }
 
@@ -98,7 +96,7 @@ public class CartServiceImpl implements CartService {
         if(!raw.isEmpty())
             for(Cart item:raw){
                 CartVO VO=new CartVO();
-                if(productRepository.findById(item.getProductId()).isPresent())
+                if(!productRepository.findById(item.getProductId()).isPresent())
                     throw TomatoMallException.cartProductNotExists();
                 Product product=productRepository.findById(item.getProductId()).get();
                 VO.setCartItemId(item.getCartItemId());
@@ -109,6 +107,7 @@ public class CartServiceImpl implements CartService {
                 VO.setDescription(product.getDescription());
                 VO.setCover(product.getCover());
                 VO.setDetail(product.getDetail());
+                items.add(VO);
                 sum+=VO.getPrice()*VO.getQuantity();
                 total++;
             }
