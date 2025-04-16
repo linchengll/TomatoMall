@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus';
 import { getInfo, updateInfo, UpdateInfo, Specification } from "../../api/Book/products.ts";
 import { useRoute } from 'vue-router';
 import { getStockpileInfo, adjustStockpile } from "../../api/Book/stockpiles.ts";
+import {router} from "../../router";
 
 
 const route = useRoute();
@@ -256,7 +257,7 @@ onMounted(() => {
 <template>
   <div class="top">
     <div class="Name">
-      <p class="title">TOMATOMAIL</p>
+      <p class="title">TOMATOMALL</p>
     </div>
   </div>
 
@@ -337,8 +338,8 @@ onMounted(() => {
         <el-button type="primary" @click="handleAdjustStockpile">更新库存</el-button>
       </div>
     </div>
+    <el-button type="primary" class="add-product-button" @click="router.push(`/productDetail/${productId}`)">返回</el-button>
   </div>
-  <el-button type="primary" class="add-product-button" @click="return_to_main">返回主页</el-button>
 </template>
 
 <style scoped>
@@ -368,7 +369,7 @@ onMounted(() => {
   padding: 12px 20px; /* 增加内边距，使按钮看起来更大 */
 }
 .top {
-  background-color: #000000;
+  background-color: rgba(182, 16, 16, 0.6);
   height: 26vh;
   display: flex;
 }

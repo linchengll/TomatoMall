@@ -6,7 +6,7 @@ import { getListInfo } from '../api/Book/products.ts'
 
 // === 侧边栏和搜索栏 ===============================
 const search = ref("");
-const categories = ref(["惊悚", "穿越", "科幻", "经典", "爱情", "励志"]);
+const categories = ref(["惊悚", "穿越", "科幻", "经典", "爱情", "励志","历史", "青春", "科学"]);
 // =================================================
 
 
@@ -40,8 +40,6 @@ async function getProductList() {
         id: item.id,
         cover: item.cover? item.cover : "../assets/DefaultCover.png",
       }));
-      console.log("hello");
-      console.log(productList);
     } else {
       ElMessage.error(res.data.msg || "获取失败");
     }
@@ -130,7 +128,7 @@ getUserInfo()
           </el-link>
           <p class="welcome-text">欢迎：{{ username }}</p>
           <el-link @click="$router.push('/createProduct')" v-if="role === 'admin'" top="10px">
-            <el-button>创建商店</el-button>
+            <el-button>创建书籍</el-button>
           </el-link>
         </el-card>
       </el-aside>
