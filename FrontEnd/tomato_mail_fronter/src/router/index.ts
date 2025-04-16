@@ -6,6 +6,10 @@ const router = createRouter({
         path: '/',
         redirect: '/login',
     }, {
+        path: '/cart',
+        component: () => import('../views/cart/Cart.vue'),
+        meta: {title: '购物车'}
+    }, {
         path: '/login',
         component: () => import('../views/user/Login.vue'),
         meta: {title: '用户登录'}
