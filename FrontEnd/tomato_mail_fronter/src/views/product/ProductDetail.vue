@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getInfo, deleteInfo } from '../../api/Book/products.ts'
+import { addToCart } from '../../api/cart.ts';
 import { useRoute, useRouter } from "vue-router";
 import { userInfo } from '../../api/user.ts'
 
@@ -68,8 +69,17 @@ onMounted(() => {
 const quantity = ref(1);
 
 // 加入购物车
-const addToCart = () => {
-  console.log(`加入购物车：${quantity.value} 件 ${title.value}`);
+const handleAddToCart = async () => {
+  try {
+    const res = await addToCart(productId, quantity.value);
+    if (res.data.code === 200) {
+      ElMessage.success('成功加入购物车');
+    } else {
+      ElMessage.error(res.data.msg || '加入购物车失败');
+    }
+  } catch {
+    ElMessage.error('加入购物车失败');
+  }
 };
 
 // 立即购买
@@ -108,6 +118,11 @@ const handleDeleteProduct = () => {
     ElMessage.info('已取消删除');
   });
 };
+
+// 跳转到购物车页面
+const goToCart = () => {
+  router.push('/cart');
+};
 </script>
 
 <template>
@@ -123,6 +138,7 @@ const handleDeleteProduct = () => {
       >
         删除商品
       </el-button>
+      <el-button type="primary" plain @click="goToCart">前往购物车</el-button>
     </div>
 
     <!-- 商品详情内容 -->
@@ -166,7 +182,7 @@ const handleDeleteProduct = () => {
         <div class="action-buttons">
           <el-input-number v-model="quantity" :min="1" :max="10" />
           <el-button type="danger" @click="buyNow">立即购买</el-button>
-          <el-button type="primary" @click="addToCart">加入购物车</el-button>
+          <el-button type="primary" @click="handleAddToCart">加入购物车</el-button>
         </div>
       </div>
     </div>
