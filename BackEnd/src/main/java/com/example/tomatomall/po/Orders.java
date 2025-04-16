@@ -1,6 +1,8 @@
 package com.example.tomatomall.po;
 
+import com.example.tomatomall.enums.PaymentEnum;
 import com.example.tomatomall.enums.StatusEnum;
+import com.example.tomatomall.vo.OrderVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +27,7 @@ public class Orders {
      private Float totalAmount;
 
      @Column(name="pay_method")
-     private String payMethod;
+     private PaymentEnum payMethod;
 
      @Column(name="status")
      private StatusEnum status=StatusEnum.PENDING;
@@ -33,5 +35,14 @@ public class Orders {
      @Column(name="create_time")
      private Time createTime;
 
-
+     public OrderVO toVO(){
+          OrderVO VO=new OrderVO();
+          VO.setOrderId(this.orderId);
+          VO.setUserId(this.userId);
+          VO.setTotalAmount(this.totalAmount);
+          VO.setPayMethod(this.payMethod);
+          VO.setStatus(this.status);
+          VO.setCreateTime(this.createTime);
+          return VO;
+     }
 }
