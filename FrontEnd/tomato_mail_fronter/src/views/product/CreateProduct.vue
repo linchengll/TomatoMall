@@ -155,7 +155,7 @@ const handleUpdate = async () => {
 <template>
   <div class="top">
     <div class="Name">
-      <p class="title">TOMATOMAIL</p>
+      <p class="title">TOMATOMALL</p>
     </div>
   </div>
 
@@ -228,6 +228,7 @@ const handleUpdate = async () => {
       </div>
 
       <el-button type="primary" class="add-product-button" @click="handleUpdate" :disabled="createDisabled">添加商品</el-button>
+      <el-button type="primary" class="add-product-button" @click="router.push('/main')">返回主页</el-button>
     </div>
   </div>
 </template>
@@ -250,7 +251,7 @@ const handleUpdate = async () => {
   padding: 12px 20px; /* 增加内边距，使按钮看起来更大 */
 }
 .top {
-  background-color: #000000;
+  background-color: rgba(182, 16, 16, 0.6);
   height: 26vh;
   display: flex;
 }
