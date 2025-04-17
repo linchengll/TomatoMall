@@ -6,7 +6,7 @@ import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
 import com.example.tomatomall.vo.Response;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.example.tomatomall.util.AlipayProperties;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,12 +21,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequestMapping("/api/orders")
-@ConfigurationProperties("alipay")
 public class OrderController {
-    private static String alipayPublicKey;
+//    private final AlipayProperties alipayProperties;
+//    public OrderController(AlipayProperties alipayProperties) {
+//        this.alipayProperties = alipayProperties;
+//    }
 
     @Resource
     OrderService orderService;
+    AlipayProperties alipayProperties;
+
 
     @PostMapping("/checkout")
     public Response<OrderVO> submitOrder(@RequestBody Map<Object,Object> Body){
@@ -42,7 +46,7 @@ public class OrderController {
     public void handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException, AlipayApiException {
         Map<String, String> params = request.getParameterMap().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()[0]));
-        boolean signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
+        boolean signVerified = AlipaySignature.rsaCheckV1(params, alipayProperties.getAlipayPublicKey(), "UTF-8", "RSA2");
         if (!signVerified) {
             response.getWriter().print("fail");
             return;

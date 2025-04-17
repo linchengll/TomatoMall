@@ -14,10 +14,12 @@ import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.sql.Time;
 import java.util.List;
 
+@Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
     OrderRepository orderRepository;
