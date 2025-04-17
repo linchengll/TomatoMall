@@ -119,16 +119,11 @@ function updateInfo() {
 
       displayInfoCard.value = false
 
-      // 如果修改了密码，跳转到登录页
-      if (isPasswordChanged) {
-        setTimeout(() => {
-          // 清除sessionStorage中的用户信息
-          sessionStorage.removeItem("username");
-          sessionStorage.removeItem("role");
-          sessionStorage.removeItem("token");
-          router.push('/login');
-        }, 2000);
-      }
+      // 清除sessionStorage中的用户信息，跳转到登录
+      sessionStorage.removeItem("username");
+      sessionStorage.removeItem("role");
+      sessionStorage.removeItem("token");
+      router.push('/login');
     } else {
       ElMessage({ type: 'error', message: res.data.msg })
     }
