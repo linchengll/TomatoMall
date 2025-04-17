@@ -2,14 +2,8 @@ package com.example.tomatomall.service.serviceImpl;
 
 import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.exception.TomatoMallException;
-import com.example.tomatomall.po.Product;
-import com.example.tomatomall.po.Cart;
-import com.example.tomatomall.po.ProductSpecification;
-import com.example.tomatomall.po.ProductStockpile;
-import com.example.tomatomall.repository.CartRepository;
-import com.example.tomatomall.repository.ProductRepository;
-import com.example.tomatomall.repository.ProductSpecificationRepository;
-import com.example.tomatomall.repository.ProductStockpileRepository;
+import com.example.tomatomall.po.*;
+import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.ProductSpecificationVO;
@@ -31,6 +25,8 @@ public class ProductServiceImpl implements ProductService {
     ProductStockpileRepository productStockpileRepository;
     @Autowired
     ProductSpecificationRepository productSpecificationRepository;
+    @Autowired
+    AdvertisementRepository advertisementRepository;
     @Autowired
     CartRepository cartRepository;
     @Autowired
@@ -167,6 +163,8 @@ public class ProductServiceImpl implements ProductService {
         productStockpileRepository.delete(productStockpile);
         List<Cart> carts=cartRepository.findByProductId(new Integer(id));
         cartRepository.deleteAll(carts);
+        List<Advertisement> advertisements=advertisementRepository.findByProductId(new Integer(id));
+        advertisementRepository.deleteAll(advertisements);
         return "删除成功";
     }
 

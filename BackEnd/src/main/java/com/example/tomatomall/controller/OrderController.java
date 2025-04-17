@@ -29,6 +29,7 @@ public class OrderController {
 
     @Resource
     OrderService orderService;
+    @Resource
     AlipayProperties alipayProperties;
 
 
