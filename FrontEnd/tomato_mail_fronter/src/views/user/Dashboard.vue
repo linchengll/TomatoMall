@@ -81,33 +81,29 @@ function updateInfo() {
     return
   }
 
-  // 检查是否修改了密码
-  const isPasswordChanged = new_password.value !== '' && new_password.value !== password.value;
-
   if (new_name.value === '') new_name.value = name.value
   if (new_email.value === '') new_email.value = email.value
   if (new_avatar.value === '') new_avatar.value = avatar.value
   if (new_telephone.value === '') new_telephone.value = telephone.value
   if (new_location.value === '') new_location.value = location.value
-  if (new_password.value === '') new_password.value = password.value
 
-  const updateData = {
+  const updateData: any = {
     name: new_name.value.trim(),
     username: username.value.trim(),
-    password: new_password.value.trim(),
     telephone: new_telephone.value.trim(),
     location: new_location.value.trim(),
     email: new_email.value.trim(),
     avatar: new_avatar.value.trim(),
   }
 
+// 如果用户真的输入了新密码，才加入请求数据中
+  if (new_password.value && new_password.value.trim() !== '') {
+    updateData.password = new_password.value.trim()
+  }
+
   userInfoUpdate(updateData).then(res => {
     if (res.data.code === '200') {
-      ElMessage({
-        type: 'success',
-        message: isPasswordChanged ? '密码修改成功，请重新登录！' : '更新成功！',
-        duration: isPasswordChanged ? 2000 : 3000
-      })
+      ElMessage({ type: 'success', message: '更新成功！' })
 
       // 更新原始数据
       name.value = new_name.value
@@ -119,7 +115,8 @@ function updateInfo() {
 
       displayInfoCard.value = false
 
-      // 清除sessionStorage中的用户信息，跳转到登录
+      // 如果修改了密码，跳转到登录页
+        // 清除sessionStorage中的用户信息
       sessionStorage.removeItem("username");
       sessionStorage.removeItem("role");
       sessionStorage.removeItem("token");

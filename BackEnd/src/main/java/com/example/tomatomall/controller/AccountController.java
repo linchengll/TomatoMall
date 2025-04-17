@@ -37,7 +37,21 @@ public class AccountController {
      */
     @PutMapping
     public Response<Boolean> updateUser(@RequestBody AccountVO accountVO) {
-        return Response.buildSuccess(accountService.updateUser(accountVO));
+        // 输出接收到的 accountVO 数据，检查是否为空或者包含异常值
+        System.out.println("Received AccountVO: " + accountVO);
+        System.out.println("Username: " + accountVO.getUsername());
+        System.out.println("Email: " + accountVO.getEmail());
+        // 继续打印其他字段...
+
+        // 如果有必要，可以尝试捕获并打印异常
+        try {
+            accountService.updateUser(accountVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.buildError("Update failed due to error: " + e.getMessage());
+        }
+
+        return Response.buildSuccess(true);
     }
 
     /**
