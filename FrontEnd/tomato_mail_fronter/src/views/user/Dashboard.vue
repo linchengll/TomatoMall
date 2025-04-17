@@ -3,18 +3,20 @@ import { ref, computed, nextTick } from 'vue'
 import { userInfo, userInfoUpdate } from '../../api/user.ts'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { imageInfoUpdate } from "../../api/tools.ts"
+import userImage from '../../assets/login.jpg';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const role = sessionStorage.getItem("role")
 
 // 原始用户信息
-const username = ref(sessionStorage.getItem("username") || '')
+const username = ref(sessionStorage.getItem("username"))
 const telephone = ref('')
 const location = ref('')
-const name = ref('')
 const password = ref('')
 const email = ref('')
 const avatar = ref('')
-
+const name = ref('')
 // 新的编辑数据
 const new_telephone = ref('')
 const new_location = ref('')
@@ -37,6 +39,8 @@ function getUserInfo() {
     location.value = res.data.data.location || ''
     email.value = res.data.data.email || ''
     avatar.value = res.data.data.avatar || ''
+    name.value = res.data.data.name || ''
+    password.value = res.data.data.password || ''
   })
 }
 
@@ -77,58 +81,70 @@ function updateInfo() {
     return
   }
 
-  if (new_name == '') new_name.value = name.value
-  if (new_email == '') new_email.value = email.value
-  if (new_avatar == '') avatar.value = new_avatar.value
-  if (new_telephone == '') new_telephone.value = telephone.value
-  if (new_location == '') new_location.value = location.value
-  if (new_password == '') new_password.value = password.value
+  // 检查是否修改了密码
+  const isPasswordChanged = new_password.value !== '' && new_password.value !== password.value;
+
+  if (new_name.value === '') new_name.value = name.value
+  if (new_email.value === '') new_email.value = email.value
+  if (new_avatar.value === '') new_avatar.value = avatar.value
+  if (new_telephone.value === '') new_telephone.value = telephone.value
+  if (new_location.value === '') new_location.value = location.value
+  if (new_password.value === '') new_password.value = password.value
 
   const updateData = {
+    name: new_name.value.trim(),
     username: username.value.trim(),
-    name: new_name.value.trim() || undefined,
-    password: new_password.value.trim() || undefined,
-    telephone: new_telephone.value.trim() || undefined,
-    location: new_location.value.trim() || undefined,
-    email: new_email.value.trim() || undefined,
-    avatar: new_avatar.value,
+    password: new_password.value.trim(),
+    telephone: new_telephone.value.trim(),
+    location: new_location.value.trim(),
+    email: new_email.value.trim(),
+    avatar: new_avatar.value.trim(),
   }
 
   userInfoUpdate(updateData).then(res => {
     if (res.data.code === '200') {
-      ElMessage({ type: 'success', message: '更新成功！' })
+      ElMessage({
+        type: 'success',
+        message: isPasswordChanged ? '密码修改成功，请重新登录！' : '更新成功！',
+        duration: isPasswordChanged ? 2000 : 3000
+      })
 
       // 更新原始数据
+      name.value = new_name.value
       telephone.value = new_telephone.value
       location.value = new_location.value
       email.value = new_email.value
       avatar.value = new_avatar.value
       password.value = new_password.value
-      name.value = new_name.value
 
       displayInfoCard.value = false
 
-      if (new_password.value.trim() !== '') {
-        ElMessage.success('密码修改成功，请重新登录！')
-        // 清除 sessionStorage 中的用户信息
-        sessionStorage.clear()
-        // 跳转到登录页
-        nextTick(() => {
-          window.location.href = '/login'
-        })
+      // 如果修改了密码，跳转到登录页
+      if (isPasswordChanged) {
+        setTimeout(() => {
+          // 清除sessionStorage中的用户信息
+          sessionStorage.removeItem("username");
+          sessionStorage.removeItem("role");
+          sessionStorage.removeItem("token");
+          router.push('/login');
+        }, 2000);
       }
     } else {
       ElMessage({ type: 'error', message: res.data.msg })
     }
+  }).catch(error => {
+    ElMessage({ type: 'error', message: '更新失败: ' + error.message })
+    console.error('更新失败:', error)
   })
 
-  getUserInfo()
+  // 清空表单数据
   new_telephone.value = ''
-  new_name.value = ''
   new_email.value = ''
   new_avatar.value = ''
   new_telephone.value = ''
   new_location.value = ''
+  new_name.value = ''
+  new_password.value = ''
 }
 </script>
 
@@ -178,6 +194,9 @@ function updateInfo() {
         </div>
         <div>
           <el-button class="back-button" @click="$router.push('/main')" type="info" plain>返回</el-button>
+        </div>
+        <div>
+          <el-button class="back-button" @click="$router.push('/login')" type="info" plain>退出登录</el-button>
         </div>
       </div>
     </div>

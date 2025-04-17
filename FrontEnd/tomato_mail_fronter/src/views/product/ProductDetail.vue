@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { getInfo } from '../../api/Book/products.ts'
-import { useRoute } from "vue-router";
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getInfo, deleteInfo } from '../../api/Book/products.ts'
+import { addToCart } from '../../api/cart.ts';
+import { useRoute, useRouter } from "vue-router";
 import { userInfo } from '../../api/user.ts'
 
 const route = useRoute();
+const router = useRouter();
 const productId = route.params.id as string;
 
 const title = ref("");
@@ -67,58 +69,121 @@ onMounted(() => {
 const quantity = ref(1);
 
 // 加入购物车
-const addToCart = () => {
-  console.log(`加入购物车：${quantity.value} 件 ${title.value}`);
+const handleAddToCart = async () => {
+  try {
+    const res = await addToCart(productId, quantity.value);
+    if (res.data.code === 200) {
+      ElMessage.success('成功加入购物车');
+    } else {
+      ElMessage.error(res.data.msg || '加入购物车失败');
+    }
+  } catch {
+    ElMessage.error('加入购物车失败');
+  }
 };
 
 // 立即购买
 const buyNow = () => {
   console.log(`立即购买：${quantity.value} 件 ${title.value}`);
 };
+
+// 返回主页
+const goBackToMain = () => {
+  router.push('/main');
+};
+
+// 删除商品
+const handleDeleteProduct = () => {
+  ElMessageBox.confirm(
+      '确定要删除这个商品吗？此操作不可恢复！',
+      '警告',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  ).then(() => {
+    deleteInfo(productId).then(res => {
+      if (res.data.code === '200') {
+        ElMessage.success('商品删除成功！');
+        router.push('/main');
+      } else {
+        ElMessage.error(res.data.msg || '删除失败');
+      }
+    }).catch(error => {
+      ElMessage.error('删除失败: ' + error.message);
+      console.error('删除失败:', error);
+    });
+  }).catch(() => {
+    ElMessage.info('已取消删除');
+  });
+};
+
+// 跳转到购物车页面
+const goToCart = () => {
+  router.push('/cart');
+};
 </script>
 
 <template>
   <div class="product-detail">
-    <!-- 左侧：商品封面 -->
-    <div class="product-image">
-      <el-image :src = "cover"> </el-image>
+    <!-- 操作按钮区域 -->
+    <div class="action-buttons-top">
+      <el-button type="info" plain @click="goBackToMain">返回主页</el-button>
+      <el-button
+          v-if="role === 'admin'"
+          type="danger"
+          plain
+          @click="handleDeleteProduct"
+      >
+        删除商品
+      </el-button>
+      <el-button type="primary" plain @click="goToCart">前往购物车</el-button>
     </div>
 
-    <!-- 右侧：商品信息 -->
-    <div class="product-info">
-      <h2>{{ title }}</h2>
-      <p class="price" v-if="price !== undefined && price !== null">￥{{ price.toFixed(2) }}</p>
-      <p class="rate">评分: ⭐ {{ rate }}</p>
-      <p class="desc">{{ description }}</p>
-
-      <div class="spec-section">
-        <div class="spec-title-bar">
-          <h3 class="spec-title">📦 详情信息</h3>
-          <el-button
-              v-if="role === 'admin'"
-              type="primary"
-              size="small"
-              @click="$router.push(`/changeInfo/${productId}`)"
-          >
-            修改信息
-          </el-button>
-        </div>
-        <el-descriptions :column="2" border size="small" class="spec-table">
-          <el-descriptions-item
-              v-for="(spec, index) in specificationsTableData"
-              :key="index"
-              :label="spec.item"
-          >
-            {{ spec.value }}
-          </el-descriptions-item>
-        </el-descriptions>
+    <!-- 商品详情内容 -->
+    <div class="product-content">
+      <!-- 左侧：商品封面 -->
+      <div class="product-image">
+        <el-image :src="cover"></el-image>
       </div>
 
-      <!-- 购买操作 -->
-      <div class="action-buttons">
-        <el-input-number v-model="quantity" :min="1" :max="10" />
-        <el-button type="danger" @click="buyNow">立即购买</el-button>
-        <el-button type="primary" @click="addToCart">加入购物车</el-button>
+      <!-- 右侧：商品信息 -->
+      <div class="product-info">
+        <h2>{{ title }}</h2>
+        <p class="price" v-if="price !== undefined && price !== null">￥{{ price.toFixed(2) }}</p>
+        <p class="rate">评分: ⭐ {{ rate }}</p>
+        <p class="desc">{{ description }}</p>
+
+        <div class="spec-section">
+          <div class="spec-title-bar">
+            <h3 class="spec-title">📦 详情信息</h3>
+            <el-button
+                v-if="role === 'admin'"
+                type="primary"
+                size="small"
+                @click="$router.push(`/changeInfo/${productId}`)"
+            >
+              修改信息
+            </el-button>
+          </div>
+          <el-descriptions :column="2" border size="small" class="spec-table">
+            <el-descriptions-item
+                v-for="(spec, index) in specificationsTableData"
+                :key="index"
+                :label="spec.item"
+            >
+              {{ spec.value }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+
+        <!-- 购买操作 -->
+        <div class="action-buttons">
+          <el-input-number v-model="quantity" :min="1" :max="10" />
+          <el-button type="danger" @click="buyNow">立即购买</el-button>
+          <el-button type="primary" @click="handleAddToCart">加入购物车</el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -126,10 +191,19 @@ const buyNow = () => {
 
 <style scoped>
 .product-detail {
-  display: flex;
   padding: 20px;
   background: #fff;
   border-radius: 8px;
+}
+
+.action-buttons-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.product-content {
+  display: flex;
 }
 
 .product-image {
@@ -196,6 +270,6 @@ const buyNow = () => {
   display: flex;
   gap: 10px;
   margin-top: 20px;
+  align-items: center;
 }
 </style>
-
