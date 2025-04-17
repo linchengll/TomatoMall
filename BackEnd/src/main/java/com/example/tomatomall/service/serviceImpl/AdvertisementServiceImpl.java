@@ -58,6 +58,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             advertisement.setProductId(advertisementVO.getProductId());
         }else
             throw TomatoMallException.productNotExists();
+        advertisementRepository.save(advertisement);
 
         return "更新成功";
     }
