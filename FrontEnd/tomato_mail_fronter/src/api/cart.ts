@@ -29,7 +29,7 @@ export const getCartItems = async () => {
 
 // 更新购物车商品数量
 export const updateCartItem = async (cartItemId: string, quantity: number) => {
-    return axios.patch(`${CART_MODULE}/${cartItemId}`, quantity, {
+    return axios.patch(`${CART_MODULE}/${cartItemId}`,  { quantity: quantity }, {
         headers: { 'Content-Type': 'application/json' }
     }).then(res => {
         return res
