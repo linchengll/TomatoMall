@@ -8,10 +8,7 @@ import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
 import com.example.tomatomall.vo.Response;
 import com.example.tomatomall.util.AlipayProperties;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@RestController
 @RequestMapping("/api/orders")
 public class OrderController {
 //    private final AlipayProperties alipayProperties;
