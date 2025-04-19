@@ -23,7 +23,7 @@ public class Orders {
      @Column(name = "user_id")
      private Integer userId;
 
-     @Column(name="total_amount")
+     @Column(name="total_amount")//创建订单后价格就锁定，而购物车中价格可随商品变化
      private Float totalAmount;
 
      @Column(name="pay_method")
@@ -34,6 +34,13 @@ public class Orders {
 
      @Column(name="create_time")
      private Time createTime;
+     //来自额外信息shipping_address
+     @Column(name = "name")
+     private String name;
+     @Column(name = "phone")
+     private String phone;
+     @Column(name = "address")
+     private String address;
 
      public OrderVO toVO(){
           OrderVO VO=new OrderVO();
