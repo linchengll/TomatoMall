@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { getCartItems, updateCartItem, deleteCartItem, purchaseCartItems, createOrder } from '../../api/cart.ts';
 import { initiatePayment } from '../../api/order.ts';
@@ -55,11 +55,14 @@ const orderInfo = ref({
   status: '',
 });
 
+// 计算是否有选中的商品
+const hasSelectedItems = computed(() => selectedItems.value.length > 0);
+
 // 获取购物车商品
 async function fetchCartItems() {
   try {
     const res = await getCartItems();
-    if (res.data.code === 200) {
+    if (res.data.code === '200') {
       cartItems.value = res.data.data.items.map((item: any) => ({
         cartItemId: item.cartItemId,
         productId: item.productId,
@@ -87,7 +90,7 @@ async function updateQuantity(item: CartItem, newQuantity: number) {
   }
   try {
     const res = await updateCartItem(item.cartItemId, newQuantity);
-    if (res.data.code === 200) {
+    if (res.data.code === '200') {
       item.quantity = newQuantity;
       calculateTotal();
     } else {
@@ -102,8 +105,9 @@ async function updateQuantity(item: CartItem, newQuantity: number) {
 async function removeItem(cartItemId: string) {
   try {
     const res = await deleteCartItem(cartItemId);
-    if (res.data.code === 200) {
+    if (res.data.code === '200') {
       cartItems.value = cartItems.value.filter(item => item.cartItemId !== cartItemId);
+      selectedItems.value = selectedItems.value.filter(id => id !== cartItemId);
       calculateTotal();
     } else {
       ElMessage.error(res.data.msg || '删除失败');
@@ -133,7 +137,7 @@ async function submitOrder() {
       address: shippingAddress.value,
     };
     const res = await createOrder(selectedItems.value, shippingInfo, paymentMethod.value);
-    if (res.data.code === 200) {
+    if (res.data.code === '200') {
       ElMessage.success('订单提交成功');
       showPurchaseDialog.value = false;
       orderInfo.value = res.data.data; // 保存订单信息
@@ -151,7 +155,7 @@ async function submitOrder() {
 async function handlePayment() {
   try {
     const res = await initiatePayment(orderInfo.value.orderId); // 调用支付接口
-    if (res.data.code === 200) {
+    if (res.data.code === '200') {
       const paymentForm = res.data.data.paymentForm; // 获取支付表单HTML
       const paymentWindow = window.open('', '_blank'); // 打开新窗口
       paymentWindow?.document.write(paymentForm); // 渲染支付表单
@@ -193,7 +197,13 @@ fetchCartItems();
 
     <!-- 底部购买按钮 -->
     <div class="cart-footer">
-      <el-button type="primary" @click="showPurchaseDialog = true">购买</el-button>
+      <el-button
+          type="primary"
+          @click="showPurchaseDialog = true"
+          :disabled="!hasSelectedItems"
+      >
+        购买
+      </el-button>
     </div>
 
     <!-- 购买弹窗 -->
@@ -320,6 +330,12 @@ fetchCartItems();
   width: 200px;
   height: 40px;
   font-size: 16px;
+}
+
+.cart-footer .el-button.is-disabled {
+  background-color: #c0c4cc;
+  border-color: #c0c4cc;
+  color: #fff;
 }
 
 .el-dialog {

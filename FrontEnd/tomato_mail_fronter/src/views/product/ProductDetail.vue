@@ -72,7 +72,7 @@ const quantity = ref(1);
 const handleAddToCart = async () => {
   try {
     const res = await addToCart(productId, quantity.value);
-    if (res.data.code === 200) {
+    if (res.data.code === '200') {
       ElMessage.success('成功加入购物车');
     } else {
       ElMessage.error(res.data.msg || '加入购物车失败');
