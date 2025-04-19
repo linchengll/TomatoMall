@@ -65,7 +65,8 @@ public class AccountServiceImpl implements AccountService {
             if (!Objects.equals(account.getId(), securityUtil.getCurrentUser().getId()))
                 throw TomatoMallException.userMismatch();
         }catch (NullPointerException n){
-            throw TomatoMallException.notLogin();
+            //throw TomatoMallException.notLogin();
+            System.err.println("###nullpointerexception###");
         }
         if (accountVO.getPassword()!=null){
             String rawPassword=accountVO.getPassword();
