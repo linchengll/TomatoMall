@@ -4,6 +4,7 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.example.tomatomall.enums.StatusEnum;
 import com.example.tomatomall.service.OrderService;
+import com.example.tomatomall.vo.OrderBodyVO;
 import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
 import com.example.tomatomall.vo.Response;
@@ -23,20 +24,15 @@ import java.util.stream.Collectors;
 
 @RequestMapping("/api/orders")
 public class OrderController {
-//    private final AlipayProperties alipayProperties;
-//    public OrderController(AlipayProperties alipayProperties) {
-//        this.alipayProperties = alipayProperties;
-//    }
-
     @Resource
     OrderService orderService;
     @Resource
     AlipayProperties alipayProperties;
 
-
     @PostMapping("/checkout")
-    public Response<OrderVO> submitOrder(@RequestBody Map<Object,Object> Body){
-        return Response.buildSuccess(orderService.submitOrder((List<String>) Body.get("cartItemIds"), (Map<Object, String>) Body.get("shipping_address"), (String) Body.get("payment_method")));
+    public Response<OrderVO> submitOrder(@RequestBody OrderBodyVO Body){
+        System.err.println("###submit");
+        return Response.buildSuccess(orderService.submitOrder(Body.getCartItemIds(), Body.getShippingAddress(), Body.getPaymentMethod()));
     }
 
     @PostMapping("/{orderId}/pay")
@@ -65,5 +61,12 @@ public class OrderController {
             orderService.reduceStock(orderId);
         }
         response.getWriter().print("success");
+    }
+
+
+    public class OrderBody{
+        List<String> cartItemIds;
+        Object shipping_address;
+        String payment_method;
     }
 }
