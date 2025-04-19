@@ -20,7 +20,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     private static final List<String> WHITE_LIST = Arrays.asList(
             "/api/accounts/login",
             "/api/accounts",
-            "/api/images"
+            "/api/images",
+            "/api/orders/notify"
     );
 
     @Override

@@ -30,11 +30,17 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
     @Autowired
     OrderRepository orderRepository;
+    @Autowired
     CartRepository cartRepository;
+    @Autowired
     ProductRepository productRepository;
+    @Autowired
     ProductStockpileRepository productStockpileRepository;
+    @Autowired
     OrderArchiveRepository orderArchiveRepository;
+    @Autowired
     SecurityUtil securityUtil;
+    @Autowired
     AlipayProperties alipayProperties;
 
     @Override
@@ -42,13 +48,13 @@ public class OrderServiceImpl implements OrderService {
         Orders raw=new Orders();
         float totalAmount= (float) 0;
         try{PaymentEnum.valueOf(payment_method);}
-        catch (IllegalArgumentException e) {
+        catch (Exception e) {
             throw TomatoMallException.orderPaymentMethodInvalid();
         }
         //检验购物车商品有效性
         for(String id : cartItemIds) {
             //后半部分理应恒为true
-            if (!cartRepository.findById(new Integer(id)).isPresent() || !productRepository.findById(cartRepository.findById(new Integer(id)).get().getProductId()).isPresent())
+            if (!cartRepository.findById(new Integer(id)).isPresent()) //|| !productRepository.findById(cartRepository.findById(new Integer(id)).get().getProductId()).isPresent())
                 throw TomatoMallException.orderCartProductInvalid();
         }
         //计算金额，调整库存，.get()警告不用管
@@ -58,7 +64,6 @@ public class OrderServiceImpl implements OrderService {
             totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice();
                 //1.删除购物车商品/标记无效
                 //2.限制用户只能有一个订单
-                //数据库可能要保存订单信息?
             //if(ps.hasTag)
             ProductStockpile productStockpile = productStockpileRepository.findByProductId(cartRepository.findById(new Integer(id)).get().getProductId());
             if(productStockpile==null){
@@ -80,7 +85,12 @@ public class OrderServiceImpl implements OrderService {
         raw.setAddress(shipping_address.getAddress());
         Orders saved=orderRepository.save(raw);
         for(String id : cartItemIds){
-            OrderArchive orderArchive= (OrderArchive) cartRepository.findById(new Integer(id)).get();
+            Cart cart=cartRepository.findById(new Integer(id)).get();
+            OrderArchive orderArchive= new OrderArchive();
+            orderArchive.setCartItemId(cart.getCartItemId());
+            orderArchive.setUserId(cart.getUserId());
+            orderArchive.setProductId(cart.getProductId());
+            orderArchive.setQuantity(cart.getQuantity());
             orderArchive.setOrderId(saved.getOrderId());
             orderArchiveRepository.save(orderArchive);
         }
@@ -116,7 +126,6 @@ public class OrderServiceImpl implements OrderService {
             AlipayTradePagePayResponse response = alipayClient.pageExecute(request);
             String paymentForm = response.getBody();
 
-            // 构建返回对象
             PaymentVO paymentVO = new PaymentVO();
             paymentVO.setPaymentForm(paymentForm);
             paymentVO.setOrderId(PO.getOrderId());
@@ -151,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
             if(ps==null)
                 throw TomatoMallException.orderCartProductInvalid();//处理订单中被删除的商品，这样不安全
             else if (ps.getFrozen() < archive.getQuantity()) {
-                System.err.println("#####Unexpected???");//这个用现有测试方法应该不会触发
+                System.err.println("##### Wait what???");//这个用现有测试方法应该不会触发
                 throw TomatoMallException.duplicateOrderUpdate(orderId);
             }else {
                 ps.setFrozen(ps.getFrozen() - archive.getQuantity());
