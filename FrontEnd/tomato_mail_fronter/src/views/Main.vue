@@ -130,6 +130,9 @@ getUserInfo()
           <el-link @click="$router.push('/createProduct')" v-if="role === 'admin'" top="10px">
             <el-button>创建书籍</el-button>
           </el-link>
+          <el-link @click="$router.push('/cart')" top="20px">
+            <el-button>前往购物车</el-button>
+          </el-link>
         </el-card>
       </el-aside>
     </el-container>
