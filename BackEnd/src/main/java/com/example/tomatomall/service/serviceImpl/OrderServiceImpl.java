@@ -1,5 +1,11 @@
 package com.example.tomatomall.service.serviceImpl;
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradePagePayModel;
+import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.example.tomatomall.enums.PaymentEnum;
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Cart;
@@ -10,6 +16,7 @@ import com.example.tomatomall.repository.OrderRepository;
 import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.repository.ProductStockpileRepository;
 import com.example.tomatomall.service.OrderService;
+import com.example.tomatomall.util.AlipayProperties;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
@@ -27,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     ProductRepository productRepository;
     ProductStockpileRepository productStockpileRepository;
     SecurityUtil securityUtil;
+    AlipayProperties alipayProperties;
 
     @Override
     public OrderVO submitOrder(List<String> cartItemIds, Object shipping_address, String payment_method) {
@@ -77,13 +85,41 @@ public class OrderServiceImpl implements OrderService {
         if(!orderRepository.findById(new Integer(orderId)).isPresent())
             throw TomatoMallException.orderNotExist();
         Orders PO=orderRepository.findById(new Integer(orderId)).get();
-        PaymentVO paymentVO=new PaymentVO();
-        //
-        paymentVO.setPaymentForm("???");
-        //
-        paymentVO.setOrderId(PO.getOrderId());
-        paymentVO.setTotalAmount(PO.getTotalAmount());
-        paymentVO.setPaymentMethod(PO.getPayMethod());
-        return paymentVO;
+        AlipayClient alipayClient = new DefaultAlipayClient(
+                alipayProperties.getServerUrl(),
+                alipayProperties.getAppId(),
+                alipayProperties.getPrivateKey(),
+                "json",
+                "UTF-8",
+                alipayProperties.getAlipayPublicKey(),
+                "RSA2");
+
+        AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
+        request.setNotifyUrl(alipayProperties.getNotifyUrl());
+
+        AlipayTradePagePayModel model = new AlipayTradePagePayModel();
+        model.setOutTradeNo(PO.getOrderId().toString());
+        model.setTotalAmount(String.format("%.2f", PO.getTotalAmount())); // 必须保留两位小数
+        model.setSubject("TomatoMall订单"); // 订单标题
+        model.setProductCode("FAST_INSTANT_TRADE_PAY"); // 固定值
+
+        request.setBizModel(model);
+        try {
+            // 调用SDK生成表单
+            AlipayTradePagePayResponse response = alipayClient.pageExecute(request);
+            String paymentForm = response.getBody();
+
+            // 构建返回对象
+            PaymentVO paymentVO = new PaymentVO();
+            paymentVO.setPaymentForm(paymentForm);
+            paymentVO.setOrderId(PO.getOrderId());
+            paymentVO.setTotalAmount(PO.getTotalAmount());
+            paymentVO.setPaymentMethod(PO.getPayMethod());
+            System.out.println(paymentForm);
+            return paymentVO;
+        } catch (AlipayApiException e) {
+            throw new RuntimeException("支付宝接口调用失败", e);
+        }
+
     }
 }
