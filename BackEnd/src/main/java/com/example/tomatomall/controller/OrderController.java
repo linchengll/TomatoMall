@@ -2,6 +2,7 @@ package com.example.tomatomall.controller;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.example.tomatomall.enums.StatusEnum;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
@@ -35,7 +36,7 @@ public class OrderController {
 
     @PostMapping("/checkout")
     public Response<OrderVO> submitOrder(@RequestBody Map<Object,Object> Body){
-        return Response.buildSuccess(orderService.submitOrder((List<String>) Body.get("cartItemIds"),Body.get("shipping_address"), (String) Body.get("payment_method")));
+        return Response.buildSuccess(orderService.submitOrder((List<String>) Body.get("cartItemIds"), (Map<Object, String>) Body.get("shipping_address"), (String) Body.get("payment_method")));
     }
 
     @PostMapping("/{orderId}/pay")
@@ -59,10 +60,9 @@ public class OrderController {
             String amount = params.get("total_amount"); // 支付金额
 
             // 更新订单状态（注意幂等性，防止重复处理）
-            //orderService.updateOrderStatus(orderId, alipayTradeNo, amount);
-
+            orderService.updateOrderStatus(orderId, StatusEnum.SUCCESS);
             // 扣减库存（建议加锁或乐观锁）
-            //inventoryService.reduceStock(orderId);
+            orderService.reduceStock(orderId);
         }
         response.getWriter().print("success");
     }

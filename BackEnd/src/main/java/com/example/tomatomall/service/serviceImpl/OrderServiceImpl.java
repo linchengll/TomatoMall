@@ -1,14 +1,13 @@
 package com.example.tomatomall.service.serviceImpl;
 
 import com.example.tomatomall.enums.PaymentEnum;
+import com.example.tomatomall.enums.StatusEnum;
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Cart;
+import com.example.tomatomall.po.OrderArchive;
 import com.example.tomatomall.po.Orders;
 import com.example.tomatomall.po.ProductStockpile;
-import com.example.tomatomall.repository.CartRepository;
-import com.example.tomatomall.repository.OrderRepository;
-import com.example.tomatomall.repository.ProductRepository;
-import com.example.tomatomall.repository.ProductStockpileRepository;
+import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.OrderVO;
@@ -16,8 +15,10 @@ import com.example.tomatomall.vo.PaymentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Time;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -26,22 +27,24 @@ public class OrderServiceImpl implements OrderService {
     CartRepository cartRepository;
     ProductRepository productRepository;
     ProductStockpileRepository productStockpileRepository;
+    OrderArchiveRepository orderArchiveRepository;
     SecurityUtil securityUtil;
 
     @Override
-    public OrderVO submitOrder(List<String> cartItemIds, Object shipping_address, String payment_method) {
+    public OrderVO submitOrder(List<String> cartItemIds, Map<Object,String> shipping_address, String payment_method) {
         Orders raw=new Orders();
-        //OrderEx archive=new OrderEx;
         float totalAmount= (float) 0;
         try{PaymentEnum.valueOf(payment_method);}
         catch (IllegalArgumentException e) {
             throw TomatoMallException.orderPaymentMethodInvalid();
         }
+        //检验购物车商品有效性
         for(String id : cartItemIds) {
             //后半部分理应恒为true
             if (!cartRepository.findById(new Integer(id)).isPresent() || !productRepository.findById(cartRepository.findById(new Integer(id)).get().getProductId()).isPresent())
                 throw TomatoMallException.orderCartProductInvalid();
         }
+        //计算金额，调整库存，.get()警告不用管
         for(String id : cartItemIds){
             Cart item=cartRepository.findById(new Integer(id)).get();
             ProductStockpile ps=productStockpileRepository.findByProductId(item.getProductId());
@@ -58,17 +61,22 @@ public class OrderServiceImpl implements OrderService {
             productStockpile.setFrozen(ps.getFrozen()+item.getQuantity());
             //timeStamp?
             productStockpileRepository.save(productStockpile);
-
         }
-            //
-            //shipping_address->???
-            //
         raw.setUserId(securityUtil.getCurrentUser().getId());//帮别人下单就不当作异常了吧:D
         raw.setTotalAmount(totalAmount);
         raw.setPayMethod(PaymentEnum.valueOf(payment_method));
         //status=PENDING
         raw.setCreateTime(new Time(System.currentTimeMillis()));
+        //添加shipping_address，虽然没有用到？？？
+        raw.setName(shipping_address.get("name"));
+        raw.setPhone(shipping_address.get("phone"));
+        raw.setAddress(shipping_address.get("address"));
         Orders saved=orderRepository.save(raw);
+        for(String id : cartItemIds){
+            OrderArchive orderArchive= (OrderArchive) cartRepository.findById(new Integer(id)).get();
+            orderArchive.setOrderId(saved.getOrderId());
+            orderArchiveRepository.save(orderArchive);
+        }
         return saved.toVO();
     }
 
@@ -85,5 +93,35 @@ public class OrderServiceImpl implements OrderService {
         paymentVO.setTotalAmount(PO.getTotalAmount());
         paymentVO.setPaymentMethod(PO.getPayMethod());
         return paymentVO;
+    }
+
+    @Override
+    public void updateOrderStatus(String orderId, StatusEnum status) {
+        Orders order;
+        if(orderRepository.findById(new Integer(orderId)).isPresent())
+            order=orderRepository.findById(new Integer(orderId)).get();
+        else
+            throw TomatoMallException.orderNotExist();
+        if(order.getStatus().equals(status))
+            throw TomatoMallException.duplicateOrderUpdate(orderId);
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
+
+    @Override
+    public void reduceStock(String orderId) {
+        List<OrderArchive> orderArchiveList=orderArchiveRepository.findByOrderId(new Integer(orderId));
+        for(OrderArchive archive:orderArchiveList){
+            ProductStockpile ps=productStockpileRepository.findByProductId(archive.getProductId());
+            if(ps==null)
+                throw TomatoMallException.orderCartProductInvalid();//处理订单中被删除的商品，这样不安全
+            else if (ps.getFrozen() < archive.getQuantity()) {
+                System.err.println("#####Unexpected???");//这个用现有测试方法应该不会触发
+                throw TomatoMallException.duplicateOrderUpdate(orderId);
+            }else {
+                ps.setFrozen(ps.getFrozen() - archive.getQuantity());
+                productStockpileRepository.save(ps);
+            }
+        }
     }
 }
