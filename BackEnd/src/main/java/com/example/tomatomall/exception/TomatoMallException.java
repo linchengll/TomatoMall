@@ -37,6 +37,8 @@ public class TomatoMallException extends RuntimeException {
 
     public static TomatoMallException orderNotExist() {return new TomatoMallException("订单不存在！");}
 
+    public static TomatoMallException duplicateOrderUpdate(String orderId) {return new TomatoMallException("对订单"+orderId+"操作重复！");}
+
     //advertisement
     public static TomatoMallException advertisementNotExists() {return new TomatoMallException("广告不存在！");}
 }
