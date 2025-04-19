@@ -12,6 +12,10 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "alipay")
 public class AlipayProperties {
 
-    private String alipayPublicKey; // 对应 yml 中的 alipay-public-key
+    private String alipayPublicKey;
+    private String serverUrl;
+    private String appId;
+    private String privateKey;
+    private String notifyUrl;
 
 }
