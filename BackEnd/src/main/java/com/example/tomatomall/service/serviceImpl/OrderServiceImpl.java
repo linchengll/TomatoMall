@@ -19,13 +19,12 @@ import com.example.tomatomall.util.AlipayProperties;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
+import com.example.tomatomall.vo.ShippingAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Time;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -39,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
     AlipayProperties alipayProperties;
 
     @Override
-    public OrderVO submitOrder(List<String> cartItemIds, Map<Object,String> shipping_address, String payment_method) {
+    public OrderVO submitOrder(List<String> cartItemIds, ShippingAddress shipping_address, String payment_method) {
         Orders raw=new Orders();
         float totalAmount= (float) 0;
         try{PaymentEnum.valueOf(payment_method);}
@@ -76,9 +75,9 @@ public class OrderServiceImpl implements OrderService {
         //status=PENDING
         raw.setCreateTime(new Time(System.currentTimeMillis()));
         //添加shipping_address，虽然没有用到？？？
-        raw.setName(shipping_address.get("name"));
-        raw.setPhone(shipping_address.get("phone"));
-        raw.setAddress(shipping_address.get("address"));
+        raw.setName(shipping_address.getName());
+        raw.setPhone(shipping_address.getPhone());
+        raw.setAddress(shipping_address.getAddress());
         Orders saved=orderRepository.save(raw);
         for(String id : cartItemIds){
             OrderArchive orderArchive= (OrderArchive) cartRepository.findById(new Integer(id)).get();
