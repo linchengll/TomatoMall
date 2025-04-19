@@ -1,7 +1,6 @@
 package com.example.tomatomall.vo;
 
 
-import com.example.tomatomall.po.Product;
 import com.example.tomatomall.po.ProductSpecification;
 import lombok.Getter;
 import lombok.Setter;

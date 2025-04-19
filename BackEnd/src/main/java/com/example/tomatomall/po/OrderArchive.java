@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-public class OrderArchive extends Cart {//用于将订单相应的购物车信息记录到数据库
+public class OrderArchive{//用于将订单相应的购物车信息记录到数据库
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name= "cart_item_id")

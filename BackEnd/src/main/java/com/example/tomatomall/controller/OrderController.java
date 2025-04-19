@@ -9,10 +9,7 @@ import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
 import com.example.tomatomall.vo.Response;
 import com.example.tomatomall.util.AlipayProperties;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@RestController
 @RequestMapping("/api/orders")
 public class OrderController {
     @Resource
@@ -31,7 +29,6 @@ public class OrderController {
 
     @PostMapping("/checkout")
     public Response<OrderVO> submitOrder(@RequestBody OrderBodyVO Body){
-        System.err.println("###submit");
         return Response.buildSuccess(orderService.submitOrder(Body.getCartItemIds(), Body.getShippingAddress(), Body.getPaymentMethod()));
     }
 
@@ -62,11 +59,6 @@ public class OrderController {
         }
         response.getWriter().print("success");
     }
-
-
-    public class OrderBody{
-        List<String> cartItemIds;
-        Object shipping_address;
-        String payment_method;
-    }
 }
+/*{{$.19.response.body.data.cart_item_id}},
+        {{$.21.response.body.data.cart_item_id}}*/
