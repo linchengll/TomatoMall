@@ -53,12 +53,8 @@ public class OrderController {
             String amount = params.get("total_amount"); // 支付金额
 
             // 更新订单状态（注意幂等性，防止重复处理）
-            orderService.updateOrderStatus(orderId, StatusEnum.SUCCESS);
-            // 扣减库存（建议加锁或乐观锁）
-            orderService.reduceStock(orderId);
+            orderService.handleSuccess(orderId);
         }
         response.getWriter().print("success");
     }
 }
-/*{{$.19.response.body.data.cart_item_id}},
-        {{$.21.response.body.data.cart_item_id}}*/
