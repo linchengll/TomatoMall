@@ -14,6 +14,7 @@ import com.example.tomatomall.po.OrderArchive;
 import com.example.tomatomall.po.Orders;
 import com.example.tomatomall.po.ProductStockpile;
 import com.example.tomatomall.repository.*;
+import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.util.AlipayProperties;
 import com.example.tomatomall.util.SecurityUtil;
@@ -42,6 +43,8 @@ public class OrderServiceImpl implements OrderService {
     SecurityUtil securityUtil;
     @Autowired
     AlipayProperties alipayProperties;
+    @Autowired
+    CartService cartService;
 
     @Override
     public OrderVO submitOrder(List<String> cartItemIds, ShippingAddress shipping_address, String payment_method) {
@@ -62,9 +65,10 @@ public class OrderServiceImpl implements OrderService {
             Cart item=cartRepository.findById(new Integer(id)).get();
             ProductStockpile ps=productStockpileRepository.findByProductId(item.getProductId());
             totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice();
-                //1.删除购物车商品/标记无效
-                //2.限制用户只能有一个订单
-            //if(ps.hasTag)
+            //显然这里可以使同一购物车商品多次添加到不同订单，但这个版本选择不处理，到自由需求阶段修改po再处理
+            //1.删除购物车商品/标记无效
+            //2.限制用户只能有一个订单
+            //if(item.hasTag)
             ProductStockpile productStockpile = productStockpileRepository.findByProductId(cartRepository.findById(new Integer(id)).get().getProductId());
             if(productStockpile==null){
                 throw TomatoMallException.productNotExists();
@@ -140,7 +144,24 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateOrderStatus(String orderId, StatusEnum status) {
+    public void handleSuccess(String orderId) {
+        updateOrderStatus(orderId,StatusEnum.SUCCESS);
+        updateStock(orderId,true);
+    }
+
+    @Override
+    public void handleTimeout(String orderId) {
+        updateOrderStatus(orderId,StatusEnum.TIMEOUT);
+        updateStock(orderId,false);
+    }
+
+    @Override
+    public void handleFailure(String orderId) {
+        updateOrderStatus(orderId,StatusEnum.FAILED);
+        updateStock(orderId,false);
+    }
+
+    private void updateOrderStatus(String orderId, StatusEnum status) {
         Orders order;
         if(orderRepository.findById(new Integer(orderId)).isPresent())
             order=orderRepository.findById(new Integer(orderId)).get();
@@ -152,18 +173,21 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
-    @Override
-    public void reduceStock(String orderId) {
+    private void updateStock(String orderId,boolean reduce) {
         List<OrderArchive> orderArchiveList=orderArchiveRepository.findByOrderId(new Integer(orderId));
         for(OrderArchive archive:orderArchiveList){
             ProductStockpile ps=productStockpileRepository.findByProductId(archive.getProductId());
             if(ps==null)
                 throw TomatoMallException.orderCartProductInvalid();//处理订单中被删除的商品，这样不安全
             else if (ps.getFrozen() < archive.getQuantity()) {
-                System.err.println("##### Wait what???");//这个用现有测试方法应该不会触发
+                System.err.println("##### order amount invalid???");//我搞不出这个
                 throw TomatoMallException.duplicateOrderUpdate(orderId);
             }else {
                 ps.setFrozen(ps.getFrozen() - archive.getQuantity());
+                if(!reduce)
+                    ps.setAmount(ps.getAmount() + archive.getQuantity());
+                else
+                    cartService.deleteCartItem(String.valueOf(archive.getCartItemId()));
                 productStockpileRepository.save(ps);
             }
         }
