@@ -2,7 +2,6 @@ package com.example.tomatomall.controller;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
-import com.example.tomatomall.enums.StatusEnum;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.vo.OrderBodyVO;
 import com.example.tomatomall.vo.OrderVO;
@@ -15,7 +14,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 

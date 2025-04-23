@@ -18,6 +18,7 @@ import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.util.AlipayProperties;
 import com.example.tomatomall.util.SecurityUtil;
+import com.example.tomatomall.util.TimeoutHandler;
 import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
 import com.example.tomatomall.vo.ShippingAddress;
@@ -45,6 +46,8 @@ public class OrderServiceImpl implements OrderService {
     AlipayProperties alipayProperties;
     @Autowired
     CartService cartService;
+    @Autowired
+    TimeoutHandler timeoutHandler;
 
     @Override
     public OrderVO submitOrder(List<String> cartItemIds, ShippingAddress shipping_address, String payment_method) {
@@ -75,10 +78,9 @@ public class OrderServiceImpl implements OrderService {
             }
             productStockpile.setAmount(ps.getAmount()-item.getQuantity());
             productStockpile.setFrozen(ps.getFrozen()+item.getQuantity());
-            //timeStamp?
             productStockpileRepository.save(productStockpile);
         }
-        raw.setUserId(securityUtil.getCurrentUser().getId());//帮别人下单就不当作异常了吧:D
+        raw.setUserId(securityUtil.getCurrentUser().getId());//帮别人下单不当作异常:D
         raw.setTotalAmount(totalAmount);
         raw.setPayMethod(PaymentEnum.valueOf(payment_method));
         //status=PENDING
@@ -88,6 +90,7 @@ public class OrderServiceImpl implements OrderService {
         raw.setPhone(shipping_address.getPhone());
         raw.setAddress(shipping_address.getAddress());
         Orders saved=orderRepository.save(raw);
+        timeoutHandler.enable();
         for(String id : cartItemIds){
             Cart cart=cartRepository.findById(new Integer(id)).get();
             OrderArchive orderArchive= new OrderArchive();
