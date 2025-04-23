@@ -3,6 +3,8 @@ import { ref, computed, nextTick } from 'vue'
 import { userInfo, userInfoUpdate } from '../api/user.ts'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getListInfo } from '../api/Book/products.ts'
+import { addADVInfo, updateADVInfo, deleteADVInfo, getADVListInfo} from '../api/Adv/advertisements'
+import { imageInfoUpdate } from "../api/tools.ts"
 
 // === 侧边栏和搜索栏 ===============================
 const search = ref("");
@@ -11,13 +13,30 @@ const categories = ref(["惊悚", "穿越", "科幻", "经典", "爱情", "励�
 
 
 // === 广告 ========================================
-import banner1 from '../assets/banners1.jpg';
-import banner2 from '../assets/banners2.jpg';
-const banners = ref([banner1, banner2]);
-const products = ref([
-  { name: "三体", price: "149", image: null },
-  { name: "红楼梦", price: "299", image: null }
-]);
+const banners = ref<any[]>([])
+const newBanner = ref({
+  id: '',
+  title: '',
+  content: '',
+  imgUrl: '',
+  productId: ''
+})
+
+// 加载广告列表
+async function getBannersList() {
+  try {
+    const res = await getADVListInfo();
+    if (res.data.code === '200') {
+      // 使用 map 只提取需要的字段
+      banners.value = res.data.data || [];
+    } else {
+      ElMessage.error(res.data.msg || "获取广告失败");
+    }
+  } catch (err) {
+    ElMessage.error("加载广告列表失败");
+  }
+}
+getBannersList();
 // =================================================
 
 // === 商品列表 =====================================
@@ -100,8 +119,12 @@ getUserInfo()
       <el-main>
         <!-- 轮播图 -->
         <el-carousel height="300px">
-          <el-carousel-item v-for="(image, index) in banners" :key="index">
-            <img :src="image" class="banner-img" />
+          <el-carousel-item v-for="(banner, index) in banners" :key="index">
+            <img :src="banner.imgUrl" class="banner-img" />
+            <div class="banner-caption">
+              <h3>{{ banner.title }}</h3>
+              <p>{{ banner.content }}</p>
+            </div>
           </el-carousel-item>
         </el-carousel>
 
@@ -127,19 +150,70 @@ getUserInfo()
             <el-avatar :src="avatar" class="user-avatar" />
           </el-link>
           <p class="welcome-text">欢迎：{{ username }}</p>
-          <el-link @click="$router.push('/createProduct')" v-if="role === 'admin'" top="10px">
-            <el-button>创建书籍</el-button>
-          </el-link>
-          <el-link @click="$router.push('/cart')" top="20px">
-            <el-button>前往购物车</el-button>
-          </el-link>
+          <el-space direction="vertical" size="large" alignment="center">
+            <el-button type="primary" plain icon="el-icon-edit" @click="$router.push('/createProduct')" v-if="role === 'admin'">
+              创建书籍
+            </el-button>
+            <el-button type="warning" plain icon="el-icon-picture" @click="$router.push('/editAdvertisements')">
+              编辑广告
+            </el-button>
+            <el-button type="success" plain icon="el-icon-shopping-cart-full" @click="$router.push('/cart')">
+              前往购物车
+            </el-button>
+          </el-space>
         </el-card>
       </el-aside>
     </el-container>
   </div>
+
+  <!-- 添加广告的弹窗 -->
+  <el-dialog v-model="showAddDialog" title="添加广告" width="500px">
+    <el-form :model="newBanner" label-width="80px">
+      <el-form-item label="标题">
+        <el-input v-model="newBanner.title" />
+      </el-form-item>
+      <el-form-item label="描述">
+        <el-input type="textarea" v-model="newBanner.content" />
+      </el-form-item>
+      <el-form-item label="广告图片" prop="image">
+        <el-form-item label="头像">
+          <img :src="newBanner" class="image" />
+          <input type="file" accept="image/*" @change="handleAvatarUpload" />
+        </el-form-item>
+      </el-form-item>
+      <el-form-item label="商品ID">
+        <el-select v-model="newBanner.productId" placeholder="选择关联商品">
+          <el-option
+              v-for="item in productList"
+              :key="item.id"
+              :label="item.title"
+              :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button type="primary" @click="confirmAddBanner">确认添加</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style>
+.banner-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 30px;
+  color: white;
+  text-shadow: 0 0 5px black;
+}
+
+.el-button {
+  width: 160px;
+  justify-content: center !important;
+  display: flex;
+  align-items: center;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -201,9 +275,12 @@ getUserInfo()
   padding: 10px;
 }
 .user-card {
-  text-align: center;
-  padding: 20px;
-  height: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  height: 300px;
 }
 .user-avatar-link {
   display: flex;
@@ -220,5 +297,6 @@ getUserInfo()
   margin-top: 10px;
   font-size: 16px;
   font-weight: bold;
+  text-align: center;
 }
 </style>
