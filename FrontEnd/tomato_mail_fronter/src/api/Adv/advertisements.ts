@@ -5,14 +5,14 @@ type UpdateInfo = {
     id: string,
     title?: string,
     content?: string,
-    imgUrl?: string,
+    imageUrl?: string,
     productId: string,
 }
 
 type AddInfo = {
     title: string,
     content: string,
-    imgUrl: string,
+    imageUrl: string,
     productId: string,
 }
 

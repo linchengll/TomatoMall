@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { getCartItems, updateCartItem, deleteCartItem, purchaseCartItems, createOrder } from '../../api/cart.ts';
 import { initiatePayment } from '../../api/order.ts';
 
@@ -15,28 +15,7 @@ interface CartItem {
   quantity: number;
 }
 
-const cartItems = ref<CartItem[]>([
-  {
-    cartItemId: '201',
-    productId: '102',
-    title: '代码整洁之道',
-    price: 59.0,
-    description: '软件工程领域的经典著作',
-    cover: 'https://example.com/covers/clean-code.jpg',
-    detail: '本书提出一种观念：代码质量与其整洁度成正比。',
-    quantity: 1,
-  },
-  {
-    cartItemId: '202',
-    productId: '101',
-    title: '深入理解Java虚拟机',
-    price: 99.5,
-    description: 'Java开发者必读经典，全面讲解JVM工作原理',
-    cover: 'https://example.com/covers/jvm.jpg',
-    detail: '本书详细讲解了Java虚拟机的体系结构、内存管理、字节码执行等核心内容。',
-    quantity: 2,
-  },
-]);
+const cartItems = ref<CartItem[]>([]);
 
 const selectedItems = ref<string[]>([]);
 const totalAmount = ref(0);
