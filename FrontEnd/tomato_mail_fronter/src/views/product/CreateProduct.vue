@@ -4,6 +4,7 @@ import {ElMessage} from "element-plus";
 import {imageInfoUpdate} from "../../api/tools.ts"
 import {Specification, addInfo, AddInfo} from "../../api/Book/products.ts";
 import {router} from "../../router";
+import Header from '../ManagerHead.vue';
 
 const title = ref('');
 const price = ref(0);
@@ -153,11 +154,7 @@ const handleUpdate = async () => {
 </script>
 
 <template>
-  <div class="top">
-    <div class="Name">
-      <p class="title">TOMATOMALL</p>
-    </div>
-  </div>
+  <Header />
 
   <div class = "main-container">
     <div>
@@ -250,23 +247,5 @@ const handleUpdate = async () => {
   font-size: 16px; /* 增大字体大小 */
   padding: 12px 20px; /* 增加内边距，使按钮看起来更大 */
 }
-.top {
-  background-color: rgba(182, 16, 16, 0.6);
-  height: 26vh;
-  display: flex;
-}
-.Name{
-  lign-items: center;
-  margin-left: 600px;
-  margin-top: 60px;
-}
-.title{
-  font-size: 65px; /* 更大的文字 */
-  color: #dddddd; /* 蓝色，使用十六进制表示 */
-  font-weight: 20000; /* 加粗 */
-  font-family: 'Arial', sans-serif; /* 使用 Arial 字体 */
-  margin-top: 15px;
-}
-
 
 </style>
