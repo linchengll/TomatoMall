@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
-import { userInfo, userInfoUpdate } from '../api/user.ts'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref } from 'vue'
+import { userInfo } from '../api/user.ts'
+import { ElMessage } from 'element-plus'
 import { getListInfo } from '../api/Book/products.ts'
-import { addADVInfo, updateADVInfo, deleteADVInfo, getADVListInfo} from '../api/Adv/advertisements'
-import { imageInfoUpdate } from "../api/tools.ts"
+import { getADVListInfo} from '../api/Adv/advertisements'
+
 
 // === 侧边栏和搜索栏 ===============================
 const search = ref("");
@@ -13,14 +13,14 @@ const categories = ref(["惊悚", "穿越", "科幻", "经典", "爱情", "励�
 
 
 // === 广告 ========================================
-const banners = ref<any[]>([])
-const newBanner = ref({
-  id: '',
-  title: '',
-  content: '',
-  imgUrl: '',
-  productId: ''
-})
+interface banner{
+  id: string;
+  title: string;
+  content: string;
+  imageUrl: string;
+  productId: string;
+}
+const banners = ref<banner[]>([])
 
 // 加载广告列表
 async function getBannersList() {
@@ -28,7 +28,13 @@ async function getBannersList() {
     const res = await getADVListInfo();
     if (res.data.code === '200') {
       // 使用 map 只提取需要的字段
-      banners.value = res.data.data || [];
+      banners.value =( res.data.data || [] ).map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        imageUrl: item.imageUrl? item.imageUrl : "../assets/DefaultBanner.png",
+        productId: item.productId
+      }));
     } else {
       ElMessage.error(res.data.msg || "获取广告失败");
     }
@@ -120,7 +126,7 @@ getUserInfo()
         <!-- 轮播图 -->
         <el-carousel height="300px">
           <el-carousel-item v-for="(banner, index) in banners" :key="index">
-            <img :src="banner.imgUrl" class="banner-img" />
+            <img :src="banner.imageUrl" class="banner-img" />
             <div class="banner-caption">
               <h3>{{ banner.title }}</h3>
               <p>{{ banner.content }}</p>

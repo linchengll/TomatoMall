@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref } from 'vue'
 import Header from '../ManagerHead.vue'
 import { ElMessage } from 'element-plus'
 import { addADVInfo, updateADVInfo, deleteADVInfo, getADVListInfo} from '../../api/Adv/advertisements'
@@ -41,12 +41,19 @@ getProductList();
 // ================================================
 
 // ==== 广告 ====================================
-const banners = ref<any[]>([])
+interface banner{
+  id: string;
+  title: string;
+  content: string;
+  imageUrl: string;
+  productId: string;
+}
+const banners = ref<banner[]>([])
 const newBanner = ref({
   id: '',
   title: '',
   content: '',
-  imgUrl: '',
+  imageUrl: '',
   productId: ''
 })
 
@@ -56,7 +63,13 @@ async function getBannersList() {
     const res = await getADVListInfo();
     if (res.data.code === '200') {
       // 使用 map 只提取需要的字段
-      banners.value = res.data.data || [];
+      banners.value =( res.data.data || [] ).map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        imageUrl: item.imageUrl? item.imageUrl : "../assets/DefaultBanner.png",
+        productId: item.productId
+      }));
     } else {
       ElMessage.error(res.data.msg || "获取广告失败");
     }
@@ -73,7 +86,7 @@ const openAddDialog = () => {
     id: '',
     title: '',
     content: '',
-    imgUrl: '',
+    imageUrl: '',
     productId: ''
   }
   showAddDialog.value = true
@@ -113,44 +126,38 @@ const deleteBanner = async (id: string) => {
 // ========================================================
 
 // 图片上传
-const handleAvatarUpload = async (event: Event) => {
-  const input = event.target as HTMLInputElement
-  if (!input.files || input.files.length === 0) return
+const fileList = ref<UploadUserFile[]>([])
+const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
+  console.log(uploadFile);
+  fileList.value = uploadFiles;
+};
 
-  const file = input.files[0]
-  try {
-    const response = await imageInfoUpdate(file)
-    if (response.data.code === '200') {
-      newBanner.value.imgUrl = response.data.data
-      await nextTick()
-      ElMessage.success('图片上传成功')
-    } else {
-      ElMessage.error('图片上传失败')
+const handlePreview: UploadProps['onPreview'] = (file) => {
+  console.log(file)
+}
+
+const handleAvatarUpload: UploadProps['onChange'] = async (uploadFile) => {
+  if (uploadFile.raw) {
+    try {
+      const response = await imageInfoUpdate(uploadFile.raw);
+      if (response.data.code === '200') {
+        newBanner.value.imageUrl = response.data.data
+        console.log(newBanner.value.imageUrl)
+        ElMessage.success('图片上传成功！');
+      } else {
+        ElMessage({
+          message: '图片上传失败！',
+          type: 'error',
+          center: true,
+        });
+      }
+    } catch (error) {
+      ElMessage.error('图片上传失败，请重试！');
+      console.error('上传失败:', error);
     }
-  } catch (error) {
-    ElMessage.error('图片上传失败，请重试')
-    console.error('上传失败:', error)
   }
-}
+};
 
-// 加载广告
-const fetchBanners = async () => {
-  // 这里应接接口，例如：const res = await getADVList();
-  // banners.value = res.data;
-  banners.value = [ // mock 数据
-    {
-      id: '1',
-      title: '广告标题1',
-      content: '广告描述内容1',
-      imgUrl: 'https://via.placeholder.com/400x100',
-      productId: '1'
-    }
-  ]
-}
-
-onMounted(() => {
-  fetchBanners()
-})
 </script>
 
 <template>
@@ -164,7 +171,7 @@ onMounted(() => {
     <el-col :span="24" v-for="banner in banners" :key="banner.id" class="banner-item">
       <div class="banner-card">
         <div class="banner-image-container">
-          <img :src="banner.imgUrl" class="banner-image" />
+          <img :src="banner.imageUrl" class="banner-image" />
           <div class="banner-overlay">
             <p class="banner-description">{{ banner.content }}</p>
           </div>
@@ -190,8 +197,18 @@ onMounted(() => {
         <el-input type="textarea" v-model="newBanner.content" />
       </el-form-item>
       <el-form-item label="广告图片">
-        <img :src="newBanner.imgUrl" class="image" />
-        <input type="file" accept="image/*" @change="handleAvatarUpload" />
+        <el-upload
+            v-model:file-list="fileList"
+            class="upload-demo"
+            :on-remove="handleRemove"
+            :on-preview="handlePreview"
+            :on-change="handleAvatarUpload"
+            :limit="1"
+            list-type="picture"
+            :auto-upload="false"
+        >
+          <el-button type="primary">点击上传</el-button>
+        </el-upload>
       </el-form-item>
       <el-form-item label="商品ID">
         <el-select v-model="newBanner.productId" placeholder="选择关联商品">
