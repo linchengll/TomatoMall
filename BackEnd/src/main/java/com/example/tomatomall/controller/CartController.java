@@ -2,9 +2,7 @@ package com.example.tomatomall.controller;
 
 
 import com.example.tomatomall.service.CartService;
-import com.example.tomatomall.vo.CartItemsVO;
-import com.example.tomatomall.vo.CartVO;
-import com.example.tomatomall.vo.Response;
+import com.example.tomatomall.vo.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -36,5 +34,8 @@ public class CartController {
         return Response.buildSuccess(cartService.getCartList());
     }
 
-
+    @PostMapping("/checkout")
+    public Response<OrderVO> submitOrder(@RequestBody OrderBodyVO Body){
+        return Response.buildSuccess(cartService.submitOrder(Body.getCartItemIds(), Body.getShippingAddress(), Body.getPaymentMethod()));
+    }
 }

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Time;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -33,7 +33,7 @@ public class Orders {
      private StatusEnum status=StatusEnum.PENDING;
 
      @Column(name="create_time")
-     private Time createTime;
+     private Timestamp createTime;
      //来自额外信息shipping_address
      @Column(name = "name")
      private String name;

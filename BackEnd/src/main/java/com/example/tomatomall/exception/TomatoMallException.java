@@ -31,7 +31,7 @@ public class TomatoMallException extends RuntimeException {
     public static TomatoMallException cartProductQuantityNotEnough() {return new TomatoMallException("商品数量不足！");}
 
     //order
-    public static TomatoMallException orderPaymentMethodInvalid() {return new TomatoMallException("订单支付方式不合法！");}
+    public static TomatoMallException orderPaymentMethodInvalid(String paymentMethod) {return new TomatoMallException("订单支付方式 "+paymentMethod+" 不合法！");}
 
     public static TomatoMallException orderCartProductInvalid() {return new TomatoMallException("订单中存在无效的购物车商品！");}
 

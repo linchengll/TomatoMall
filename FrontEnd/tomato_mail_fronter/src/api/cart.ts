@@ -47,8 +47,8 @@ export const deleteCartItem = async (cartItemId: string) => {
 export const createOrder = async (cartItemIds: string[], shippingAddress: ShippingAddress, paymentMethod: string) => {
     const orderInfo: CreateOrderInfo = {
         cartItemIds,
-        shipping_address: shippingAddress,
-        payment_method: paymentMethod,
+        shippingAddress: shippingAddress,
+        paymentMethod: paymentMethod,
     };
     return axios.post(`${CART_MODULE}/checkout`, orderInfo).then(res => {
         return res;

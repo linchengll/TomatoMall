@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Time;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -18,7 +18,7 @@ public class OrderVO {
     private Float totalAmount;
     private PaymentEnum payMethod;
     private StatusEnum status;
-    private Time createTime;
+    private Timestamp createTime;
 
     public Orders toPO(){
         Orders PO=new Orders();
