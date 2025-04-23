@@ -192,7 +192,7 @@ fetchCartItems();
       <el-input v-model="shippingPhone" placeholder="收货人电话" class="dialog-input" />
       <el-input v-model="shippingAddress" placeholder="收货地址" class="dialog-input" />
       <el-select v-model="paymentMethod" placeholder="选择支付方式" class="dialog-input">
-        <el-option label="支付宝" value="alipay" />
+        <el-option label="支付宝" value="ALIPAY" />
         <el-option label="微信支付" value="wechat" />
         <el-option label="银行卡" value="bank" />
       </el-select>

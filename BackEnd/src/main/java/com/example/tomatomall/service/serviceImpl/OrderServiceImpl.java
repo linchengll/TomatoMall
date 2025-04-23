@@ -6,10 +6,8 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.alipay.api.response.AlipayTradePagePayResponse;
-import com.example.tomatomall.enums.PaymentEnum;
 import com.example.tomatomall.enums.StatusEnum;
 import com.example.tomatomall.exception.TomatoMallException;
-import com.example.tomatomall.po.Cart;
 import com.example.tomatomall.po.OrderArchive;
 import com.example.tomatomall.po.Orders;
 import com.example.tomatomall.po.ProductStockpile;
@@ -17,92 +15,27 @@ import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.util.AlipayProperties;
-import com.example.tomatomall.util.SecurityUtil;
-import com.example.tomatomall.util.TimeoutHandler;
-import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
-import com.example.tomatomall.vo.ShippingAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
 import java.util.List;
 
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
     OrderRepository orderRepository;
-    @Autowired
-    CartRepository cartRepository;
-    @Autowired
-    ProductRepository productRepository;
+
     @Autowired
     ProductStockpileRepository productStockpileRepository;
     @Autowired
     OrderArchiveRepository orderArchiveRepository;
     @Autowired
-    SecurityUtil securityUtil;
-    @Autowired
     AlipayProperties alipayProperties;
     @Autowired
     CartService cartService;
-    @Autowired
-    TimeoutHandler timeoutHandler;
 
-    @Override
-    public OrderVO submitOrder(List<String> cartItemIds, ShippingAddress shipping_address, String payment_method) {
-        Orders raw=new Orders();
-        float totalAmount= (float) 0;
-        try{PaymentEnum.valueOf(payment_method);}
-        catch (Exception e) {
-            throw TomatoMallException.orderPaymentMethodInvalid();
-        }
-        //检验购物车商品有效性
-        for(String id : cartItemIds) {
-            //后半部分理应恒为true
-            if (!cartRepository.findById(new Integer(id)).isPresent()) //|| !productRepository.findById(cartRepository.findById(new Integer(id)).get().getProductId()).isPresent())
-                throw TomatoMallException.orderCartProductInvalid();
-        }
-        //计算金额，调整库存，.get()警告不用管
-        for(String id : cartItemIds){
-            Cart item=cartRepository.findById(new Integer(id)).get();
-            ProductStockpile ps=productStockpileRepository.findByProductId(item.getProductId());
-            totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice();
-            //显然这里可以使同一购物车商品多次添加到不同订单，但这个版本选择不处理，到自由需求阶段修改po再处理
-            //1.删除购物车商品/标记无效
-            //2.限制用户只能有一个订单
-            //if(item.hasTag)
-            ProductStockpile productStockpile = productStockpileRepository.findByProductId(cartRepository.findById(new Integer(id)).get().getProductId());
-            if(productStockpile==null){
-                throw TomatoMallException.productNotExists();
-            }
-            productStockpile.setAmount(ps.getAmount()-item.getQuantity());
-            productStockpile.setFrozen(ps.getFrozen()+item.getQuantity());
-            productStockpileRepository.save(productStockpile);
-        }
-        raw.setUserId(securityUtil.getCurrentUser().getId());//帮别人下单不当作异常:D
-        raw.setTotalAmount(totalAmount);
-        raw.setPayMethod(PaymentEnum.valueOf(payment_method));
-        //status=PENDING
-        raw.setCreateTime(new Time(System.currentTimeMillis()));
-        //添加shipping_address，虽然没有用到？？？
-        raw.setName(shipping_address.getName());
-        raw.setPhone(shipping_address.getPhone());
-        raw.setAddress(shipping_address.getAddress());
-        Orders saved=orderRepository.save(raw);
-        timeoutHandler.enable();
-        for(String id : cartItemIds){
-            Cart cart=cartRepository.findById(new Integer(id)).get();
-            OrderArchive orderArchive= new OrderArchive();
-            orderArchive.setCartItemId(cart.getCartItemId());
-            orderArchive.setUserId(cart.getUserId());
-            orderArchive.setProductId(cart.getProductId());
-            orderArchive.setQuantity(cart.getQuantity());
-            orderArchive.setOrderId(saved.getOrderId());
-            orderArchiveRepository.save(orderArchive);
-        }
-        return saved.toVO();
-    }
+
 
     @Override
     public PaymentVO handlePayment(String orderId) {

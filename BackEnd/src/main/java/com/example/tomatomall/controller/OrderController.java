@@ -3,8 +3,6 @@ package com.example.tomatomall.controller;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.example.tomatomall.service.OrderService;
-import com.example.tomatomall.vo.OrderBodyVO;
-import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
 import com.example.tomatomall.vo.Response;
 import com.example.tomatomall.util.AlipayProperties;
@@ -24,11 +22,6 @@ public class OrderController {
     OrderService orderService;
     @Resource
     AlipayProperties alipayProperties;
-
-    @PostMapping("/checkout")
-    public Response<OrderVO> submitOrder(@RequestBody OrderBodyVO Body){
-        return Response.buildSuccess(orderService.submitOrder(Body.getCartItemIds(), Body.getShippingAddress(), Body.getPaymentMethod()));
-    }
 
     @PostMapping("/{orderId}/pay")
     public Response<PaymentVO> handlePayment(@PathVariable String orderId){
