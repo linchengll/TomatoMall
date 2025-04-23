@@ -38,6 +38,10 @@ const router = createRouter({
         component: () => import('../views/product/CreateProduct.vue'),
         meta: {title: '创建商品'}
     },{
+       path:'/editAdvertisements',
+       component: () => import('../views/advertisements/EditAdvertisements.vue'),
+       meta: {title: '编辑广告'}
+    },{
         path: '/404',
         name: '404',
         component: () => import('../views/NotFound.vue'),
