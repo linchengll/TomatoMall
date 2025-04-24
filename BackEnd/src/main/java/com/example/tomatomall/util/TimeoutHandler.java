@@ -2,9 +2,11 @@ package com.example.tomatomall.util;
 
 import com.example.tomatomall.enums.StatusEnum;
 import com.example.tomatomall.exception.TomatoMallException;
+import com.example.tomatomall.po.Cart;
 import com.example.tomatomall.po.OrderArchive;
 import com.example.tomatomall.po.Orders;
 import com.example.tomatomall.po.ProductStockpile;
+import com.example.tomatomall.repository.CartRepository;
 import com.example.tomatomall.repository.OrderArchiveRepository;
 import com.example.tomatomall.repository.OrderRepository;
 import com.example.tomatomall.repository.ProductStockpileRepository;
@@ -25,6 +27,8 @@ public class TimeoutHandler {
     OrderArchiveRepository orderArchiveRepository;
     @Autowired
     ProductStockpileRepository productStockpileRepository;
+    @Autowired
+    CartRepository cartRepository;
 
     private static final long TIMEOUT_DURATION = 300*1000; //300s,调试的时候改短点
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -75,6 +79,13 @@ public class TimeoutHandler {
                 ps.setFrozen(ps.getFrozen() - archive.getQuantity());
                 ps.setAmount(ps.getAmount() + archive.getQuantity());
                 productStockpileRepository.save(ps);
+                Cart cart = cartRepository.findByCartItemId(archive.getCartItemId());
+                if(cart!= null){
+                    cart.setOrdered(false);
+                    cartRepository.save(cart);
+                }else{
+                    throw TomatoMallException.cartProductNotExists();
+                }
             }
         }
     }

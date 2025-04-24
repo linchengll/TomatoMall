@@ -120,8 +120,10 @@ public class OrderServiceImpl implements OrderService {
                 throw TomatoMallException.duplicateOrderUpdate(orderId);
             }else {
                 ps.setFrozen(ps.getFrozen() - archive.getQuantity());
-                if(!reduce)
+                if(!reduce) {
                     ps.setAmount(ps.getAmount() + archive.getQuantity());
+                    cartService.updateOrderFlag(String.valueOf(archive.getCartItemId()),false);
+                }
                 else
                     cartService.deleteCartItem(String.valueOf(archive.getCartItemId()));
                 productStockpileRepository.save(ps);
