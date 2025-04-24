@@ -16,5 +16,5 @@ public class CartVO {
     private String cover;
     private String detail;
     private Integer quantity;
-
+    private boolean ordered;
 }

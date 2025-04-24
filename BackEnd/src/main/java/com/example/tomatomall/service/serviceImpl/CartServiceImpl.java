@@ -110,6 +110,7 @@ public class CartServiceImpl implements CartService {
                 VO.setCartItemId(item.getCartItemId());
                 VO.setProductId(item.getProductId());
                 VO.setQuantity(item.getQuantity());
+                VO.setOrdered(item.isOrdered());
                 VO.setTitle(product.getTitle());
                 VO.setPrice(product.getPrice());
                 VO.setDescription(product.getDescription());
@@ -147,7 +148,8 @@ public class CartServiceImpl implements CartService {
             //显然这里可以使同一购物车商品多次添加到不同订单，但这个版本选择不处理，到自由需求阶段修改po再处理
             //1.删除购物车商品/标记无效
             //2.限制用户只能有一个订单
-            //if(item.hasTag)
+            if(item.isOrdered())
+                throw TomatoMallException.orderCartProductInvalid();
             ProductStockpile productStockpile = productStockpileRepository.findByProductId(cartRepository.findById(new Integer(id)).get().getProductId());
             if(productStockpile==null){
                 throw TomatoMallException.productNotExists();
@@ -155,6 +157,7 @@ public class CartServiceImpl implements CartService {
             productStockpile.setAmount(ps.getAmount()-item.getQuantity());
             productStockpile.setFrozen(ps.getFrozen()+item.getQuantity());
             productStockpileRepository.save(productStockpile);
+            updateOrderFlag(id,true);
         }
         raw.setUserId(securityUtil.getCurrentUser().getId());//帮别人下单不当作异常:D
         raw.setTotalAmount(totalAmount);
@@ -178,5 +181,16 @@ public class CartServiceImpl implements CartService {
             orderArchiveRepository.save(orderArchive);
         }
         return saved.toVO();
+    }
+
+    @Override
+    public void updateOrderFlag(String cartItemId,boolean ordered){
+        Cart cart = cartRepository.findByCartItemId(new Integer(cartItemId));
+        if(cart!= null){
+            cart.setOrdered(ordered);
+            cartRepository.save(cart);
+        }else{
+            throw TomatoMallException.cartProductNotExists();
+        }
     }
 }
