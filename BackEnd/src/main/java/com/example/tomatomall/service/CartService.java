@@ -13,4 +13,5 @@ public interface CartService {
     String updateCartItem(String cartItemId,Integer quantity);
     CartItemsVO getCartList();
     OrderVO submitOrder(List<String> cartItemIds, ShippingAddress shipping_address, String payment_method);
+    void updateOrderFlag(String cartItemId,boolean ordered);
 }
