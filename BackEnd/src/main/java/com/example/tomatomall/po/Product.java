@@ -54,6 +54,7 @@ public class Product {
         VO.setDescription(this.description);
         VO.setCover(this.cover);
         VO.setDetail(this.detail);
+        VO.setPopularity(this.popularity);
         return VO;
     }
 
