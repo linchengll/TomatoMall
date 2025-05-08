@@ -1,7 +1,6 @@
 package com.example.tomatomall.controller;
 
 import com.example.tomatomall.service.ProductService;
-import com.example.tomatomall.vo.FilterVO;
 import com.example.tomatomall.vo.ProductStockpileVO;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
@@ -18,15 +17,12 @@ public class ProductController {
     @Resource
     private ProductService productService;
 
-    @GetMapping //获取所有商品 权限：无 //可能即将弃用！
+    //////可能即将弃用！
+    @GetMapping //获取所有商品 权限：无
     public Response<List<ProductVO>> getProducts(){
         return Response.buildSuccess(productService.getProductList());
     }
-
-//    @PostMapping //获取指定类型商品 目标：typeId 权限：无
-//    public Response<List<ProductVO>> getFilteredProducts(@RequestBody FilterVO filterVO){
-//        return Response.buildSuccess(null);
-//    }
+    //////可能即将弃用！
 
     @GetMapping("/{id}") //获取指定商品 目标：id 权限：无
     public Response<ProductVO> getProductById(@PathVariable String id){
