@@ -43,7 +43,8 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private SecurityUtil securityUtil;
 
-    private ProductVO buildVO(Product po){
+    @Override
+    public ProductVO buildVO(Product po){
         ProductVO productVO =new ProductVO();
         productVO.setId(po.getId());
         productVO.setTitle(po.getTitle());
