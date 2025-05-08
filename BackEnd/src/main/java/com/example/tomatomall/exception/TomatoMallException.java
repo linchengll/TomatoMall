@@ -50,4 +50,5 @@ public class TomatoMallException extends RuntimeException {
     //comment
     public static TomatoMallException commentNotExists() {return new TomatoMallException("评论不存在!");}
     public static TomatoMallException notBuyer() {return new TomatoMallException("不是买家,不能评论!");}
+    public static TomatoMallException notOwner() {return new TomatoMallException("不是评论者,不能删除!");}
 }
