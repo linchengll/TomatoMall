@@ -46,4 +46,8 @@ public class TomatoMallException extends RuntimeException {
     public static TomatoMallException typeAlreadyExist() {return new TomatoMallException("类型已存在!");}
 
     public static TomatoMallException typeNotExists() {return new TomatoMallException("类型不存在!");}
+
+    //comment
+    public static TomatoMallException commentNotExists() {return new TomatoMallException("评论不存在!");}
+    public static TomatoMallException notBuyer() {return new TomatoMallException("不是买家,不能评论!");}
 }
