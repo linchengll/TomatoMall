@@ -23,10 +23,10 @@ public class ProductController {
         return Response.buildSuccess(productService.getProductList());
     }
 
-    @PostMapping() //获取指定类型商品 目标：typeId 权限：无
-    public Response<List<ProductVO>> getFilteredProducts(@RequestBody FilterVO filterVO){
-        return Response.buildSuccess(null);
-    }
+//    @PostMapping //获取指定类型商品 目标：typeId 权限：无
+//    public Response<List<ProductVO>> getFilteredProducts(@RequestBody FilterVO filterVO){
+//        return Response.buildSuccess(null);
+//    }
 
     @GetMapping("/{id}") //获取指定商品 目标：id 权限：无
     public Response<ProductVO> getProductById(@PathVariable String id){
