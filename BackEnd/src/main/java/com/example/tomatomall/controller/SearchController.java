@@ -1,7 +1,7 @@
 package com.example.tomatomall.controller;
 
 import com.example.tomatomall.service.SearchService;
-import com.example.tomatomall.vo.FilterVO;
+import com.example.tomatomall.vo.ProductBasicVO;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +18,9 @@ public class SearchController {
     @Resource
     SearchService searchService;
 
-    @GetMapping("/history")
-    public Response<FilterVO> getHistory(){
-        return Response.buildSuccess(null);
+    @GetMapping("/top")
+    public Response<List<ProductBasicVO>> getTop(){
+        return Response.buildSuccess(searchService.getTop());
     }
 
     @PostMapping
