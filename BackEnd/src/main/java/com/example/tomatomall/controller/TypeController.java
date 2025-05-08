@@ -6,12 +6,18 @@ import com.example.tomatomall.vo.TypeVO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/type")
 public class TypeController {//这个类用来处理管理员创建或删除类型，不是类型过滤
     @Resource
     TypeService typeService;
+
+    @GetMapping
+    public Response<List<TypeVO>> getAllType(){
+        return Response.buildSuccess(typeService.getAllType());
+    }
 
     @PostMapping //创建类型
     public Response<TypeVO> createType(@RequestBody TypeVO typeVO){
