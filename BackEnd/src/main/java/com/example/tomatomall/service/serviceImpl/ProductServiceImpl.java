@@ -9,6 +9,7 @@ import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.ProductSpecificationVO;
 import com.example.tomatomall.vo.ProductStockpileVO;
 import com.example.tomatomall.vo.ProductVO;
+import com.example.tomatomall.vo.TypeVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,10 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     ProductSpecificationRepository productSpecificationRepository;
     @Autowired
+    ProductTypeRepository productTypeRepository;
+    @Autowired
+    TypeRepository typeRepository;
+    @Autowired
     AdvertisementRepository advertisementRepository;
     @Autowired
     CartRepository cartRepository;
@@ -38,51 +43,46 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private SecurityUtil securityUtil;
 
+    private ProductVO buildVO(Product po){
+        ProductVO productVO =new ProductVO();
+        productVO.setId(po.getId());
+        productVO.setTitle(po.getTitle());
+        productVO.setPrice(po.getPrice());
+        productVO.setRate(po.getRate());
+        productVO.setDescription(po.getDescription());
+        productVO.setCover(po.getCover());
+        productVO.setDetail(po.getDetail());
+        Set<ProductSpecification> productSpecifications =productSpecificationRepository.findByProductId(po.getId());
+        Set<ProductSpecificationVO> productSpecificationsVO=new HashSet<>();
+        for(ProductSpecification ps:productSpecifications)
+            productSpecificationsVO.add(ps.toVO());
+        productVO.setSpecifications(productSpecificationsVO);
+        Set<ProductTypes> productTypes=productTypeRepository.findByProductId(po.getId());
+        Set<TypeVO> types=new HashSet<>();
+        for(ProductTypes pType:productTypes)
+            types.add(pType.toTypeVO());
+        productVO.setTypes(types);
+        return productVO;
+    }
+
     @Override
     public List<ProductVO> getProductList() {
         List<Product> raw=productRepository.findAll();
         List<ProductVO> VO=new ArrayList<>();
         if(raw.isEmpty())
             return VO;
-        for(Product po:raw){
-            ProductVO productVO =new ProductVO();
-            productVO.setId(po.getId());
-            productVO.setTitle(po.getTitle());
-            productVO.setPrice(po.getPrice());
-            productVO.setRate(po.getRate());
-            productVO.setDescription(po.getDescription());
-            productVO.setCover(po.getCover());
-            productVO.setDetail(po.getDetail());
-            Set<ProductSpecification> productSpecifications =productSpecificationRepository.findByProductId(po.getId());
-            Set<ProductSpecificationVO> productSpecificationsVO=new HashSet<>();
-            for(ProductSpecification ps:productSpecifications){
-                productSpecificationsVO.add(ps.toVO());
-            }
-            productVO.setSpecifications(productSpecificationsVO);
-            VO.add(productVO);
-        }
+        for(Product po:raw)
+            VO.add(buildVO(po));
         return VO;
     }
 
     @Override
     public ProductVO getProductById(String id) {
-        Product product;
-        ProductVO productVO =new ProductVO();
+        Product po;
+        ProductVO productVO;
         if(productRepository.findById(new Integer(id)).isPresent()){
-            product=productRepository.findById(new Integer(id)).get();
-            productVO.setId(product.getId());
-            productVO.setTitle(product.getTitle());
-            productVO.setPrice(product.getPrice());
-            productVO.setRate(product.getRate());
-            productVO.setDescription(product.getDescription());
-            productVO.setCover(product.getCover());
-            productVO.setDetail(product.getDetail());
-            Set<ProductSpecification> productSpecifications =productSpecificationRepository.findByProductId(product.getId());
-            Set<ProductSpecificationVO> productSpecificationsVO=new HashSet<>();
-            for(ProductSpecification ps:productSpecifications){
-                productSpecificationsVO.add(ps.toVO());
-            }
-            productVO.setSpecifications(productSpecificationsVO);
+            po=productRepository.findById(new Integer(id)).get();
+            productVO=buildVO(po);
         }
         else
             throw TomatoMallException.productNotExists();
@@ -95,14 +95,15 @@ public class ProductServiceImpl implements ProductService {
             throw TomatoMallException.unauthorized();
         Product product;
         Set<ProductSpecification> productSpecification;
+        Set<ProductTypes> productTypes;
         if(productRepository.findById(productVO.getId()).isPresent()) {
             product = productRepository.findById(productVO.getId()).get();
             productSpecification = productSpecificationRepository.findByProductId(product.getId());
+            productTypes = productTypeRepository.findByProductId(product.getId());
         }else
             throw TomatoMallException.productNotExists();
-        if(productVO.getTitle()!=null){
+        if(productVO.getTitle()!=null)
             product.setTitle(productVO.getTitle());
-        }
         if(productVO.getPrice()!=null)
             product.setPrice(productVO.getPrice());
         if(productVO.getRate()!=null)
@@ -113,12 +114,28 @@ public class ProductServiceImpl implements ProductService {
             product.setCover(productVO.getCover());
         if(productVO.getDetail()!=null)
             product.setDetail(productVO.getDetail());
+        //更新规格
         if(productVO.getSpecifications()!=null&&!productVO.getSpecifications().isEmpty()){
-            if(productSpecification!=null&&!productSpecification.isEmpty()){
-            productSpecificationRepository.deleteAll(productSpecification);
-            }
+            if(productSpecification!=null&&!productSpecification.isEmpty())
+                productSpecificationRepository.deleteAll(productSpecification);
             productSpecification = productVO.toSpecificationPO();
             productSpecificationRepository.saveAll(productSpecification);
+        }
+        //更新类型
+        if(productVO.getTypes()!=null&&!productVO.getTypes().isEmpty()) {
+            if(productTypes!=null&&!productTypes.isEmpty())
+                productTypeRepository.deleteAll(productTypes);
+            Set<ProductTypes> res=new HashSet<>();
+            for(TypeVO pType:productVO.getTypes()){
+                if(typeRepository.findById(pType.getTypeId()).isPresent()){
+                    ProductTypes item=new ProductTypes();
+                    item.setProductId(productVO.getId());
+                    item.setTypeId(pType.getTypeId());
+                    item.setTypeName(typeRepository.findById(pType.getTypeId()).get().getTypeName());
+                    res.add(item);
+                }
+            }
+            productTypeRepository.saveAll(res);
         }
         return "更新成功";
     }
@@ -168,6 +185,8 @@ public class ProductServiceImpl implements ProductService {
         productSpecificationRepository.deleteAll(productSpecifications);
         ProductStockpile productStockpile =productStockpileRepository.findByProductId(new Integer(id));
         productStockpileRepository.delete(productStockpile);
+        Set<ProductTypes> productTypes=productTypeRepository.findByProductId(new Integer(id));
+        productTypeRepository.deleteAll(productTypes);
         List<Cart> carts=cartRepository.findByProductId(new Integer(id));
         cartRepository.deleteAll(carts);
         List<Advertisement> advertisements=advertisementRepository.findByProductId(new Integer(id));
@@ -192,9 +211,8 @@ public class ProductServiceImpl implements ProductService {
         if(!securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
             throw TomatoMallException.unauthorized();
         ProductStockpile productStockpile =productStockpileRepository.findByProductId(new Integer(id));
-        if(productStockpile==null){
+        if(productStockpile==null)
             throw TomatoMallException.productNotExists();
-        }
         productStockpile.setAmount(amount);
         productStockpileRepository.save(productStockpile);
         return "调整库存成功";
@@ -203,9 +221,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductStockpileVO getStockpile(String id) {
         ProductStockpile productStockpile =productStockpileRepository.findByProductId(new Integer(id));
-        if(productStockpile==null){
+        if(productStockpile==null)
             throw TomatoMallException.productNotExists();
-        }
         return productStockpile.toVO();
     }
 }
