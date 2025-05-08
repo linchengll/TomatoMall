@@ -1,6 +1,6 @@
 package com.example.tomatomall.po;
 
-import com.example.tomatomall.vo.ProductVO;
+import com.example.tomatomall.vo.ProductBasicVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,8 +42,8 @@ public class Product {
     @Column(name = "detail")
     private String detail;
 
-    public ProductVO toVO(){
-        ProductVO VO=new ProductVO();
+    public ProductBasicVO toVO(){
+        ProductBasicVO VO=new ProductBasicVO();
         VO.setId(this.id);
         VO.setTitle(this.title);
         VO.setPrice(this.price);
