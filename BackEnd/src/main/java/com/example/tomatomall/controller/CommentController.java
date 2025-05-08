@@ -44,15 +44,11 @@ public class CommentController {
      * }
      */
 
-    @GetMapping
-    public Response<List<CommentVO>> getComments(){
-        return Response.buildSuccess(commentService.getComments());
+    @GetMapping("/{id}")
+    public Response<List<CommentVO>> getComments(@PathVariable String id){
+        return Response.buildSuccess(commentService.getComments(id));
     }
 
-    @GetMapping("/{id}")
-    public Response<CommentVO> getCommentById(@PathVariable String id){
-        return Response.buildSuccess(commentService.getCommentById(id));
-    }
     /*
      *  删除评论：
      *  前端只需要传评论Id

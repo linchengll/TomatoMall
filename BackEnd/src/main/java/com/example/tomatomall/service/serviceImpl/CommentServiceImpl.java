@@ -64,8 +64,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentVO> getComments() {
-        List<Comment> comments=commentRepository.findAll();
+    public List<CommentVO> getComments(String productId) {
+        List<Comment> comments=commentRepository.findByProductId(new Integer(productId));
         List<CommentVO> commentVOS=new ArrayList<>();
         for(Comment comment:comments){
             CommentVO commentVO=comment.toVO();
@@ -78,22 +78,6 @@ public class CommentServiceImpl implements CommentService {
             commentVOS.add(commentVO);
         }
         return commentVOS;
-    }
-
-    @Override
-    public CommentVO getCommentById(String id) {
-        CommentVO commentVO;
-        if(commentRepository.findById(new Integer(id)).isPresent()){
-            commentVO=commentRepository.findById(new Integer(id)).get().toVO();
-            List<Image> images=imageRepository.findByCommentId(new Integer(id));
-            List<String> imageUrls=new ArrayList<>();
-            for(Image image:images){
-                imageUrls.add(image.getImageUrl());
-            }
-            commentVO.setImageUrls(imageUrls);
-            return commentVO;
-        }else
-            throw TomatoMallException.commentNotExists();
     }
 
     @Override
