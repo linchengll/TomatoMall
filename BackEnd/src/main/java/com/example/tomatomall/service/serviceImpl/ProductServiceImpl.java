@@ -30,6 +30,12 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     CartRepository cartRepository;
     @Autowired
+    CommentRepository commentRepository;
+    @Autowired
+    ImageRepository imageRepository;
+    @Autowired
+    LikerRepository likerRepository;
+    @Autowired
     private SecurityUtil securityUtil;
 
     @Override
@@ -166,6 +172,18 @@ public class ProductServiceImpl implements ProductService {
         cartRepository.deleteAll(carts);
         List<Advertisement> advertisements=advertisementRepository.findByProductId(new Integer(id));
         advertisementRepository.deleteAll(advertisements);
+        List<Comment> comments=commentRepository.findByProductId(new Integer(id));
+        List<Integer> commentIds=new ArrayList<>();
+        for(Comment comment:comments){
+            commentIds.add(comment.getId());
+        }
+        commentRepository.deleteAll(comments);
+        for(Integer commentId:commentIds){
+            List<Image> images=imageRepository.findByCommentId(commentId);
+            imageRepository.deleteAll(images);
+            List<Liker> likers=likerRepository.findByCommentId(commentId);
+            likerRepository.deleteAll(likers);
+        }
         return "删除成功";
     }
 

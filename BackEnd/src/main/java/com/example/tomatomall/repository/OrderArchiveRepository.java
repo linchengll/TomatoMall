@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface OrderArchiveRepository extends JpaRepository<OrderArchive, Integer> {
     List<OrderArchive> findByOrderId(Integer orderId);
+    List<OrderArchive> findByUserIdAndProductId(Integer userId, Integer productId);
 }
