@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 import javax.persistence.*;
 
 @Getter
@@ -42,6 +41,10 @@ public class Product {
     @Column(name = "detail")
     private String detail;
 
+    @Basic
+    @Column(name = "popularity")
+    private Integer popularity;
+
     public ProductBasicVO toVO(){
         ProductBasicVO VO=new ProductBasicVO();
         VO.setId(this.id);
@@ -52,5 +55,9 @@ public class Product {
         VO.setCover(this.cover);
         VO.setDetail(this.detail);
         return VO;
+    }
+
+    public void addPopularity(){
+        this.popularity+=1;
     }
 }

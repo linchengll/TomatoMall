@@ -19,6 +19,7 @@ public class ProductVO {
     private String description;
     private String cover;
     private String detail;
+    private Integer popularity;
     private Set<ProductSpecificationVO> specifications;
     private Set<TypeVO> types;
 
