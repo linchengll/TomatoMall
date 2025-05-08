@@ -1,15 +1,12 @@
 package com.example.tomatomall.vo;
 
-
 import com.example.tomatomall.po.ProductSpecification;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
 
 @Getter
 @Setter
@@ -23,7 +20,7 @@ public class ProductVO {
     private String cover;
     private String detail;
     private Set<ProductSpecificationVO> specifications;
-    private List<Integer> types;
+    private Set<TypeVO> types;
 
     public Set<ProductSpecification> toSpecificationPO(){
         Set<ProductSpecification> productSpecifications=new HashSet<>();
