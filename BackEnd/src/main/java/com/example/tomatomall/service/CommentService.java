@@ -6,8 +6,7 @@ import java.util.List;
 
 public interface CommentService {
     String createComment(CommentVO commentVO);
-    List<CommentVO> getComments();
-    CommentVO getCommentById(String id);
+    List<CommentVO> getComments(String Id);
     String deleteComment(String id);
     String updateLikes(String id);
 }
