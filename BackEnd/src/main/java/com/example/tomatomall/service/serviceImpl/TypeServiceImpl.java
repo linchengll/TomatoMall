@@ -12,6 +12,7 @@ import com.example.tomatomall.vo.TypeVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -47,5 +48,14 @@ public class TypeServiceImpl implements TypeService {
         List<ProductTypes> productType=productTypeRepository.findByTypeId(new Integer(typeId));
         productTypeRepository.deleteAll(productType);
         return "删除类型 "+PO.getTypeName()+" 成功";
+    }
+
+    @Override
+    public List<TypeVO> getAllType() {
+        List<Type> raw=typeRepository.findAll();
+        List<TypeVO> res=new ArrayList<>();
+        for(Type PO:raw)
+            res.add(PO.toVO());
+        return res;
     }
 }
