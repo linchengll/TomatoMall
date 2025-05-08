@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -104,6 +103,8 @@ public class CommentServiceImpl implements CommentService {
         List<Image> Images;
         if(commentRepository.findById(new Integer(id)).isPresent()){
             comment=commentRepository.findById(new Integer(id)).get();
+            if(!comment.getOwnerUserId().equals(securityUtil.getCurrentUser().getId()))
+                throw TomatoMallException.notOwner();
             commentRepository.delete(comment);
             likers=likerRepository.findByCommentId(new Integer(id));
             likerRepository.deleteAll(likers);
