@@ -52,6 +52,7 @@ public class ProductServiceImpl implements ProductService {
         productVO.setDescription(po.getDescription());
         productVO.setCover(po.getCover());
         productVO.setDetail(po.getDetail());
+        productVO.setPopularity(po.getPopularity());
         Set<ProductSpecification> productSpecifications =productSpecificationRepository.findByProductId(po.getId());
         Set<ProductSpecificationVO> productSpecificationsVO=new HashSet<>();
         for(ProductSpecification ps:productSpecifications)
@@ -73,6 +74,7 @@ public class ProductServiceImpl implements ProductService {
             return VO;
         for(Product po:raw)
             VO.add(buildVO(po));
+        VO.sort((p1, p2) -> p2.getPopularity().compareTo(p1.getPopularity()));
         return VO;
     }
 
@@ -82,6 +84,8 @@ public class ProductServiceImpl implements ProductService {
         ProductVO productVO;
         if(productRepository.findById(new Integer(id)).isPresent()){
             po=productRepository.findById(new Integer(id)).get();
+            po.addPopularity();
+            po=productRepository.save(po);
             productVO=buildVO(po);
         }
         else
@@ -153,6 +157,7 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setPrice(productVO.getPrice());
         newProduct.setRate(productVO.getRate());
         newProduct.setTitle(productVO.getTitle());
+        newProduct.setPopularity(0);
         productRepository.save(newProduct);
         productVO.setId(productRepository.findByTitle(productVO.getTitle()).getId());
         Set<ProductSpecificationVO> productSpecificationVO = productVO.getSpecifications();
