@@ -24,7 +24,7 @@ public class AccountController {
         return Response.buildSuccess(accountService.getUser(username));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/comment_get/{id}")
     public Response<AccountVO> getById(@PathVariable String id) {
         return Response.buildSuccess(accountService.getById(id));
     }
