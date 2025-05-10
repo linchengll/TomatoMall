@@ -24,6 +24,11 @@ public class AccountController {
         return Response.buildSuccess(accountService.getUser(username));
     }
 
+    @GetMapping("/{id}")
+    public Response<AccountVO> getById(@PathVariable String id) {
+        return Response.buildSuccess(accountService.getById(id));
+    }
+
     /**
      * 创建新的用户
      */

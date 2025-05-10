@@ -57,6 +57,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public AccountVO getById(String id) {
+        if(accountRepository.findById(new Integer(id)).isPresent()){
+        Account account=accountRepository.findById(new Integer(id)).get();
+        return account.toVO();
+        }else
+            throw TomatoMallException.usernameNotExists();
+    }
+
+    @Override
     public Boolean updateUser(AccountVO accountVO) {
         //Account account=securityUtil.getCurrentUser();
         //必填用户名？用户名可修改？其他均非必填等于可以更新完全没变化？？？
