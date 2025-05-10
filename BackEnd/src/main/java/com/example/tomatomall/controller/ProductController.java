@@ -2,7 +2,7 @@ package com.example.tomatomall.controller;
 
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.ProductStockpileVO;
-import com.example.tomatomall.vo.ProductsVO;
+import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,24 +17,26 @@ public class ProductController {
     @Resource
     private ProductService productService;
 
+    //////可能即将弃用！
     @GetMapping //获取所有商品 权限：无
-    public Response<List<ProductsVO>> getProducts(){
+    public Response<List<ProductVO>> getProducts(){
         return Response.buildSuccess(productService.getProductList());
     }
+    //////可能即将弃用！
 
     @GetMapping("/{id}") //获取指定商品 目标：id 权限：无
-    public Response<ProductsVO> getProductById(@PathVariable String id){
+    public Response<ProductVO> getProductById(@PathVariable String id){
         return Response.buildSuccess(productService.getProductById(id));
     }
 
     @PutMapping //更新商品信息 目标：productVO.id 权限：admin
-    public Response<String> updateProduct(@RequestBody ProductsVO productsVO){
-        return Response.buildSuccess(productService.updateProduct(productsVO));
+    public Response<String> updateProduct(@RequestBody ProductVO productVO){
+        return Response.buildSuccess(productService.updateProduct(productVO));
     }
 
     @PostMapping //创建商品 权限：admin
-    public Response<ProductsVO> createProduct(@RequestBody ProductsVO productsVO){
-        return Response.buildSuccess(productService.createProduct(productsVO));
+    public Response<ProductVO> createProduct(@RequestBody ProductVO productVO){
+        return Response.buildSuccess(productService.createProduct(productVO));
     }
 
     @DeleteMapping("/{id}") //删除商品 目标：id 权限：admin

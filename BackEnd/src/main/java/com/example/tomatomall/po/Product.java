@@ -1,10 +1,9 @@
 package com.example.tomatomall.po;
 
-import com.example.tomatomall.vo.ProductVO;
+import com.example.tomatomall.vo.ProductBasicVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 import javax.persistence.*;
 
@@ -42,8 +41,12 @@ public class Product {
     @Column(name = "detail")
     private String detail;
 
-    public ProductVO toVO(){
-        ProductVO VO=new ProductVO();
+    @Basic
+    @Column(name = "popularity")
+    private Integer popularity;
+
+    public ProductBasicVO toVO(){
+        ProductBasicVO VO=new ProductBasicVO();
         VO.setId(this.id);
         VO.setTitle(this.title);
         VO.setPrice(this.price);
@@ -51,6 +54,11 @@ public class Product {
         VO.setDescription(this.description);
         VO.setCover(this.cover);
         VO.setDetail(this.detail);
+        VO.setPopularity(this.popularity);
         return VO;
+    }
+
+    public void addPopularity(){
+        this.popularity+=1;
     }
 }

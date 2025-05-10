@@ -1,13 +1,12 @@
 package com.example.tomatomall.vo;
 
-
-import com.example.tomatomall.po.Product;
+import com.example.tomatomall.po.ProductSpecification;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
-
 
 @Getter
 @Setter
@@ -20,15 +19,16 @@ public class ProductVO {
     private String description;
     private String cover;
     private String detail;
-    public Product toPO() {
-        Product product = new Product();
-        product.setId(this.id);
-        product.setTitle(this.title);
-        product.setPrice(this.price);
-        product.setRate(this.rate);
-        product.setDescription(this.description);
-        product.setCover(this.cover);
-        product.setDetail(this.detail);
-        return product;
+    private Integer popularity;
+    private Set<ProductSpecificationVO> specifications;
+    private Set<TypeVO> types;
+
+    public Set<ProductSpecification> toSpecificationPO(){
+        Set<ProductSpecification> productSpecifications=new HashSet<>();
+        for(ProductSpecificationVO specificationVO : this.specifications){
+            specificationVO.setProductId(this.id);
+            productSpecifications.add(specificationVO.toPO());
+        }
+        return productSpecifications;
     }
 }
