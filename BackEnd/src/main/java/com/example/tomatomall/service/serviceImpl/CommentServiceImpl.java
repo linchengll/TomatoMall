@@ -66,6 +66,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentVO> getComments(String productId) {
         List<Comment> comments=commentRepository.findByProductId(new Integer(productId));
+        if(comments.isEmpty())
+            throw TomatoMallException.commentNotExists();
         List<CommentVO> commentVOS=new ArrayList<>();
         for(Comment comment:comments){
             CommentVO commentVO=comment.toVO();
