@@ -36,6 +36,7 @@ public class Comment{
 
     public CommentVO toVO(){
         CommentVO commentVO = new CommentVO();
+        commentVO.setId(this.id);
         commentVO.setContent(this.content);
         commentVO.setLikeCount(this.likeCount);
         commentVO.setOwnerUserId(this.ownerUserId);
