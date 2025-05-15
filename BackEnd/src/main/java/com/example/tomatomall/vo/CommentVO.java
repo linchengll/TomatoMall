@@ -22,4 +22,5 @@ public class CommentVO {
       private Integer productId;
       private Time createTime;
       private List<String> imageUrls;
+      private Integer userRate;
 }

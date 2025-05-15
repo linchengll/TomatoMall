@@ -28,6 +28,8 @@ public class CommentServiceImpl implements CommentService {
     OrderArchiveRepository orderArchiveRepository;
     @Autowired
     OrderRepository orderRepository;
+    @Autowired
+    ProductRepository productRepository;
 
     @Override
     public String createComment(CommentVO commentVO) {
@@ -50,8 +52,19 @@ public class CommentServiceImpl implements CommentService {
             comment.setOwnerUserId(currentUserId);
             comment.setContent(commentVO.getContent());
             comment.setLikeCount(0);
+            comment.setUserRate(commentVO.getUserRate());
             comment.setCreateTime(new Time(System.currentTimeMillis()));
             Comment savedComment=commentRepository.save(comment);
+            float avgRate=0;
+            List<Comment> comments=commentRepository.findByProductId(productId);
+            for(Comment c:comments){
+                avgRate+=c.getUserRate();
+            }
+            if(!comments.isEmpty())
+                avgRate=avgRate/comments.size();
+            Product product=productRepository.findById(productId).get();
+            product.setRate(avgRate);
+            productRepository.save(product);
             for(String imageUrl:commentVO.getImageUrls()){
                 Image image=new Image();
                 image.setCommentId(savedComment.getId());
