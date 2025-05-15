@@ -66,8 +66,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentVO> getComments(String productId) {
         List<Comment> comments=commentRepository.findByProductId(new Integer(productId));
-        if(comments.isEmpty())
-            throw TomatoMallException.commentNotExists();
         List<CommentVO> commentVOS=new ArrayList<>();
         for(Comment comment:comments){
             CommentVO commentVO=comment.toVO();
@@ -111,6 +109,7 @@ public class CommentServiceImpl implements CommentService {
             for(Liker liker:likers){
                 if(liker.getUserId().equals(currentUserId)){
                    comment.setLikeCount(comment.getLikeCount()-1);
+                   likerRepository.delete(liker);
                    return "点赞已取消";
                 }
             }
