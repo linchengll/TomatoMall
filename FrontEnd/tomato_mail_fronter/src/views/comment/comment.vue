@@ -70,7 +70,6 @@ const fetchComments = async () => {
     } else {
       ElMessage.error(response.data.msg || '获取评论失败');
     }
-    console.error(comments[0].Content);
   } catch (error) {
     console.error(error);
     ElMessage.error('获取评论失败');
