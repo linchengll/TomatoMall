@@ -4,6 +4,7 @@ type commentData = {
     content: string,
     productId: string,
     imageUrls: string[]
+    userRate : number
 }
 
 //获取该商品所有评论
