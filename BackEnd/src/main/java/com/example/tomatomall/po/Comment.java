@@ -34,6 +34,9 @@ public class Comment{
     @Column(name = "create_time")
     private Time createTime;
 
+    @Column(name = "user_rate")
+    private Integer userRate;
+
     public CommentVO toVO(){
         CommentVO commentVO = new CommentVO();
         commentVO.setId(this.id);
@@ -42,6 +45,7 @@ public class Comment{
         commentVO.setOwnerUserId(this.ownerUserId);
         commentVO.setProductId(this.productId);
         commentVO.setCreateTime(this.createTime);
+        commentVO.setUserRate(this.userRate);
         return commentVO;
     }
 }

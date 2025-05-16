@@ -22,6 +22,7 @@ interface CommentItem {
   productId: string;
   createTime: string;
   imageUrls: string[];
+  userRate : number;
 }
 
 // const comments = ref<CommentItem[]>([
@@ -47,6 +48,7 @@ interface CommentItem {
 // ]);
 const comments = ref<CommentItem[]>([]);
 
+const newUserRate = ref(0);
 const newCommentText = ref('');
 const uploadedImages = ref<string[]>([]);
 
@@ -66,11 +68,11 @@ const fetchComments = async () => {
         productId: item.productId,
         createTime: item.createTime,
         imageUrls: item.imageUrls,
+        userRate: item.userRate
       }));
     } else {
       ElMessage.error(response.data.msg || '获取评论失败');
     }
-    console.error(comments[0].Content);
   } catch (error) {
     console.error(error);
     ElMessage.error('获取评论失败');
@@ -132,10 +134,12 @@ const handleCreateComment = async () => {
       content: newCommentText.value,
       productId: productId.value,
       imageUrls: uploadedImages.value,
+      userRate: newUserRate.value,
     });
     if (response.data.code === '200') {
       ElMessage.success('评论成功');
       newCommentText.value = '';
+      newUserRate.value = 0;
       uploadedImages.value = [];
       fetchComments();
     } else {
@@ -176,6 +180,7 @@ onMounted(() => {
             <img src="./touxiang.png" alt="头像" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;" />
             <span>用户ID: {{ comment.Id }}</span>
           </div>
+          <div style="display: flex; align-items: center; margin-bottom: 10px;">用户评分:{{comment.userRate}}</div>
           <div style="margin-bottom: 10px;">{{ comment.Content }}</div>
           <div v-if="comment.imageUrls && comment.imageUrls.length > 0" style="display: flex; gap: 10px; margin-bottom: 10px;">
             <img v-for="url in comment.imageUrls" :src="url" :key="url" style="width: 100px; height: 100px;" />
@@ -189,6 +194,15 @@ onMounted(() => {
 
       <div style="width: 80%; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); padding: 20px; margin-top: 20px; background-color: white;">
         <el-input type="textarea" v-model="newCommentText" placeholder="请输入评论内容" style="margin-bottom: 10px;" />
+        <el-form-item label="评分（0-10分）" style="margin-bottom: 10px;">
+          <el-input-number
+              v-model="newUserRate"
+              :min="0"
+              :max="10"
+              :step="1"
+              style="width: 100%;"
+          />
+        </el-form-item>
         <el-upload
           action=""
           :auto-upload="false"

@@ -166,7 +166,9 @@ const handleAvatarUpload: UploadProps['onChange'] = async (uploadFile) => {
   <div class="toolbar">
     <el-button type="primary" @click="openAddDialog">添加广告</el-button>
   </div>
-
+  <div class="toolbar">
+    <el-button type="primary" @click="$router.push('/main')">返回</el-button>
+  </div>
   <el-row class="banner-list" gutter="20">
     <el-col :span="24" v-for="banner in banners" :key="banner.id" class="banner-item">
       <div class="banner-card">
