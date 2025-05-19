@@ -1,5 +1,5 @@
 import {axios} from '../../utils/request'
-import {PRODUCTS_MODULE} from '../_prefix'
+import {PRODUCTS_MODULE, TYPE_MODULE} from '../_prefix'
 
 export type UpdateInfo = {
     id?: string,
@@ -71,6 +71,31 @@ export const addInfo = (addInfo: AddInfo) => {
 // 删除商品
 export const deleteInfo = (id: string) => {
     return axios.delete(`${PRODUCTS_MODULE}/${id}`)
+        .then(res => {
+            return res
+        })
+}
+
+// 添加类别
+export const addTypeInfo = (typeName: string) => {
+    return axios.post(`${TYPE_MODULE}`, typeName, {
+        headers: { 'Content-Type': 'application/json' }
+    }).then(res => {
+        return res
+    })
+}
+
+// 删除类别
+export const deleteTypeInfo = (typeId: string) => {
+    return axios.delete(`${TYPE_MODULE}/${typeId}`)
+        .then(res => {
+            return res
+        })
+}
+
+// 获取全部类型
+export const getTypeListInfo = () => {
+    return axios.get(`${TYPE_MODULE}`)
         .then(res => {
             return res
         })

@@ -23,7 +23,7 @@ const isRateLegal = computed(() => rate.value >= 0 && rate.value <= 10)
 const fileList = ref<UploadUserFile[]>([])
 
 const createDisabled = computed(() => {
-  return !(hasTelInput.value && hasPriceInput.value && hasRateInput.value && isPriceLegal.value && isRateLegal.value);
+  return hasTelInput.value && hasPriceInput.value && hasRateInput.value && isPriceLegal.value && isRateLegal.value;
 })
 
 const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
@@ -140,10 +140,10 @@ const handleUpdate = async () => {
     const response = await addInfo(addData);
 
     // 3. 处理响应
-    if (response.data.code === '200') { // 替换为你的实际 code
+    if (response.data.code === '200') {
       ElMessage.success('添加成功');
     } else if(response.data.code === '400') {
-      ElMessage.error(response.data.msg); // 替换为你的实际 msg
+      ElMessage.error(response.data.msg);
     }
   } catch (error) {
     console.error('Error updating product info:', error);

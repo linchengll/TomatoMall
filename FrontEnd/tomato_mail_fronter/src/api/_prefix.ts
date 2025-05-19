@@ -10,6 +10,9 @@ export const STORE_MODULE = `${API_MODULE}/stores`
 //书籍模块
 export const PRODUCTS_MODULE = `${API_MODULE}/products`
 
+//类型模块
+export const TYPE_MODULE = `${API_MODULE}/type`
+
 //库存模块
 export const STOCKPILES_MODULE = `${PRODUCTS_MODULE}/stockpile`
 

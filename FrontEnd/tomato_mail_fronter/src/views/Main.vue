@@ -1,14 +1,70 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed} from 'vue'
 import { userInfo } from '../api/user.ts'
 import { ElMessage } from 'element-plus'
-import { getListInfo } from '../api/Book/products.ts'
+import { getListInfo, addTypeInfo, deleteTypeInfo, getTypeListInfo} from '../api/Book/products.ts'
 import { getADVListInfo} from '../api/Adv/advertisements'
+import NavBar from '../views/NavHead.vue'
 
 
 // === 侧边栏和搜索栏 ===============================
-const search = ref("");
-const categories = ref(["惊悚", "穿越", "科幻", "经典", "爱情", "励志","历史", "青春", "科学"]);
+const isExpanded = ref(false)
+const selectedCategory = ref("")
+const showAddCategoryDialog = ref(false)
+const newCategoryName = ref("")
+const categories = ref<string[]>([])
+
+// 控制分类显示的数量（如默认显示6个）
+const visibleCategories = computed(() => {
+  return isExpanded.value ? categories.value : categories.value.slice(0, 6)
+})
+
+// 切换“展开/收起”
+function toggleExpand() {
+  isExpanded.value = !isExpanded.value
+}
+
+// 获取分类列表（页面加载时调用）
+async function fetchCategories() {
+  try {
+    const res = await getTypeListInfo()
+    categories.value = res.data.data.map((item: any) => item.typeName) // 假设后端字段为 typeName
+  } catch (err) {
+    ElMessage.error("获取分类失败")
+  }
+}
+
+// 添加新分类（调用接口）
+const confirmAddCategory = async () => {
+  const name = newCategoryName.value.trim()
+  if (!name) {
+    ElMessage.error("分类名称不能为空")
+    return
+  }
+
+  try {
+    const payload = JSON.stringify({ typeName: name })
+    const response = await addTypeInfo(payload)
+
+    if (response.data.code === '200') {
+      ElMessage.success("添加成功")
+      showAddCategoryDialog.value = false
+      newCategoryName.value = ""
+      fetchCategories() // 重新加载分类列表
+    } else if (response.data.code === '400') {
+      ElMessage.error(response.data.msg || "添加失败")
+    }
+  } catch (error) {
+    console.error("Error adding category:", error)
+    ElMessage.error("添加失败，请检查网络")
+  }
+}
+
+// 分类选择逻辑（可用于筛选商品）
+function selectCategory(category: string) {
+  selectedCategory.value = category
+  // 发起筛选逻辑，比如 emit("filter", category) 或调用 API
+}
 // =================================================
 
 
@@ -108,17 +164,30 @@ getUserInfo()
 <template>
   <div class="homepage">
     <!-- 顶部搜索栏 -->
-    <el-header class="header">
-      <div class="logo">番茄书驿</div>
-      <el-input v-model="search" placeholder="搜索商品..." class="search-box" />
-      <el-button type="primary" icon="el-icon-search">搜索</el-button>
-    </el-header>
+    <NavBar v-model="search" />
 
     <el-container>
       <!-- 侧边分类导航 -->
       <el-aside width="200px" class="aside">
+        <!-- 管理员专属的添加分类按钮 -->
+        <div v-if="role === 'admin'" style="margin-bottom: 10px; display: flex; justify-content: center;">
+          <el-button type="primary" icon="el-icon-plus" @click="showAddCategoryDialog = true">添加分类</el-button>
+        </div>
+
         <el-menu>
-          <el-menu-item v-for="(item, index) in categories" :key="index">{{ item }}</el-menu-item>
+          <!-- 展示前若干个分类 -->
+          <el-menu-item
+              v-for="(item, index) in visibleCategories"
+              :key="index"
+              :class="{ 'active-category': item === selectedCategory }"
+              @click="selectCategory(item)">
+            {{ item }}
+          </el-menu-item>
+
+          <!-- 展开/收起按钮 -->
+          <el-menu-item @click="toggleExpand" style="text-align: center;">
+            <span>{{ isExpanded ? '收起' : '展开' }} »</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
 
@@ -200,6 +269,19 @@ getUserInfo()
     </el-form>
     <template #footer>
       <el-button type="primary" @click="confirmAddBanner">确认添加</el-button>
+    </template>
+  </el-dialog>
+
+  <!-- 添加分类栏的弹窗 -->
+  <el-dialog v-model="showAddCategoryDialog" title="创建新分类" width="400px">
+    <el-form label-width="80px">
+      <el-form-item label="分类名">
+        <el-input v-model="newCategoryName" placeholder="请输入新分类名" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="showAddCategoryDialog = false">取消</el-button>
+      <el-button type="primary" @click="confirmAddCategory">确认</el-button>
     </template>
   </el-dialog>
 </template>

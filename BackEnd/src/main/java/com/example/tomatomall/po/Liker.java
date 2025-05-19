@@ -21,5 +21,4 @@ public class Liker {
 
     @Column(name = "comment_id")
     private Integer commentId;
-
 }
