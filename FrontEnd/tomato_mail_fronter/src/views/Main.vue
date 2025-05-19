@@ -229,7 +229,7 @@ getUserInfo()
             <el-button type="primary" plain icon="el-icon-edit" @click="$router.push('/createProduct')" v-if="role === 'admin'">
               创建书籍
             </el-button>
-            <el-button type="warning" plain icon="el-icon-picture" @click="$router.push('/editAdvertisements')">
+            <el-button type="warning" plain icon="el-icon-picture" @click="$router.push('/editAdvertisements')" v-if="role === 'admin'">
               编辑广告
             </el-button>
             <el-button type="success" plain icon="el-icon-shopping-cart-full" @click="$router.push('/cart')">

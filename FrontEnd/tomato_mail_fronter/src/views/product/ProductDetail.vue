@@ -123,6 +123,11 @@ const handleDeleteProduct = () => {
 const goToCart = () => {
   router.push('/cart');
 };
+
+// 跳转到评论区
+const goToCommentSection = () => {
+  router.push(`/comment/${productId}`);
+};
 </script>
 
 <template>
@@ -139,6 +144,7 @@ const goToCart = () => {
         删除商品
       </el-button>
       <el-button type="primary" plain @click="goToCart">前往购物车</el-button>
+      <button @click="goToCommentSection" class="comment-button">查看评论区</button>
     </div>
 
     <!-- 商品详情内容 -->

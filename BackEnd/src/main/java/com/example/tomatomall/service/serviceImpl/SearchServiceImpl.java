@@ -40,28 +40,40 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<ProductVO> search(FilterVO filterVO) {
         List<ProductVO> res=new ArrayList<>();
-        if(filterVO.getType()>0){
+        if(filterVO.getType()>0){//有类型过滤
             if(!typeRepository.existsById(filterVO.getType()))
                 throw TomatoMallException.typeNotExists();
             List<ProductTypes> typeFiltered=productTypeRepository.findByTypeId(filterVO.getType());
             if (typeFiltered.isEmpty())
                 return res;
-            if (filterVO.getSearchString().isEmpty()){
-                for(ProductTypes item:typeFiltered)
-                    res.add(productService.buildVO(productRepository.findById(item.getProductId()).get()));
+            List<Integer> productIds=new ArrayList<>();
+            for(ProductTypes item:typeFiltered)
+                productIds.add(item.getProductId());
+            if (filterVO.getSearchString().isEmpty()){//仅类型过滤
+                List<Product> raw=productRepository.findByIdIn(productIds);
+                for(Product po:raw)
+                    res.add(productService.buildVO(po));
                 res.sort((p1, p2) -> p2.getPopularity().compareTo(p1.getPopularity()));
-            }else {
-                for(ProductTypes item:typeFiltered) {
-                    if(productRepository.searchTitle(item.getProductId(), filterVO.getSearchString()).isPresent())
-                        res.add(productService.buildVO(productRepository.searchTitle(item.getProductId(), filterVO.getSearchString()).get()));
+            }else {//类型+搜索
+                List<Product> raw=productRepository.searchWithType(productIds, filterVO.getSearchString());
+                if(raw.isEmpty()) {
+                    System.err.println("empty");
+                    return res;
                 }
-                //
+                for(Product po:raw)
+                    res.add(productService.buildVO(po));
             }
-        }else {
-            List<Product> raw=productRepository.findByTitleLike("%"+filterVO.getSearchString()+"%");
+        }else if (!filterVO.getSearchString().isEmpty()){//仅搜索
+            List<Product> raw=productRepository.searchWithoutType(filterVO.getSearchString());
             for(Product item:raw)
                 res.add(productService.buildVO(item));
-            //
+        }else{//全局
+            List<Product> raw=productRepository.findAll();
+            if(raw.isEmpty())
+                return res;
+            for(Product po:raw)
+                res.add(productService.buildVO(po));
+            res.sort((p1, p2) -> p2.getPopularity().compareTo(p1.getPopularity()));
         }
         return res;
     }
