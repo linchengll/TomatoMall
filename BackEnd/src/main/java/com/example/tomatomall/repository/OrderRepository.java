@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Orders, Integer> {
     List<Orders> findByStatus(StatusEnum status);
+    List<Orders> findByUserId(Integer userId);
 }
