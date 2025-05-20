@@ -10,26 +10,34 @@ import com.example.tomatomall.enums.StatusEnum;
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.OrderArchive;
 import com.example.tomatomall.po.Orders;
+import com.example.tomatomall.po.Product;
 import com.example.tomatomall.po.ProductStockpile;
 import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.util.AlipayProperties;
+import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
+import com.example.tomatomall.vo.ProductOfOrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
     OrderRepository orderRepository;
-
+    @Autowired
+    AccountRepository accountRepository;
     @Autowired
     ProductStockpileRepository productStockpileRepository;
     @Autowired
     OrderArchiveRepository orderArchiveRepository;
+    @Autowired
+    ProductRepository productRepository;
     @Autowired
     AlipayProperties alipayProperties;
     @Autowired
@@ -95,6 +103,50 @@ public class OrderServiceImpl implements OrderService {
     public void handleFailure(String orderId) {
         updateOrderStatus(orderId,StatusEnum.FAILED);
         updateStock(orderId,false);
+    }
+
+    @Override
+    public List<OrderVO> getOrderByUserId(String userId) {
+        if(!accountRepository.findById(new Integer(userId)).isPresent()){
+            throw TomatoMallException.usernameNotExists();
+        }
+        List<Orders> orderList=orderRepository.findByUserId(new Integer(userId));
+        List<OrderVO> orderVOList=new ArrayList<>();
+        for(Orders order:orderList){
+            OrderVO orderVO=order.toVO();
+            orderVOList.add(orderVO);
+        }
+        return orderVOList;
+    }
+
+    @Override
+    public OrderVO getOrderById(String orderId) { //直接返回orderVO类，不包含订单商品信息
+        if(!orderRepository.findById(new Integer(orderId)).isPresent()){
+            throw TomatoMallException.orderNotExist();
+        }
+        Orders order=orderRepository.findById(new Integer(orderId)).get();
+        return order.toVO();
+    }
+
+    @Override
+    public List<ProductOfOrderVO> getProductsByOrderId(String orderId) { //新增了一个VO类，返回购买商品的详细信息
+        if(!orderRepository.findById(new Integer(orderId)).isPresent()){
+            throw TomatoMallException.orderNotExist();
+        }
+        List<OrderArchive> orderArchiveList=orderArchiveRepository.findByOrderId(new Integer(orderId));
+        List<ProductOfOrderVO> productOfOrderVOList=new ArrayList<>();
+        for(OrderArchive archive:orderArchiveList){
+            Integer productId=archive.getProductId();
+            Product product=productRepository.findById(productId).get();
+            ProductOfOrderVO productOfOrderVO=new ProductOfOrderVO();
+            productOfOrderVO.setProductId(productId);
+            productOfOrderVO.setProductName(product.getTitle());
+            productOfOrderVO.setProductImage(product.getCover());
+            productOfOrderVO.setProductPrice(product.getPrice());
+            productOfOrderVO.setProductQuantity(archive.getQuantity());
+            productOfOrderVOList.add(productOfOrderVO);
+        }
+        return productOfOrderVOList;
     }
 
     private void updateOrderStatus(String orderId, StatusEnum status) {
