@@ -14,4 +14,5 @@ public interface OrderService {
     List<OrderVO> getOrderByUserId(String userId);
     OrderVO getOrderById(String orderId);
     List<ProductOfOrderVO> getProductsByOrderId(String orderId);
+    String cancelOrder(String orderId);
 }
