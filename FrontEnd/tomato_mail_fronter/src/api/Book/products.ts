@@ -1,5 +1,5 @@
 import {axios} from '../../utils/request'
-import {PRODUCTS_MODULE} from '../_prefix'
+import {PRODUCTS_MODULE, TYPE_MODULE, SEARCH_MODULE} from '../_prefix'
 
 export type UpdateInfo = {
     id?: string,
@@ -29,14 +29,23 @@ export type AddInfo = {
     specifications?: Set<Specification>;
 }
 
-
-type GetInfo = {
-
+export type SearchInfo = {
+    searchString: string,
+    type: number,
 }
 
-//获取商品列表
-export const getListInfo = () => {
-    return axios.get(`${PRODUCTS_MODULE}`)
+//搜索指定商品
+export const searchList = (searchInfo: SearchInfo) => {
+    return axios.post(`${SEARCH_MODULE}`, searchInfo, {
+        headers: { 'Content-Type': 'application/json' }
+    }).then(res => {
+            return res
+        })
+}
+
+//获取热门商品
+export const getTopList = () => {
+    return axios.get(`${SEARCH_MODULE}/top`)
         .then(res => {
             return res
         })
@@ -75,3 +84,29 @@ export const deleteInfo = (id: string) => {
             return res
         })
 }
+
+// 添加类别
+export const addTypeInfo = (typeName: string) => {
+    return axios.post(`${TYPE_MODULE}`, typeName, {
+        headers: { 'Content-Type': 'application/json' }
+    }).then(res => {
+        return res
+    })
+}
+
+// 删除类别
+export const deleteTypeInfo = (typeId: string) => {
+    return axios.delete(`${TYPE_MODULE}/${typeId}`)
+        .then(res => {
+            return res
+        })
+}
+
+// 获取全部类型
+export const getTypeListInfo = () => {
+    return axios.get(`${TYPE_MODULE}`)
+        .then(res => {
+            return res
+        })
+}
+

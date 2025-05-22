@@ -37,15 +37,19 @@ const router = createRouter({
       path:'/changeInfo/:id',
       component: () => import('../views/product/ChangeInfo.vue'),
       meta:{title: '修改商品'}
-    },{
+    }, {
         path: '/createProduct',
         component: () => import('../views/product/CreateProduct.vue'),
         meta: {title: '创建商品'}
-    },{
+    }, {
        path:'/editAdvertisements',
        component: () => import('../views/advertisements/EditAdvertisements.vue'),
        meta: {title: '编辑广告'}
-    },{
+    }, {
+        path: '/test',
+        component: () => import('../views/test.vue'),
+        meta: {title: "测试页面"}
+    }, {
         path: '/404',
         name: '404',
         component: () => import('../views/NotFound.vue'),

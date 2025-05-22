@@ -1,0 +1,62 @@
+{
+  "groups": [
+    {
+      "name": "alipay",
+      "type": "com.example.tomatomall.util.AlipayProperties",
+      "sourceType": "com.example.tomatomall.util.AlipayProperties"
+    },
+    {
+      "name": "aliyun.oss",
+      "type": "com.example.tomatomall.util.OssUtil",
+      "sourceType": "com.example.tomatomall.util.OssUtil"
+    }
+  ],
+  "properties": [
+    {
+      "name": "alipay.alipay-public-key",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.AlipayProperties"
+    },
+    {
+      "name": "alipay.app-id",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.AlipayProperties"
+    },
+    {
+      "name": "alipay.notify-url",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.AlipayProperties"
+    },
+    {
+      "name": "alipay.private-key",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.AlipayProperties"
+    },
+    {
+      "name": "alipay.server-url",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.AlipayProperties"
+    },
+    {
+      "name": "aliyun.oss.access-key-id",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.OssUtil"
+    },
+    {
+      "name": "aliyun.oss.access-key-secret",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.OssUtil"
+    },
+    {
+      "name": "aliyun.oss.bucket-name",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.OssUtil"
+    },
+    {
+      "name": "aliyun.oss.endpoint",
+      "type": "java.lang.String",
+      "sourceType": "com.example.tomatomall.util.OssUtil"
+    }
+  ],
+  "hints": []
+}
