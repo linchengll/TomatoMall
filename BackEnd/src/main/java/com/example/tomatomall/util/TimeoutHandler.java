@@ -30,7 +30,7 @@ public class TimeoutHandler {
     @Autowired
     CartRepository cartRepository;
 
-    private static final long TIMEOUT_DURATION = 300*1000; //300s,调试的时候改短点
+    private static final long TIMEOUT_DURATION = 12*300*1000; //300s,调试的时候改短点
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private boolean orderTimeoutActive = false;
 
