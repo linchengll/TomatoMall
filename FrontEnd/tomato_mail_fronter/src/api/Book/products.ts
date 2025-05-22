@@ -1,5 +1,5 @@
 import {axios} from '../../utils/request'
-import {PRODUCTS_MODULE, TYPE_MODULE} from '../_prefix'
+import {PRODUCTS_MODULE, TYPE_MODULE, SEARCH_MODULE} from '../_prefix'
 
 export type UpdateInfo = {
     id?: string,
@@ -29,14 +29,23 @@ export type AddInfo = {
     specifications?: Set<Specification>;
 }
 
-
-type GetInfo = {
-
+export type SearchInfo = {
+    searchString: string,
+    type: number,
 }
 
-//获取商品列表
-export const getListInfo = () => {
-    return axios.get(`${PRODUCTS_MODULE}`)
+//搜索指定商品
+export const searchList = (searchInfo: SearchInfo) => {
+    return axios.post(`${SEARCH_MODULE}`, searchInfo, {
+        headers: { 'Content-Type': 'application/json' }
+    }).then(res => {
+            return res
+        })
+}
+
+//获取热门商品
+export const getTopList = () => {
+    return axios.get(`${SEARCH_MODULE}/top`)
         .then(res => {
             return res
         })
@@ -100,3 +109,4 @@ export const getTypeListInfo = () => {
             return res
         })
 }
+

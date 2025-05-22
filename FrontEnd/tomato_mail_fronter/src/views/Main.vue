@@ -2,21 +2,31 @@
 import { ref, computed} from 'vue'
 import { userInfo } from '../api/user.ts'
 import { ElMessage } from 'element-plus'
-import { getListInfo, addTypeInfo, deleteTypeInfo, getTypeListInfo} from '../api/Book/products.ts'
+import { getListInfo, addTypeInfo, deleteTypeInfo, getTypeListInfo, getTopList, searchList} from '../api/Book/products.ts'
 import { getADVListInfo} from '../api/Adv/advertisements'
 import NavBar from '../views/NavHead.vue'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
 
-// === 侧边栏和搜索栏 ===============================
+// === 侧边栏 ===============================
+// 状态定义
 const isExpanded = ref(false)
-const selectedCategory = ref("")
+
 const showAddCategoryDialog = ref(false)
 const newCategoryName = ref("")
+const categoryList = ref<{ typeId: number; typeName: string }[]>([])
 const categories = ref<string[]>([])
+const selectedCategory = ref("")
 
-// 控制分类显示的数量（如默认显示6个）
+// 用来排序分类（按字母）
+const sortedCategories = computed(() => {
+  return [...categories.value].sort((a, b) => a.localeCompare(b))
+})
+
+// 控制分类显示的数量（默认显示12个或全部）
 const visibleCategories = computed(() => {
-  return isExpanded.value ? categories.value : categories.value.slice(0, 6)
+  return isExpanded.value ? sortedCategories.value : sortedCategories.value.slice(0, 12)
 })
 
 // 切换“展开/收起”
@@ -24,15 +34,36 @@ function toggleExpand() {
   isExpanded.value = !isExpanded.value
 }
 
+function getTypeIdByName(typeName: string): number | string {
+  const match = categories.value.find(item => item.typeName === typeName)
+  return match ? match.typeId : ""
+}
+
+// 分类选择逻辑（可用于筛选商品）
+function selectCategory(category: string) {
+  if (selectedCategory.value === category) {
+    selectedCategory.value = "" // 点击已选中项时取消选择
+  } else {
+    selectedCategory.value = category
+    const typeId = getTypeIdByName(categoryName)
+    getProductList("", typeId)
+  }
+}
+
 // 获取分类列表（页面加载时调用）
 async function fetchCategories() {
   try {
     const res = await getTypeListInfo()
-    categories.value = res.data.data.map((item: any) => item.typeName) // 假设后端字段为 typeName
+    categoryList.value = res.data.data.map((item: any) => ({
+      typeId: item.typeId,
+      typeName: item.typeName
+    }))
+    categories.value = res.data.data.map((item: any) => item.typeName)
   } catch (err) {
     ElMessage.error("获取分类失败")
   }
 }
+fetchCategories();
 
 // 添加新分类（调用接口）
 const confirmAddCategory = async () => {
@@ -59,14 +90,50 @@ const confirmAddCategory = async () => {
     ElMessage.error("添加失败，请检查网络")
   }
 }
-
-// 分类选择逻辑（可用于筛选商品）
-function selectCategory(category: string) {
-  selectedCategory.value = category
-  // 发起筛选逻辑，比如 emit("filter", category) 或调用 API
-}
 // =================================================
 
+// === 搜索 ========================================
+const search = ref('');
+const showTopList = ref(false);
+const topList = ref<string[]>([]);
+const isFocused = ref(false);
+
+// 点击搜索按钮
+function onSearchClick() {
+  const keyword = search.value.trim();
+  const typeId = selectedCategory.value
+      ? getTypeIdByName(selectedCategory.value)
+      : 0;
+
+  getProductList(keyword, typeId);
+}
+
+// 聚焦时显示 top5 热榜 + 展开动画
+function onSearchFocus() {
+  isFocused.value = true;
+  getTopList().then((res) => {
+    topList.value = Array.isArray(res.data) ? res.data.slice(0, 5) : [];
+  }).catch(() => {
+    topList.value = []; // 请求失败时设为空数组
+  });
+  showTopList.value = true;
+}
+
+// 失焦时隐藏热门列表（延迟 200ms 避免点击被关闭）
+function onSearchBlur() {
+  setTimeout(() => {
+    isFocused.value = false;
+    showTopList.value = false;
+  }, 200);
+}
+
+// 选中热词
+function onHotItemClick(item: string) {
+  search.value = item;
+  onSearchClick();
+  showTopList.value = false;
+}
+// ================================================
 
 // === 广告 ========================================
 interface banner{
@@ -77,6 +144,7 @@ interface banner{
   productId: string;
 }
 const banners = ref<banner[]>([])
+const showAddDialog = ref(false)
 
 // 加载广告列表
 async function getBannersList() {
@@ -110,9 +178,12 @@ interface Product {
 }
 const productList = ref<Product[]>([]);
 
-async function getProductList() {
+async function getProductList(searchString: string, type: number) {
   try {
-    const res = await getListInfo();
+    const res = await searchList({
+      searchString: "",
+      type: 0
+    });
     if (res.data.code === '200') {
       // 使用 map 只提取需要的字段
       productList.value = (res.data.data || []).map((item: any) => ({
@@ -128,7 +199,7 @@ async function getProductList() {
     ElMessage.error("加载商品列表失败");
   }
 }
-getProductList();
+getProductList("",0);
 // =================================================
 
 // === 用户信息 ======================================
@@ -164,31 +235,104 @@ getUserInfo()
 <template>
   <div class="homepage">
     <!-- 顶部搜索栏 -->
-    <NavBar v-model="search" />
+    <el-header class="header">
+      <div class="logo">番茄书驿</div>
+
+      <div class="search-container" style="position: relative">
+        <div class="search-box-wrapper" style="display: flex; width: 100%">
+          <!-- 修改后的el-input -->
+          <div style="position: relative; flex-grow: 1">
+            <el-input
+                v-model="search"
+                placeholder="搜索商品..."
+                :class="{ 'expanded-search': showTopList }"
+                @focus="onSearchFocus"
+                @blur="onSearchBlur"
+                style="
+              width: 100%;
+              transition: all 0.2s ease;
+            "
+            >
+              <template #prefix>
+                <el-icon><search /></el-icon>
+              </template>
+            </el-input>
+
+            <!-- 无缝下拉菜单 -->
+            <transition name="dropdown-fade">
+              <div
+                  v-show="showTopList"
+                  class="top-list"
+                  style="
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                margin-top: -1px;
+                border-radius: 0 0 8px 8px;
+              "
+              >
+                <ul v-if="topList.length > 0">
+                  <li
+                      v-for="(item, index) in topList"
+                      :key="index"
+                      @mousedown="onHotItemClick(item)"
+                  >
+                    {{ item }}
+                  </li>
+                </ul>
+                <div v-else class="empty-placeholder">
+                  暂无数据
+                </div>
+              </div>
+            </transition>
+          </div>
+
+          <el-button
+              type="primary"
+              icon="el-icon-search"
+              @click="onSearchClick"
+              style="margin-left: 10px"
+          >
+            搜索
+          </el-button>
+        </div>
+      </div>
+    </el-header>
 
     <el-container>
-      <!-- 侧边分类导航 -->
       <el-aside width="200px" class="aside">
-        <!-- 管理员专属的添加分类按钮 -->
-        <div v-if="role === 'admin'" style="margin-bottom: 10px; display: flex; justify-content: center;">
+        <div v-if="role === 'admin'" class="add-category">
           <el-button type="primary" icon="el-icon-plus" @click="showAddCategoryDialog = true">添加分类</el-button>
+          <el-button type="danger" icon="el-icon-plus" @click="deleteType = true">删除分类</el-button>
         </div>
 
-        <el-menu>
-          <!-- 展示前若干个分类 -->
-          <el-menu-item
-              v-for="(item, index) in visibleCategories"
-              :key="index"
-              :class="{ 'active-category': item === selectedCategory }"
-              @click="selectCategory(item)">
-            {{ item }}
-          </el-menu-item>
+        <!-- 分类列表容器，带滚动 -->
+        <div class="scrollable-category">
+          <el-menu class="category-menu">
+            <el-menu-item
+                v-if="selectedCategory"
+                key="selected"
+                class="active-category"
+                @click="selectCategory(selectedCategory)"
+            >
+              {{ selectedCategory }}
+            </el-menu-item>
 
-          <!-- 展开/收起按钮 -->
-          <el-menu-item @click="toggleExpand" style="text-align: center;">
-            <span>{{ isExpanded ? '收起' : '展开' }} »</span>
-          </el-menu-item>
-        </el-menu>
+            <el-menu-item
+                v-for="item in visibleCategories"
+                :key="item"
+                :class="{ 'active-category': item === selectedCategory }"
+                @click="selectCategory(item)"
+            >
+              {{ item }}
+            </el-menu-item>
+
+            <el-menu-item @click="toggleExpand">
+              <span>{{ isExpanded ? '收起 «' : '展开更多 »' }}</span>
+            </el-menu-item>
+          </el-menu>
+        </div>
       </el-aside>
 
       <el-main>
@@ -286,7 +430,31 @@ getUserInfo()
   </el-dialog>
 </template>
 
+
 <style>
+.aside {
+  position: relative;
+  background: #f5f7fa;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.scrollable-category {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.category-menu {
+  border-right: none;
+}
+
+.active-category {
+  background-color: #ecf5ff !important;
+  color: #409eff;
+  font-weight: 600;
+}
+
 .banner-caption {
   position: absolute;
   bottom: 20px;
@@ -359,9 +527,11 @@ getUserInfo()
   color: #fa0056;
   font-weight: bold;
 }
+
 .user-panel {
   padding: 10px;
 }
+
 .user-card {
   display: flex;
   flex-direction: column;
@@ -386,5 +556,88 @@ getUserInfo()
   font-size: 16px;
   font-weight: bold;
   text-align: center;
+}
+.search-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible !important; /* 禁止裁剪 */
+}
+
+.search-box-wrapper {
+  display: flex;
+  align-items: center;
+  width: 600px;
+}
+
+.search-box {
+  flex: 1;
+}
+
+.top-list {
+  display: block; /* 强制显示 */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #dcdfe6;
+  z-index: 1000; /* 确保在最上层 */
+  opacity: 1; /* 强制不透明 */
+}
+/* 修改el-input的圆角 */
+:deep(.el-input__wrapper) {
+  border-radius: 20px;
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
+}
+
+/* 展开状态下的输入框 */
+.expanded-search :deep(.el-input__wrapper) {
+  border-radius: 20px 20px 0 0 !important;
+  box-shadow: 0 0 0 1px #dcdfe6 inset !important;
+}
+
+/* 下拉菜单样式 */
+.top-list {
+  background: white;
+  border: 1px solid #dcdfe6;
+  border-top: none;
+  height: 100px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.top-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.top-list li {
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.top-list li:hover {
+  background-color: #f5f5f5;
+}
+
+.empty-placeholder {
+  padding: 10px;
+  color: #999;
+  text-align: center;
+}
+
+/* 动画效果 */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
 }
 </style>
