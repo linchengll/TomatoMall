@@ -54,6 +54,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         if(advertisementVO.getImageUrl()!= null){
             advertisement.setImageUrl(advertisementVO.getImageUrl());
         }
+        if(advertisementVO.getDiscount()!= null){
+            advertisement.setDiscount(advertisementVO.getDiscount());  //新增折扣属性，可以设置折扣，值为1-9的整数，例如1代表1折
+        }
         if(productRepository.findById(advertisementVO.getProductId()).isPresent()){
             advertisement.setProductId(advertisementVO.getProductId());
         }else
@@ -87,4 +90,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         return "删除成功";
     }
+
+    @Override
+    public AdvertisementVO getAdvertisementById(String id) {
+        if(advertisementRepository.findById(new Integer(id)).isPresent()){
+        return advertisementRepository.findById(new Integer(id)).get().toVO();
+        }else throw TomatoMallException.advertisementNotExists();
+    }
+
 }

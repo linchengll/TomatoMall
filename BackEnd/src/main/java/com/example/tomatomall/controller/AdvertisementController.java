@@ -47,4 +47,13 @@ public class AdvertisementController {
         return Response.buildSuccess(advertisementService.delete(id));
     }
 
+    /**
+     * 获取广告详情
+     */
+    @GetMapping("/{id}")
+    public Response<AdvertisementVO> getAdvertisement(@PathVariable("id") String id) {
+        return Response.buildSuccess(advertisementService.getAdvertisementById(id));
+    }
+
+
 }

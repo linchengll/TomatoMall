@@ -30,6 +30,9 @@ public class Advertisement {
     @Column(name = "product_id")
     private Integer productId;
 
+    @Column(name = "discount")
+    private Integer discount;
+
     public AdvertisementVO toVO() {
         AdvertisementVO vo = new AdvertisementVO();
         vo.setId(id);
@@ -37,6 +40,7 @@ public class Advertisement {
         vo.setContent(content);
         vo.setImageUrl(imageUrl);
         vo.setProductId(productId);
+        vo.setDiscount(discount);
         return vo;
     }
 

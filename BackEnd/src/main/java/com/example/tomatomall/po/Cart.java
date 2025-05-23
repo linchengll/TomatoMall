@@ -28,4 +28,7 @@ public class Cart {
 
     @Column(name="ordered")
     private boolean ordered = false;
+
+    @Column(name="discount")
+    private Integer discount;
 }

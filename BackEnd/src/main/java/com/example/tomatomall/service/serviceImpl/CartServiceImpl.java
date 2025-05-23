@@ -37,7 +37,7 @@ public class CartServiceImpl implements CartService {
     OrderRepository orderRepository;
 
     @Override
-    public CartVO addCart(String productId, Integer quantity) {
+    public CartVO addCart(String productId, Integer quantity,Integer discount) {
         Product product;
         Cart cart =new Cart();
         CartVO cartVO = new CartVO();
@@ -51,6 +51,9 @@ public class CartServiceImpl implements CartService {
             cart.setProductId(new Integer(productId));
             cart.setUserId(userId);
             cart.setQuantity(quantity);
+            if(discount!=null){
+                cart.setDiscount(discount);
+            }
             Cart savedCart= cartRepository.save(cart);
             cartVO.setCartItemId(savedCart.getCartItemId());
             cartVO.setProductId(product.getId());
@@ -60,6 +63,9 @@ public class CartServiceImpl implements CartService {
             cartVO.setDescription(product.getDescription());
             cartVO.setCover(product.getCover());
             cartVO.setDetail(product.getDetail());
+            if(discount!=null){
+                cartVO.setDiscount(discount);
+            }
         }else
             throw TomatoMallException.productNotExists();
 
@@ -111,13 +117,18 @@ public class CartServiceImpl implements CartService {
                 VO.setProductId(item.getProductId());
                 VO.setQuantity(item.getQuantity());
                 VO.setOrdered(item.isOrdered());
+                if(item.getDiscount()!=null){
+                    VO.setDiscount(item.getDiscount());
+                }else{
+                    VO.setDiscount(null);
+                }
                 VO.setTitle(product.getTitle());
                 VO.setPrice(product.getPrice());
                 VO.setDescription(product.getDescription());
                 VO.setCover(product.getCover());
                 VO.setDetail(product.getDetail());
                 items.add(VO);
-                sum+=VO.getPrice()*VO.getQuantity();
+                sum+=VO.getDiscount()!=null ? VO.getDiscount()*VO.getPrice()*VO.getQuantity()/10 : VO.getPrice()*VO.getQuantity();
                 total++;
             }
         cartList.setItems(items);
@@ -144,7 +155,11 @@ public class CartServiceImpl implements CartService {
         for(String id : cartItemIds){
             Cart item=cartRepository.findById(new Integer(id)).get();
             ProductStockpile ps=productStockpileRepository.findByProductId(item.getProductId());
+            if(item.getDiscount()!=null){
+                totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice()*item.getDiscount()/10;
+            }else{
             totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice();
+            }
             //显然这里可以使同一购物车商品多次添加到不同订单，但这个版本选择不处理，到自由需求阶段修改po再处理
             //1.删除购物车商品/标记无效
             //2.限制用户只能有一个订单
