@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed} from 'vue'
 import { userInfo } from '../api/user.ts'
+import { CircleCloseFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getListInfo, addTypeInfo, deleteTypeInfo, getTypeListInfo, getTopList, searchList} from '../api/Book/products.ts'
+import { addTypeInfo, deleteTypeInfo, getTypeListInfo, getTopList, searchList} from '../api/Book/products.ts'
 import { getADVListInfo} from '../api/Adv/advertisements'
 import NavBar from '../views/NavHead.vue'
 import ElementPlus from 'element-plus'
@@ -12,6 +13,7 @@ import 'element-plus/dist/index.css'
 // === 侧边栏 ===============================
 // 状态定义
 const isExpanded = ref(false)
+let deleteType = ref(false)
 
 const showAddCategoryDialog = ref(false)
 const newCategoryName = ref("")
@@ -35,18 +37,48 @@ function toggleExpand() {
 }
 
 function getTypeIdByName(typeName: string): number | string {
-  const match = categories.value.find(item => item.typeName === typeName)
-  return match ? match.typeId : ""
+  const match = categoryList.value.find(item => item.typeName === typeName);
+  return match ? match.typeId : "";
 }
-
 // 分类选择逻辑（可用于筛选商品）
 function selectCategory(category: string) {
-  if (selectedCategory.value === category) {
-    selectedCategory.value = "" // 点击已选中项时取消选择
+  if (!deleteType.value) {
+    if (selectedCategory.value === category) {
+      selectedCategory.value = "" // 点击已选中项时取消选择
+    } else {
+      selectedCategory.value = category
+      const typeId = getTypeIdByName(category)
+      getProductList("", typeId)
+    }
   } else {
-    selectedCategory.value = category
-    const typeId = getTypeIdByName(categoryName)
-    getProductList("", typeId)
+    const typeId = getTypeIdByName(category)
+    console.log(typeId)
+    ElMessageBox.confirm(
+        `确定要删除分类 “${category}” 吗？此操作不可恢复！`,
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+    ).then(() => {
+      deleteTypeInfo(typeId).then(res => {
+        if (res.data.code === '200') {
+          ElMessage.success('分类删除成功！');
+          // 可以刷新分类列表或重置选中项等逻辑
+          selectedCategory.value = ""
+          deleteType = false
+          fetchCategories()
+        } else {
+          ElMessage.error(res.data.msg || '删除失败');
+        }
+      }).catch(error => {
+        ElMessage.error('删除失败: ' + error.message);
+        console.error('删除失败:', error);
+      })
+    }).catch(() => {
+      ElMessage.info('已取消删除')
+    })
   }
 }
 
@@ -104,7 +136,6 @@ function onSearchClick() {
   const typeId = selectedCategory.value
       ? getTypeIdByName(selectedCategory.value)
       : 0;
-
   getProductList(keyword, typeId);
 }
 
@@ -116,6 +147,7 @@ function onSearchFocus() {
   }).catch(() => {
     topList.value = []; // 请求失败时设为空数组
   });
+  console.log("topList", topList);
   showTopList.value = true;
 }
 
@@ -181,8 +213,8 @@ const productList = ref<Product[]>([]);
 async function getProductList(searchString: string, type: number) {
   try {
     const res = await searchList({
-      searchString: "",
-      type: 0
+      searchString: searchString,
+      type: type
     });
     if (res.data.code === '200') {
       // 使用 map 只提取需要的字段
@@ -240,7 +272,7 @@ getUserInfo()
 
       <div class="search-container" style="position: relative">
         <div class="search-box-wrapper" style="display: flex; width: 100%">
-          <!-- 修改后的el-input -->
+          <!-- el-input -->
           <div style="position: relative; flex-grow: 1">
             <el-input
                 v-model="search"
@@ -292,7 +324,7 @@ getUserInfo()
               type="primary"
               icon="el-icon-search"
               @click="onSearchClick"
-              style="margin-left: 10px"
+              style="margin-left: 5px"
           >
             搜索
           </el-button>
@@ -304,7 +336,8 @@ getUserInfo()
       <el-aside width="200px" class="aside">
         <div v-if="role === 'admin'" class="add-category">
           <el-button type="primary" icon="el-icon-plus" @click="showAddCategoryDialog = true">添加分类</el-button>
-          <el-button type="danger" icon="el-icon-plus" @click="deleteType = true">删除分类</el-button>
+          <el-button type="danger" icon="el-icon-plus" v-if="deleteType === false" @click="deleteType = true">删除分类</el-button>
+          <el-button type="danger" icon="el-icon-plus" v-if="deleteType === true" @click="deleteType = false">取消删除</el-button>
         </div>
 
         <!-- 分类列表容器，带滚动 -->
@@ -317,6 +350,13 @@ getUserInfo()
                 @click="selectCategory(selectedCategory)"
             >
               {{ selectedCategory }}
+              <el-icon
+                  v-if="deleteType"
+                  class="delete-icon"
+                  @click.stop="deleteCategory(selectedCategory)"
+              >
+                <CircleCloseFilled />
+              </el-icon>
             </el-menu-item>
 
             <el-menu-item
@@ -326,6 +366,13 @@ getUserInfo()
                 @click="selectCategory(item)"
             >
               {{ item }}
+              <el-icon
+                  v-if="deleteType"
+                  class="delete-icon"
+                  @click.stop="deleteCategory(item)"
+              >
+                <CircleCloseFilled />
+              </el-icon>
             </el-menu-item>
 
             <el-menu-item @click="toggleExpand">
@@ -333,6 +380,7 @@ getUserInfo()
             </el-menu-item>
           </el-menu>
         </div>
+
       </el-aside>
 
       <el-main>
@@ -349,8 +397,8 @@ getUserInfo()
 
         <!-- 商品展示 -->
         <div class="product-list">
-          <el-card v-for="(product, index) in productList"
-                   :key="index"
+          <el-card v-for="product in productList"
+                   :key="product.id"
                    class="product-card"
                    @click="$router.push(`/productDetail/${product.id}`)">
             <img :src="product.cover" class="product-img" />
@@ -432,6 +480,7 @@ getUserInfo()
 
 
 <style>
+// =============================
 .aside {
   position: relative;
   background: #f5f7fa;
@@ -455,6 +504,14 @@ getUserInfo()
   font-weight: 600;
 }
 
+.delete-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  cursor: pointer;
+  font-size: 16px;
+}
+// ================================
 .banner-caption {
   position: absolute;
   bottom: 20px;
