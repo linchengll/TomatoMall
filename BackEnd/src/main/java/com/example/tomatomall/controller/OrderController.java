@@ -89,4 +89,10 @@ public class OrderController {
     public Response<List<ProductOfOrderVO>> getProductOfOrder(@PathVariable String orderId){
         return Response.buildSuccess(orderService.getProductsByOrderId(orderId));
     }
+
+    //取消订单(当且仅当订单状态为待支付时才可以取消订单)
+    @DeleteMapping("/{orderId}")
+    public Response<String> cancelOrder(@PathVariable String orderId){
+        return Response.buildSuccess(orderService.cancelOrder(orderId));
+    }
 }

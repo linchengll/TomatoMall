@@ -23,7 +23,7 @@ const isRateLegal = computed(() => rate.value >= 0 && rate.value <= 10)
 const fileList = ref<UploadUserFile[]>([])
 
 const createDisabled = computed(() => {
-  return hasTelInput.value && hasPriceInput.value && hasRateInput.value && isPriceLegal.value && isRateLegal.value;
+  return !(hasTelInput.value && hasPriceInput.value && hasRateInput.value && isPriceLegal.value && isRateLegal.value);
 })
 
 const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {

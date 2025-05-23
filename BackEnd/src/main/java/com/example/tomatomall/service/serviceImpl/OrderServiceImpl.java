@@ -149,6 +149,20 @@ public class OrderServiceImpl implements OrderService {
         return productOfOrderVOList;
     }
 
+    @Override
+    public String cancelOrder(String orderId) {
+        if(!orderRepository.findById(new Integer(orderId)).isPresent())
+            throw TomatoMallException.orderNotExist();
+        Orders order=orderRepository.findById(new Integer(orderId)).get();
+        if(order.getStatus().equals(StatusEnum.PENDING)){
+            orderRepository.delete(order);
+            List<OrderArchive> orderArchiveList=orderArchiveRepository.findByOrderId(new Integer(orderId));
+            orderArchiveRepository.deleteAll(orderArchiveList);
+            return "订单已取消";
+        }else
+            return "订单已支付，无法取消";
+    }
+
     private void updateOrderStatus(String orderId, StatusEnum status) {
         Orders order;
         if(orderRepository.findById(new Integer(orderId)).isPresent())
