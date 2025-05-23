@@ -1,2 +1,3 @@
 /BackEnd/src/main/resources/application.yml
 /BackEnd/target/
+*.class
