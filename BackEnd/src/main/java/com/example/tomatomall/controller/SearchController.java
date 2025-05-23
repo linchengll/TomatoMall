@@ -2,8 +2,8 @@ package com.example.tomatomall.controller;
 
 import com.example.tomatomall.service.SearchService;
 import com.example.tomatomall.vo.FilterVO;
+import com.example.tomatomall.vo.PagedProductVO;
 import com.example.tomatomall.vo.ProductBasicVO;
-import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +22,7 @@ public class SearchController {
     }
 
     @PostMapping
-    public Response<List<ProductVO>> search(@RequestBody FilterVO filterVO){
+    public Response<PagedProductVO> search(@RequestBody FilterVO filterVO){
         return Response.buildSuccess(searchService.search(filterVO));
     }
 }
