@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import Header from '../ManagerHead.vue'
 import { ElMessage } from 'element-plus'
 import { addADVInfo, updateADVInfo, deleteADVInfo, getADVListInfo} from '../../api/Adv/advertisements'
-import { getListInfo } from '../../api/Book/products.ts'
+import { searchList } from '../../api/Book/products.ts'
 import { imageInfoUpdate } from '../../api/tools.ts'
 
 // 状态
@@ -21,7 +21,11 @@ const productList = ref<Product[]>([]);
 
 async function getProductList() {
   try {
-    const res = await getListInfo();
+    const res = await searchList({
+      searchString: "",
+      type: 0
+    });
+    console.log("res", res);
     if (res.data.code === '200') {
       // 使用 map 只提取需要的字段
       productList.value = (res.data.data || []).map((item: any) => ({
