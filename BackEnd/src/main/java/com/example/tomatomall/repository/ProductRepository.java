@@ -32,20 +32,23 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
       //将多表查询拆成两次查询，效率可能更好？毕竟不用笛卡尔积了
       //@Query("select p from Product p join fetch ProductTypes pt where pt.typeId = :id and p.id = pt.productId and (p.title like %:key% or p.description like %:key% or p.detail like %:key%) order by case when p.title like %:key% then 0 else 1 end, case when p.description like %:key% then 0 else 1 end, case when p.detail like %:key% then 0 else 1 end, p.popularity desc")
-      //@Query(value = "select p.id,title,price,rate,description,cover,detail,popularity from Product p join Product_Types pt where pt.type_Id = :id and p.id = pt.product_Id and (p.title like :key or p.description like :key or p.detail like :key) order by p.title like :key, p.description like :key, p.detail like :key, p.popularity desc",nativeQuery = true)
-      @Query("select p from Product p where p.id in :id and (p.title like %:key% or p.description like %:key% or p.detail like %:key%) order by case when p.title like %:key% then 0 else 1 end, case when p.description like %:key% then 0 else 1 end, case when p.detail like %:key% then 0 else 1 end, p.popularity desc")
+      //@Query("select p from Product p where p.id in :id and (p.title like %:key% or p.description like %:key% or p.detail like %:key%) order by case when p.title like %:key% then 0 else 1 end, case when p.description like %:key% then 0 else 1 end, case when p.detail like %:key% then 0 else 1 end, p.popularity desc")
+      @Query(value = "select * from Product p where p.id in :id and (p.title rlike :key or p.description rlike :key or p.detail rlike :key) order by p.title rlike :key, p.description rlike :key, p.detail rlike :key, p.popularity desc",nativeQuery = true)
       List<Product> searchWithTypeDB(Pageable pageable,@Param("id") List<Integer> productIds, @Param("key") String key);
       default List<Product> searchWithType(List<Integer> productIds,String key,int page,int size) {
             return searchWithTypeDB(PageRequest.of(page, size),productIds,key);
       }
-      @Query("select count(p) from Product p where p.id in :id and (p.title like %:key% or p.description like %:key% or p.detail like %:key%)")
+      //@Query("select count(p) from Product p where p.id in :id and (p.title like %:key% or p.description like %:key% or p.detail like %:key%)")
+      @Query(value = "select count(*) from Product p where p.id in :id and (p.title rlike :key or p.description rlike :key or p.detail rlike :key)",nativeQuery = true)
       int countWithType(@Param("id") List<Integer> productIds, @Param("key") String key);
 
-      @Query("select p from Product p where p.title like %:key% or p.description like %:key% or p.detail like %:key% order by case when p.title like %:key% then 0 else 1 end, case when p.description like %:key% then 0 else 1 end, case when p.detail like %:key% then 0 else 1 end, p.popularity desc")
+      //@Query("select p from Product p where p.title like %:key% or p.description like %:key% or p.detail like %:key% order by case when p.title like %:key% then 0 else 1 end, case when p.description like %:key% then 0 else 1 end, case when p.detail like %:key% then 0 else 1 end, p.popularity desc")
+      @Query(value = "select * from Product p where (p.title rlike :key or p.description rlike :key or p.detail rlike :key)",nativeQuery = true)
       List<Product> searchWithoutTypeDB(Pageable pageable,@Param("key") String key);
       default List<Product> searchWithoutType(String key,int page,int size) {
             return searchWithoutTypeDB(PageRequest.of(page, size),key);
       }
-      @Query("select count(p) from Product p where p.title like %:key% or p.description like %:key% or p.detail like %:key%")
+      //@Query("select count(p) from Product p where p.title like %:key% or p.description like %:key% or p.detail like %:key%")
+      @Query(value = "select count(*) from Product p where (p.title rlike :key or p.description rlike :key or p.detail rlike :key)",nativeQuery = true)
       int countWithoutType(@Param("key") String key);
 }
