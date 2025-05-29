@@ -41,6 +41,8 @@ public class TomatoMallException extends RuntimeException {
 
     //advertisement
     public static TomatoMallException advertisementNotExists() {return new TomatoMallException("广告不存在！");}
+    public static TomatoMallException limitNumTooMuch() {return new TomatoMallException("限购数量超过库存！");}
+    public static TomatoMallException discountInvalid() {return new TomatoMallException("折扣无效！");}
 
     //type
     public static TomatoMallException typeAlreadyExist() {return new TomatoMallException("类型已存在!");}

@@ -33,6 +33,9 @@ public class Advertisement {
     @Column(name = "discount")
     private Integer discount;
 
+    @Column(name = "limit_num")
+    private Integer limitNum;
+
     public AdvertisementVO toVO() {
         AdvertisementVO vo = new AdvertisementVO();
         vo.setId(id);
@@ -41,6 +44,7 @@ public class Advertisement {
         vo.setImageUrl(imageUrl);
         vo.setProductId(productId);
         vo.setDiscount(discount);
+        vo.setLimitNum(limitNum);
         return vo;
     }
 

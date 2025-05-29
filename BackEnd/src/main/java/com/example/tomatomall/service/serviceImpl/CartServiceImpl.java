@@ -35,6 +35,8 @@ public class CartServiceImpl implements CartService {
     OrderArchiveRepository orderArchiveRepository;
     @Autowired
     OrderRepository orderRepository;
+    @Autowired
+    AdvertisementRepository advertisementRepository;
 
     @Override
     public CartVO addCart(String productId, Integer quantity,Integer discount) {
@@ -55,6 +57,16 @@ public class CartServiceImpl implements CartService {
                 cart.setDiscount(discount);
             }
             Cart savedCart= cartRepository.save(cart);
+            if(discount!=null){
+                Advertisement advertisement=advertisementRepository.findByProductIdAndDiscount(new Integer(productId),discount);
+                int limitNum = advertisement.getLimitNum()-1;
+                if(limitNum==0){
+                    advertisementRepository.delete(advertisement);
+                }else{
+                    advertisement.setLimitNum(limitNum);
+                    advertisementRepository.save(advertisement);
+                }
+             }
             cartVO.setCartItemId(savedCart.getCartItemId());
             cartVO.setProductId(product.getId());
             cartVO.setQuantity(quantity);
