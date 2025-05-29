@@ -42,6 +42,8 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public PagedProductVO search(FilterVO filterVO) {
+        filterVO.setSearchString(String.join("|",(filterVO.getSearchString().replaceAll("[,;%$&^|'\"]","")).split(" ")));
+        System.out.println(filterVO.getSearchString());
         if(filterVO.getSize()<=0||filterVO.getSize()>pageSizeLimit)
             throw TomatoMallException.sizeInvalid(filterVO.getSize(), pageSizeLimit);
         if(filterVO.getPage()<0)
