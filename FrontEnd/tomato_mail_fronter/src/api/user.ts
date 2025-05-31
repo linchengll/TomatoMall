@@ -52,6 +52,15 @@ export const userInfo = (username: string) => {
         })
 }
 
+
+//获取用户信息
+export const userInfo_commentGet = (userId: string) => {
+    return axios.get(`${USER_MODULE}/comment_get/${userId}`)
+        .then(res => {
+            return res
+        })
+}
+
 // 更新用户信息
 export const userInfoUpdate = (updateInfo: UpdateInfo) => {
     return axios.put(`${USER_MODULE}`, updateInfo, {
