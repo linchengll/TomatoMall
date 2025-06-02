@@ -5,8 +5,10 @@ import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Advertisement;
 import com.example.tomatomall.po.Product;
+import com.example.tomatomall.po.ProductStockpile;
 import com.example.tomatomall.repository.AdvertisementRepository;
 import com.example.tomatomall.repository.ProductRepository;
+import com.example.tomatomall.repository.ProductStockpileRepository;
 import com.example.tomatomall.service.AdvertisementService;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.AdvertisementVO;
@@ -25,6 +27,8 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     private SecurityUtil securityUtil;
     @Autowired
     ProductRepository productRepository;
+    @Autowired
+    ProductStockpileRepository productStockpileRepository;
 
     @Override
     public List<AdvertisementVO> getAdvertisementList() {
@@ -54,6 +58,18 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         if(advertisementVO.getImageUrl()!= null){
             advertisement.setImageUrl(advertisementVO.getImageUrl());
         }
+        if(advertisementVO.getDiscount()!= null){
+            if(advertisementVO.getDiscount()<1 || advertisementVO.getDiscount()>9){
+                throw TomatoMallException.discountInvalid();
+            }
+            advertisement.setDiscount(advertisementVO.getDiscount());  //新增折扣属性，可以设置折扣，值为1-9的整数，例如1代表1折
+        }
+        if(advertisementVO.getLimitNum()!= null){
+            if(advertisementVO.getLimitNum()>productStockpileRepository.findByProductId(advertisementVO.getProductId()).getAmount()){
+                throw TomatoMallException.limitNumTooMuch();
+            }
+            advertisement.setLimitNum(advertisementVO.getLimitNum());  //新增限购数量属性，可以设置限购数量，值为1-9999的整数，例如10代表限购10件
+        }
         if(productRepository.findById(advertisementVO.getProductId()).isPresent()){
             advertisement.setProductId(advertisementVO.getProductId());
         }else
@@ -63,12 +79,19 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         return "更新成功";
     }
 
+
     @Override
     public AdvertisementVO create(AdvertisementVO advertisementVO) {
         if(!securityUtil.getCurrentUser().getRole().equals(RoleEnum.admin))
             throw TomatoMallException.unauthorized();
         if(!productRepository.findById(advertisementVO.getProductId()).isPresent())
             throw TomatoMallException.productNotExists();
+        if(advertisementVO.getLimitNum()>productStockpileRepository.findByProductId(advertisementVO.getProductId()).getAmount()){
+            throw TomatoMallException.limitNumTooMuch();
+        }
+        if(advertisementVO.getDiscount()<1 || advertisementVO.getDiscount()>9){
+            throw TomatoMallException.discountInvalid();
+        }
         Advertisement advertisement = advertisementVO.toPo();
         Advertisement savedAdvertisement = advertisementRepository.save(advertisement);
         return savedAdvertisement.toVO();
@@ -87,4 +110,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         return "删除成功";
     }
+
+    @Override
+    public AdvertisementVO getAdvertisementById(String id) {
+        if(advertisementRepository.findById(new Integer(id)).isPresent()){
+        return advertisementRepository.findById(new Integer(id)).get().toVO();
+        }else throw TomatoMallException.advertisementNotExists();
+    }
+
 }

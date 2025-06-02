@@ -6,6 +6,14 @@ const router = createRouter({
         path: '/',
         redirect: '/login',
     }, {
+        path: '/orderDetail/:orderId',
+        component: () => import('../views/order/OrderDetail.vue'),
+        meta: {title: '订单详情'}
+    }, {
+        path: '/orderList',
+        component: () => import('../views/order/OrderList.vue'),
+        meta: {title: '订单列表'}
+    }, {
         path: '/comment/:productId',
         component: () => import('../views/comment/comment.vue'),
         meta: {title: '评论区'}

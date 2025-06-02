@@ -41,14 +41,23 @@ public class TomatoMallException extends RuntimeException {
 
     //advertisement
     public static TomatoMallException advertisementNotExists() {return new TomatoMallException("广告不存在！");}
+    public static TomatoMallException limitNumTooMuch() {return new TomatoMallException("限购数量超过库存！");}
+    public static TomatoMallException discountInvalid() {return new TomatoMallException("折扣无效！");}
 
     //type
     public static TomatoMallException typeAlreadyExist() {return new TomatoMallException("类型已存在!");}
 
     public static TomatoMallException typeNotExists() {return new TomatoMallException("类型不存在!");}
 
+    //pageable
+    public static TomatoMallException pageInvalid(int page){return new TomatoMallException(String.format("页码 %d 无效",page));}
+
+    public static TomatoMallException sizeInvalid(int size,int limit){return new TomatoMallException(String.format("每页商品数量 %d 无效，请使用不超过 %d 的正整数",size,limit));}
+
     //comment
     public static TomatoMallException commentNotExists() {return new TomatoMallException("评论不存在!");}
+
     public static TomatoMallException notBuyer() {return new TomatoMallException("不是买家,不能评论!");}
+
     public static TomatoMallException notOwner() {return new TomatoMallException("不是评论者,不能删除!");}
 }

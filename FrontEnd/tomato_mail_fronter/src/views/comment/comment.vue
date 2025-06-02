@@ -4,25 +4,48 @@ import { useRoute, useRouter } from 'vue-router';
 import { getComments, createComment, deleteComment, updateLikeCount } from '../../api/comment.ts';
 import { ElMessage } from 'element-plus';
 import {imageInfoUpdate} from "../../api/tools.ts"
-
-// const route = useRoute();
-// const router = useRouter();
-// const productId = ref(route.params.id);
+import {userInfo, userInfo_commentGet} from "../../api/user.ts";
 
 const route = useRoute();
 const router = useRouter();
 const pId = route.params.productId as string;
 const productId = ref(pId);
 
+const defaultAvatar = './touxiang.png'; // 默认头像图片路径
+
+// 添加一个Map来缓存用户头像
+const userAvatars = ref<Record<string, string>>({});
+
+// 获取用户头像
+const fetchUserAvatar = async (userId: string) => {
+  if (userAvatars.value[userId]) {
+    return userAvatars.value[userId]; // 如果已缓存，直接返回
+  }
+  try {
+    const response = await userInfo_commentGet(userId);
+    if (response.data.code === '200') {
+      const avatar = response.data.data.avatar || defaultAvatar; // 使用用户头像或默认头像
+      userAvatars.value[userId] = avatar; // 缓存头像
+      return avatar;
+    } else {
+      return defaultAvatar; // 请求失败时使用默认头像
+    }
+  } catch (error) {
+    console.error(`Failed to fetch avatar for user ${userId}:`, error);
+    return defaultAvatar; // 请求异常时使用默认头像
+  }
+};
 
 interface CommentItem {
   Id: string;
   Content: string;
   likeCount: number;
+  ownerUserId: string;
   productId: string;
   createTime: string;
   imageUrls: string[];
   userRate : number;
+  avatar: string; // 添加头像字段
 }
 
 // const comments = ref<CommentItem[]>([
@@ -46,6 +69,7 @@ interface CommentItem {
 //     imageUrls: []
 //   }
 // ]);
+
 const comments = ref<CommentItem[]>([]);
 
 const newUserRate = ref(0);
@@ -61,15 +85,22 @@ const fetchComments = async () => {
     }
     const response = await getComments(productId.value);
     if (response.data.code === '200') {
-      comments.value = response.data.data.map((item: any) => ({
-        Id: item.id,
-        Content: item.content,
-        likeCount: item.likeCount,
-        productId: item.productId,
-        createTime: item.createTime,
-        imageUrls: item.imageUrls,
-        userRate: item.userRate
-      }));
+      comments.value = await Promise.all(
+          response.data.data.map(async (item: any) => {
+            const avatar = await fetchUserAvatar(item.ownerUserId);
+            return {
+              Id: item.id,
+              Content: item.content,
+              likeCount: item.likeCount,
+              ownerUserId: item.ownerUserId,
+              productId: item.productId,
+              createTime: item.createTime,
+              imageUrls: item.imageUrls,
+              userRate: item.userRate,
+              avatar, // 添加头像字段
+            };
+          })
+      );
     } else {
       ElMessage.error(response.data.msg || '获取评论失败');
     }
@@ -123,7 +154,7 @@ const handleUploadImage = async (file: File) => {
     }
   } catch (error) {
     console.error(error);
-    ElMessage.error('图片上传失败');
+    ElMessage.error('图片上传失败11');
   }
 };
 
@@ -151,6 +182,22 @@ const handleCreateComment = async () => {
   }
 };
 
+function getUserInfo() {
+  if (!username.value) {
+    ElMessage({ type: 'error', message: '用户名不能为空！' })
+    return
+  }
+  userInfo(username.value).then(res => {
+    username.value = res.data.data.username
+    telephone.value = res.data.data.telephone || ''
+    location.value = res.data.data.location || ''
+    email.value = res.data.data.email || ''
+    avatar.value = res.data.data.avatar || ''
+    name.value = res.data.data.name || ''
+    password.value = res.data.data.password || ''
+  })
+}
+
 onMounted(() => {
   fetchComments();
 });
@@ -163,11 +210,11 @@ onMounted(() => {
     <header style="background-color: #ff5100; padding: 10px; text-align: center; position: relative;">
       <span style="color: white; font-size: 24px;">TOMATO评论区——welcome!</span>
       <el-button
-        type="primary"
-        size="default"
-        color="#ff5100"
-        style="position: absolute; right: 45px; top: 12px;"
-        @click="router.push(`/productDetail/${productId}`)"
+          type="primary"
+          size="default"
+          color="#ff5100"
+          style="position: absolute; right: 45px; top: 12px;"
+          @click="router.push(`/productDetail/${productId}`)"
       >
         返回
       </el-button>
@@ -177,7 +224,7 @@ onMounted(() => {
       <div style="width: 80%; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); padding: 20px; background-color: white;">
         <div v-for="comment in comments" :key="comment.Id" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
           <div style="display: flex; align-items: center; margin-bottom: 10px;">
-            <img src="./touxiang.png" alt="头像" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;" />
+            <img :src="comment.avatar" alt="头像" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;" />
             <span>用户ID: {{ comment.Id }}</span>
           </div>
           <div style="display: flex; align-items: center; margin-bottom: 10px;">用户评分:{{comment.userRate}}</div>
@@ -204,11 +251,11 @@ onMounted(() => {
           />
         </el-form-item>
         <el-upload
-          action=""
-          :auto-upload="false"
-          :on-change="file => handleUploadImage(file.raw)"
-          multiple
-          style="margin-bottom: 10px;"
+            action=""
+            :auto-upload="false"
+            :on-change="file => handleUploadImage(file.raw)"
+            multiple
+            style="margin-bottom: 10px;"
         >
           <el-button type="primary">上传图片</el-button>
         </el-upload>

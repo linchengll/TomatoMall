@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Integer> {
     List<Advertisement> findByProductId(Integer productId);
-
+    Advertisement findByProductIdAndDiscount(Integer productId, Integer discount);
 }

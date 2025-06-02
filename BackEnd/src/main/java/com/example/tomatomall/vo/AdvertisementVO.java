@@ -19,6 +19,10 @@ public class AdvertisementVO {
 
     private Integer productId;
 
+    private Integer discount;
+
+    private Integer limitNum;
+
     public Advertisement toPo(){
         Advertisement advertisement = new Advertisement();
         advertisement.setId(this.id);
@@ -26,6 +30,8 @@ public class AdvertisementVO {
         advertisement.setContent(this.content);
         advertisement.setImageUrl(this.imageUrl);
         advertisement.setProductId(this.productId);
+        advertisement.setDiscount(this.discount);
+        advertisement.setLimitNum(this.limitNum);
         return advertisement;
     }
 }
