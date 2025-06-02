@@ -27,12 +27,12 @@ async function getProductList() {
     });
     console.log("res", res);
     if (res.data.code === '200') {
-      // 使用 map 只提取需要的字段
-      productList.value = (res.data.data || []).map((item: any) => ({
+      const list = res.data.data.productList || [];
+      productList.value = list.map((item: any) => ({
         title: item.title,
         price: item.price,
         id: item.id,
-        cover: item.cover? item.cover : "../assets/DefaultCover.png",
+        cover: item.cover || "../assets/DefaultCover.png",
       }));
     } else {
       ElMessage.error(res.data.msg || "获取失败");
@@ -91,7 +91,9 @@ const openAddDialog = () => {
     title: '',
     content: '',
     imageUrl: '',
-    productId: ''
+    productId: '',
+    discount: '',
+    limitNum: '',
   }
   showAddDialog.value = true
 }
@@ -201,6 +203,25 @@ const handleAvatarUpload: UploadProps['onChange'] = async (uploadFile) => {
       </el-form-item>
       <el-form-item label="描述">
         <el-input type="textarea" v-model="newBanner.content" />
+      </el-form-item>
+      <el-form-item label="折扣力度">
+        <el-input-number
+            v-model="newBanner.discount"
+            :min="0.1"
+            :max="1"
+            :step="0.1"
+            :precision="1"
+            controls-position="right"
+        />
+      </el-form-item>
+
+      <el-form-item label="限购个数">
+        <el-input-number
+            v-model="newBanner.limitNum"
+            :min="1"
+            :step="1"
+            controls-position="right"
+        />
       </el-form-item>
       <el-form-item label="广告图片">
         <el-upload

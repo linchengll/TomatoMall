@@ -18,6 +18,7 @@ type CreateOrderInfo = {
 type AddToCartInfo = {
     productId: string;
     quantity: number;
+    discount?: number;
 };
 
 // 获取购物车商品
@@ -56,10 +57,11 @@ export const createOrder = async (cartItemIds: string[], shippingAddress: Shippi
 };
 
 // 加入购物车
-export const addToCart = async (productId: string, quantity: number) => {
+export const addToCart = async (productId: string, quantity: number, discount?: number) => {
     const addToCartInfo: AddToCartInfo = {
         productId,
         quantity,
+        discount,
     };
     return axios.post(`${CART_MODULE}`, addToCartInfo, {
         headers: { 'Content-Type': 'application/json' }

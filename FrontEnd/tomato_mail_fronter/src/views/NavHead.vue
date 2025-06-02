@@ -1,43 +1,33 @@
-<!-- components/NavBar.vue -->
 <template>
   <el-header class="header">
-    <div class="logo">番茄书驿</div>
-    <el-input v-model="search" placeholder="搜索商品..." class="search-box" />
-    <el-button type="primary" icon="el-icon-search">搜索</el-button>
+    <div class="logo" @click="$router.push('/')">番茄书驿</div>
+    <div class="nav-buttons">
+      <el-button type="primary" icon="el-icon-house" @click="$router.push('/')">首页</el-button>
+      <el-button type="success" icon="el-icon-shopping-cart-full" @click="$router.push('/cart')">购物车</el-button>
+    </div>
   </el-header>
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps } from 'vue'
-import { computed } from 'vue' // 添加这行
-
-const props = defineProps<{
-  modelValue: string
-}>()
-
-const emit = defineEmits(['update:modelValue'])
-
-const search = computed({
-  get: () => props.modelValue,
-  set: val => emit('update:modelValue', val),
-})
+// 无需 props 和 emits，已移除搜索栏
 </script>
 
 <style scoped>
 .header {
   display: flex;
   align-items: center;
-  padding: 10px;
+  justify-content: space-between;
+  padding: 10px 20px;
   background: #ff4400;
   color: white;
 }
 .logo {
   font-size: 24px;
   font-weight: bold;
-  margin-right: 20px;
+  cursor: pointer;
 }
-.search-box {
-  flex: 1;
-  margin-right: 10px;
+.nav-buttons {
+  display: flex;
+  gap: 10px;
 }
 </style>

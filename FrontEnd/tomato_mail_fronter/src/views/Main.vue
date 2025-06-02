@@ -174,6 +174,8 @@ interface banner{
   content: string;
   imageUrl: string;
   productId: string;
+  discount: string,
+  limitNum: string,
 }
 const banners = ref<banner[]>([])
 const showAddDialog = ref(false)
@@ -189,7 +191,7 @@ async function getBannersList() {
         title: item.title,
         content: item.content,
         imageUrl: item.imageUrl? item.imageUrl : "../assets/DefaultBanner.png",
-        productId: item.productId
+        productId: item.productId,
       }));
     } else {
       ElMessage.error(res.data.msg || "获取广告失败");
@@ -217,12 +219,12 @@ async function getProductList(searchString: string, type: number) {
       type: type
     });
     if (res.data.code === '200') {
-      // 使用 map 只提取需要的字段
-      productList.value = (res.data.data || []).map((item: any) => ({
+      const list = res.data.data.productList || [];
+      productList.value = list.map((item: any) => ({
         title: item.title,
         price: item.price,
         id: item.id,
-        cover: item.cover? item.cover : "../assets/DefaultCover.png",
+        cover: item.cover || "../assets/DefaultCover.png",
       }));
     } else {
       ElMessage.error(res.data.msg || "获取失败");
@@ -387,7 +389,12 @@ getUserInfo()
         <!-- 轮播图 -->
         <el-carousel height="300px">
           <el-carousel-item v-for="(banner, index) in banners" :key="index">
-            <img :src="banner.imageUrl" class="banner-img" />
+            <img
+                :src="banner.imageUrl"
+                class="banner-img"
+                @click="$router.push(`/advertisementDetail/${banner.id}`)"
+                style="cursor: pointer;"
+            />
             <div class="banner-caption">
               <h3>{{ banner.title }}</h3>
               <p>{{ banner.content }}</p>

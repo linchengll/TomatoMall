@@ -14,6 +14,8 @@ type AddInfo = {
     content: string,
     imageUrl: string,
     productId: string,
+    discount: number,
+    limitNum: number,
 }
 
 //获取广告列表
@@ -45,6 +47,14 @@ export const addADVInfo = (addInfo: AddInfo) => {
 // 删除广告
 export const deleteADVInfo = (id: string) => {
     return axios.delete(`${ADVERTISEMENTS_MODULE}/${id}`)
+        .then(res => {
+            return res
+        })
+}
+
+// 获取广告详情
+export const getADVDetailInfo = (id: string) => {
+    return axios.get(`${ADVERTISEMENTS_MODULE}/${id}`)
         .then(res => {
             return res
         })

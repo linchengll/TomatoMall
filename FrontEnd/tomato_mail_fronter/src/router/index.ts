@@ -6,14 +6,6 @@ const router = createRouter({
         path: '/',
         redirect: '/login',
     }, {
-        path: '/orderDetail/:orderId',
-        component: () => import('../views/order/OrderDetail.vue'),
-        meta: {title: '订单详情'}
-    }, {
-        path: '/orderList',
-        component: () => import('../views/order/OrderList.vue'),
-        meta: {title: '订单列表'}
-    }, {
         path: '/comment/:productId',
         component: () => import('../views/comment/comment.vue'),
         meta: {title: '评论区'}
@@ -53,6 +45,10 @@ const router = createRouter({
        path:'/editAdvertisements',
        component: () => import('../views/advertisements/EditAdvertisements.vue'),
        meta: {title: '编辑广告'}
+    }, {
+        path:'/advertisementDetail/:id',
+        component: () => import('../views/advertisements/AdvertisementsDetail.vue'),
+        meta: {title: '广告详情'}
     }, {
         path: '/test',
         component: () => import('../views/test.vue'),
