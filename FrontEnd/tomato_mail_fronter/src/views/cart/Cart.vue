@@ -13,6 +13,7 @@ interface CartItem {
   cover: string;
   detail: string;
   quantity: number;
+  discount: number;
 }
 
 const cartItems = ref<CartItem[]>([]);
@@ -193,8 +194,6 @@ fetchCartItems();
       <el-input v-model="shippingAddress" placeholder="收货地址" class="dialog-input" />
       <el-select v-model="paymentMethod" placeholder="选择支付方式" class="dialog-input">
         <el-option label="支付宝" value="ALIPAY" />
-        <el-option label="微信支付" value="wechat" />
-        <el-option label="银行卡" value="bank" />
       </el-select>
       <div class="dialog-footer">
         <el-button @click="showPurchaseDialog = false">取消</el-button>

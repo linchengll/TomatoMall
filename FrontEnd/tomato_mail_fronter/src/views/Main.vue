@@ -434,6 +434,9 @@ getUserInfo()
             <el-button type="success" plain icon="el-icon-shopping-cart-full" @click="$router.push('/cart')">
               前往购物车
             </el-button>
+            <el-button type="danger" plain icon="el-icon-shopping-cart-full" @click="$router.push('/orderList')">
+              前往订单
+            </el-button>
           </el-space>
         </el-card>
       </el-aside>

@@ -187,7 +187,6 @@ const goToCommentSection = () => {
         <!-- 购买操作 -->
         <div class="action-buttons">
           <el-input-number v-model="quantity" :min="1" :max="10" />
-          <el-button type="danger" @click="buyNow">立即购买</el-button>
           <el-button type="primary" @click="handleAddToCart">加入购物车</el-button>
         </div>
       </div>

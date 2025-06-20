@@ -75,12 +75,9 @@ const handleAddToCart = async () => {
   }
 };
 
-const buyNow = () => {
-  ElMessage.success(`立即购买 ${quantity.value} 件 ${product.value.title}`);
-};
 
 const goBackToMain = () => {
-  router.push("/");
+  router.push("/main");
 };
 
 const goToCart = () => {
@@ -121,7 +118,7 @@ onMounted(fetchAdvInfo);
             折扣: <strong>{{ banner.discount }} 折</strong>
           </p>
           <p class="limit">
-            每人限购: <strong>{{ banner.limitNum }}</strong> 件
+            限购: <strong>{{ banner.limitNum }}</strong> 件
           </p>
           <p class="rate">评分: ⭐ {{ product.rate }}</p>
           <p class="desc">{{ product.description || product.detail }}</p>
@@ -148,7 +145,6 @@ onMounted(fetchAdvInfo);
                 :max="computedMax"
                 :disabled="computedMax < 1"
             />
-            <el-button type="danger" @click="buyNow">立即购买</el-button>
             <el-button type="primary" @click="handleAddToCart">加入购物车</el-button>
           </div>
         </div>

@@ -54,7 +54,7 @@ const router = createRouter({
         component: () => import('../views/order/OrderList.vue'),
         meta: {title: '订单列表'}
     },{
-        path: 'orderDetail/:id',
+        path: '/orderDetail/:id',
         component: () => import('../views/order/OrderDetail.vue'),
         meta: {title: '订单详情'}
     },{

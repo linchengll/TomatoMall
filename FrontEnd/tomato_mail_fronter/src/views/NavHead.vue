@@ -2,7 +2,7 @@
   <el-header class="header">
     <div class="logo" @click="$router.push('/')">番茄书驿</div>
     <div class="nav-buttons">
-      <el-button type="primary" icon="el-icon-house" @click="$router.push('/')">首页</el-button>
+      <el-button type="primary" icon="el-icon-house" @click="$router.push('/main')">首页</el-button>
       <el-button type="success" icon="el-icon-shopping-cart-full" @click="$router.push('/cart')">购物车</el-button>
     </div>
   </el-header>
