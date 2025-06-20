@@ -198,21 +198,6 @@ const handleUpdate = async () => {
         <el-form-item label="详细信息">
           <el-input type="textarea" v-model="detail" />
         </el-form-item>
-        <el-form-item label="商品类型">
-          <el-select
-              v-model="selectedTypeIds"
-              multiple
-              placeholder="请选择商品类型"
-              style="width: 100%"
-          >
-            <el-option
-                v-for="type in categoryList"
-                :key="type.typeId"
-                :label="type.typeName"
-                :value="type.typeId"
-            />
-          </el-select>
-        </el-form-item>
 
         <el-form-item label="封面图片">
           <el-upload

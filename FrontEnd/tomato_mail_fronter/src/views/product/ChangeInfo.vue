@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { getInfo, updateInfo, UpdateInfo, Specification } from "../../api/Book/products.ts";
+import { getInfo, updateInfo, UpdateInfo, Specification,getTypeListInfo } from "../../api/Book/products.ts";
 import { useRoute } from 'vue-router';
 import { getStockpileInfo, adjustStockpile } from "../../api/Book/stockpiles.ts";
 import {router} from "../../router";
@@ -23,6 +23,9 @@ const cover = ref('');
 const amount = ref(0);
 const frozen = ref(0);
 
+const categoryList = ref<ProductType[]>([])
+const selectedTypeIds = ref<number[]>([])
+
 // const id = ref('12781');
 // const specificationsTableData = ref([
 //   { item: '作者', value: 'Robert C. Martin' },
@@ -41,6 +44,25 @@ const frozen = ref(0);
 //这段为处理规格操作的相关函数
 //使用到常量specificationsTableData构建的一个table
 //
+
+// 获取全部类型列表
+const fetchCategories = async () => {
+  try {
+    const res = await getTypeListInfo()
+    categoryList.value = res.data.data.map((item: any) => ({
+      typeId: item.typeId,
+      typeName: item.typeName
+    }))
+  } catch (err) {
+    ElMessage.error("获取分类失败")
+  }
+}
+fetchCategories();
+// 初始化选中的类型
+const initSelectedTypes = (types: ProductType[] = []) => {
+  selectedTypeIds.value = types.map(type => type.typeId)
+}
+
 const dialogVisible = ref(false);
 const form = ref({
   item: '',
@@ -112,6 +134,8 @@ const fetchProduct = async () => {
       detail.value = response.data.data.detail || '';
       cover.value = response.data.data.cover;
 
+
+      initSelectedTypes(response.data.data.types);
       // 1. 获取后端返回的 specifications 数据
       const specifications = response.data.data.specifications;
 
@@ -181,6 +205,7 @@ const handleUpdate = async () => {
       cover: cover.value, // 封面链接
       detail: detail.value, // 详细信息
       specifications: Array.from(specificationsSet), // 规格信息
+      types: new Set(selectedTypeIds.value.map(id => ({ typeId: id })))  // 添加类型
     };
 
     // 2. 调用 updateInfo 函数
@@ -249,8 +274,9 @@ const return_to_main = () => {
 
 
 onMounted(() => {
+  fetchCategories(); // 加上这个
   fetchProduct();
-  fetchStockpileInfo()
+  fetchStockpileInfo();
 });
 
 </script>
@@ -277,6 +303,22 @@ onMounted(() => {
           </el-form-item>
           <el-form-item label="详细信息">
             <el-input type="textarea" v-model="detail" />
+          </el-form-item>
+          <el-form-item label="商品类型">
+            <el-select
+                v-model="selectedTypeIds"
+                multiple
+                filterable
+                placeholder="选择商品类型"
+                style="width: 400px"
+            >
+              <el-option
+                  v-for="type in categoryList"
+                  :key="type.typeId"
+                  :label="type.typeName"
+                  :value="type.typeId"
+              />
+            </el-select>
           </el-form-item>
         </el-form>
       </div>
