@@ -22,9 +22,9 @@ const router = createRouter({
         component: () => import('../views/user/Register.vue'),
         meta: {title: '用户注册'}
     }, {
-       path: '/main',
-       component: () => import('../views/Main.vue'),
-       meta: {title: '主页面'}
+        path: '/main',
+        component: () => import('../views/Main.vue'),
+        meta: {title: '主页面'}
     }, {
         path: '/dashboard',
         component: () => import('../views/user/Dashboard.vue'),
@@ -34,17 +34,17 @@ const router = createRouter({
         component: () => import('../views/product/ProductDetail.vue'),
         meta: {title: '商品详情'}
     }, {
-      path:'/changeInfo/:id',
-      component: () => import('../views/product/ChangeInfo.vue'),
-      meta:{title: '修改商品'}
+        path:'/changeInfo/:id',
+        component: () => import('../views/product/ChangeInfo.vue'),
+        meta:{title: '修改商品'}
     }, {
         path: '/createProduct',
         component: () => import('../views/product/CreateProduct.vue'),
         meta: {title: '创建商品'}
     }, {
-       path:'/editAdvertisements',
-       component: () => import('../views/advertisements/EditAdvertisements.vue'),
-       meta: {title: '编辑广告'}
+        path:'/editAdvertisements',
+        component: () => import('../views/advertisements/EditAdvertisements.vue'),
+        meta: {title: '编辑广告'}
     }, {
         path:'/advertisementDetail/:id',
         component: () => import('../views/advertisements/AdvertisementsDetail.vue'),
@@ -53,14 +53,18 @@ const router = createRouter({
         path:'/orderList',
         component: () => import('../views/order/OrderList.vue'),
         meta: {title: '订单列表'}
-    },{
+    }, {
         path: '/orderDetail/:id',
         component: () => import('../views/order/OrderDetail.vue'),
         meta: {title: '订单详情'}
-    },{
+    }, {
         path: '/test',
         component: () => import('../views/test.vue'),
         meta: {title: "测试页面"}
+    }, {
+        path: '/searchMain/:keyword',
+        component: () => import('../views/searchMain.vue'),
+        meta: {title: "搜索后页面"}
     }, {
         path: '/404',
         name: '404',

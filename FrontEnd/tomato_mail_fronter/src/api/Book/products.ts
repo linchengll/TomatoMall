@@ -1,6 +1,18 @@
 import {axios} from '../../utils/request'
 import {PRODUCTS_MODULE, TYPE_MODULE, SEARCH_MODULE} from '../_prefix'
 
+export interface Specification {
+    id: string;
+    item: string;
+    value: string;
+    productId: string;
+}
+
+export interface ProductType {
+    typeId: number;
+    typeName?: string;
+}
+
 export type UpdateInfo = {
     id?: string,
     title: string,
@@ -10,13 +22,7 @@ export type UpdateInfo = {
     cover?: string,
     detail?: string,
     specifications?: Set<Specification>;
-}
-
-export interface Specification {
-    id: string;
-    item: string;
-    value: string;
-    productId: string;
+    types?: Set<ProductType>;
 }
 
 export type AddInfo = {
@@ -27,6 +33,7 @@ export type AddInfo = {
     cover?: string,
     detail?: string,
     specifications?: Set<Specification>;
+    types?: Set<ProductType>;
 }
 
 export type SearchInfo = {
@@ -39,8 +46,8 @@ export const searchList = (searchInfo: SearchInfo) => {
     return axios.post(`${SEARCH_MODULE}`, searchInfo, {
         headers: { 'Content-Type': 'application/json' }
     }).then(res => {
-            return res
-        })
+        return res
+    })
 }
 
 //获取热门商品
@@ -59,22 +66,34 @@ export const getInfo = (id: string) => {
         })
 }
 
-// 更新商品信息
-export const updateInfo = (updateInfo: UpdateInfo) => {
-    return axios.put(`${PRODUCTS_MODULE}`, updateInfo, {
-        headers: { 'Content-Type': 'application/json' }
-    }).then(res => {
-        return res
-    })
+function setToArray<T>(set?: Set<T>): T[] | undefined {
+    return set ? Array.from(set) : undefined;
 }
 
 // 增加商品
 export const addInfo = (addInfo: AddInfo) => {
-    return axios.post(`${PRODUCTS_MODULE}`, addInfo, {
+    const payload = {
+        ...addInfo,
+        specifications: setToArray(addInfo.specifications),
+        types: setToArray(addInfo.types),
+    };
+
+    return axios.post(`${PRODUCTS_MODULE}`, payload, {
         headers: { 'Content-Type': 'application/json' }
-    }).then(res => {
-        return res
-    })
+    });
+}
+
+// 更新商品信息
+export const updateInfo = (updateInfo: UpdateInfo) => {
+    const payload = {
+        ...updateInfo,
+        specifications: setToArray(updateInfo.specifications),
+        types: setToArray(updateInfo.types),
+    };
+
+    return axios.put(`${PRODUCTS_MODULE}`, payload, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 }
 
 // 删除商品
