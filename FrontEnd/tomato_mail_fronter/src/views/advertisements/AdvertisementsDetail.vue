@@ -118,7 +118,7 @@ onMounted(fetchAdvInfo);
           <h2>{{ product.title }}</h2>
           <p class="price">￥{{ product.price?.toFixed(2) }}</p>
           <p class="discount">
-            折扣: <strong>{{ (banner.discount * 10).toFixed(1) }} 折</strong>
+            折扣: <strong>{{ banner.discount }} 折</strong>
           </p>
           <p class="limit">
             每人限购: <strong>{{ banner.limitNum }}</strong> 件

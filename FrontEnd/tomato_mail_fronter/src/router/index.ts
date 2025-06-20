@@ -50,6 +50,14 @@ const router = createRouter({
         component: () => import('../views/advertisements/AdvertisementsDetail.vue'),
         meta: {title: '广告详情'}
     }, {
+        path:'/orderList',
+        component: () => import('../views/order/OrderList.vue'),
+        meta: {title: '订单列表'}
+    },{
+        path: 'orderDetail/:id',
+        component: () => import('../views/order/OrderDetail.vue'),
+        meta: {title: '订单详情'}
+    },{
         path: '/test',
         component: () => import('../views/test.vue'),
         meta: {title: "测试页面"}
