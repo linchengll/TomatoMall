@@ -109,6 +109,11 @@ public class CartServiceImpl implements CartService {
             throw TomatoMallException.cartProductNotExists();
         if(!Objects.equals(securityUtil.getCurrentUser().getId(), cartItem.getUserId()))
             throw TomatoMallException.userMismatch();
+        if(cartItem.getDiscount()!=null) {
+            Advertisement advertisement = advertisementRepository.findByProductIdAndDiscount(cartItem.getProductId(), Math.round(cartItem.getDiscount()* 100));
+            if (advertisement != null&&quantity>advertisement.getLimitNum())
+                throw TomatoMallException.quantityTooMuch();
+        }
         if(productStockpileRepository.findByProductId(cartItem.getProductId())==null||quantity>productStockpileRepository.findByProductId(cartItem.getProductId()).getAmount())
             throw TomatoMallException.cartProductQuantityNotEnough();
         cartItem.setQuantity(quantity);
