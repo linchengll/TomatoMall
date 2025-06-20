@@ -39,18 +39,18 @@ public class CartServiceImpl implements CartService {
     AdvertisementRepository advertisementRepository;
 
     @Override
-    public CartVO addCart(String productId, Integer quantity,Integer discount) {
+    public CartVO addCart(Integer productId, Integer quantity,Float discount) {
         Product product;
         Cart cart =new Cart();
         CartVO cartVO = new CartVO();
-        if(productRepository.findById(new Integer(productId)).isPresent()) {
-            product = productRepository.findById(new Integer(productId)).get();
+        if(productRepository.findById(productId).isPresent()) {
+            product = productRepository.findById(productId).get();
             Integer userId = securityUtil.getCurrentUser().getId();
-            Integer stockpile = productStockpileRepository.findByProductId(new Integer(productId)).getAmount();
+            Integer stockpile = productStockpileRepository.findByProductId(productId).getAmount();
             if(stockpile < quantity) {
                 throw TomatoMallException.cartProductQuantityNotEnough();
             }
-            cart.setProductId(new Integer(productId));
+            cart.setProductId(productId);
             cart.setUserId(userId);
             cart.setQuantity(quantity);
             if(discount!=null){
@@ -58,8 +58,14 @@ public class CartServiceImpl implements CartService {
             }
             Cart savedCart= cartRepository.save(cart);
             if(discount!=null){
-                Advertisement advertisement=advertisementRepository.findByProductIdAndDiscount(new Integer(productId),discount);
-                int limitNum = advertisement.getLimitNum()-1;
+                Advertisement advertisement=advertisementRepository.findByProductIdAndDiscount(productId,Math.round(discount*100));
+                int limitNum;
+                if(advertisement!=null)
+                    limitNum = advertisement.getLimitNum()-quantity;
+                else
+                    throw TomatoMallException.advertisementNotExists();
+                if(limitNum<0)
+                    throw TomatoMallException.quantityTooMuch();
                 if(limitNum==0){
                     advertisementRepository.delete(advertisement);
                 }else{
@@ -80,8 +86,6 @@ public class CartServiceImpl implements CartService {
             }
         }else
             throw TomatoMallException.productNotExists();
-
-
         return cartVO;
     }
 
@@ -105,6 +109,11 @@ public class CartServiceImpl implements CartService {
             throw TomatoMallException.cartProductNotExists();
         if(!Objects.equals(securityUtil.getCurrentUser().getId(), cartItem.getUserId()))
             throw TomatoMallException.userMismatch();
+        if(cartItem.getDiscount()!=null) {
+            Advertisement advertisement = advertisementRepository.findByProductIdAndDiscount(cartItem.getProductId(), Math.round(cartItem.getDiscount()* 100));
+            if (advertisement != null&&quantity>advertisement.getLimitNum())
+                throw TomatoMallException.quantityTooMuch();
+        }
         if(productStockpileRepository.findByProductId(cartItem.getProductId())==null||quantity>productStockpileRepository.findByProductId(cartItem.getProductId()).getAmount())
             throw TomatoMallException.cartProductQuantityNotEnough();
         cartItem.setQuantity(quantity);

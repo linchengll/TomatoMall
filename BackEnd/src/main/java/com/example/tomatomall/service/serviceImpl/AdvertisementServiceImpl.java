@@ -4,8 +4,6 @@ package com.example.tomatomall.service.serviceImpl;
 import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Advertisement;
-import com.example.tomatomall.po.Product;
-import com.example.tomatomall.po.ProductStockpile;
 import com.example.tomatomall.repository.AdvertisementRepository;
 import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.repository.ProductStockpileRepository;
@@ -59,10 +57,10 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             advertisement.setImageUrl(advertisementVO.getImageUrl());
         }
         if(advertisementVO.getDiscount()!= null){
-            if(advertisementVO.getDiscount()<1 || advertisementVO.getDiscount()>9){
+            if(advertisementVO.getDiscount()<0 || advertisementVO.getDiscount()>=1.0){
                 throw TomatoMallException.discountInvalid();
             }
-            advertisement.setDiscount(advertisementVO.getDiscount());  //新增折扣属性，可以设置折扣，值为1-9的整数，例如1代表1折
+            advertisement.setDiscount(Math.round(advertisementVO.getDiscount()*100));  //新增折扣属性，可以设置折扣，值为1-9的整数，例如1代表1折
         }
         if(advertisementVO.getLimitNum()!= null){
             if(advertisementVO.getLimitNum()>productStockpileRepository.findByProductId(advertisementVO.getProductId()).getAmount()){
@@ -89,7 +87,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         if(advertisementVO.getLimitNum()>productStockpileRepository.findByProductId(advertisementVO.getProductId()).getAmount()){
             throw TomatoMallException.limitNumTooMuch();
         }
-        if(advertisementVO.getDiscount()<1 || advertisementVO.getDiscount()>9){
+        if(advertisementVO.getDiscount()<0 || advertisementVO.getDiscount()>=1.0){
             throw TomatoMallException.discountInvalid();
         }
         Advertisement advertisement = advertisementVO.toPo();

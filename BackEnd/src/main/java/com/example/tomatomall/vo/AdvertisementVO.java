@@ -19,7 +19,7 @@ public class AdvertisementVO {
 
     private Integer productId;
 
-    private Integer discount;
+    private Float discount;
 
     private Integer limitNum;
 
@@ -30,7 +30,7 @@ public class AdvertisementVO {
         advertisement.setContent(this.content);
         advertisement.setImageUrl(this.imageUrl);
         advertisement.setProductId(this.productId);
-        advertisement.setDiscount(this.discount);
+        advertisement.setDiscount(Math.round(this.discount*100));
         advertisement.setLimitNum(this.limitNum);
         return advertisement;
     }
