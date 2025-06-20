@@ -53,14 +53,18 @@ const router = createRouter({
         path:'/orderList',
         component: () => import('../views/order/OrderList.vue'),
         meta: {title: '订单列表'}
-    },{
+    }, {
         path: '/orderDetail/:id',
         component: () => import('../views/order/OrderDetail.vue'),
         meta: {title: '订单详情'}
-    },{
+    }, {
         path: '/test',
         component: () => import('../views/test.vue'),
         meta: {title: "测试页面"}
+    }, {
+        path: '/searchMain/:keyword',
+        component: () => import('../views/searchMain.vue'),
+        meta: {title: "搜索后页面"}
     }, {
         path: '/404',
         name: '404',

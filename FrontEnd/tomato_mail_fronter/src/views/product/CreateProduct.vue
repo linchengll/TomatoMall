@@ -3,8 +3,14 @@ import { ref, computed } from 'vue';
 import {ElMessage} from "element-plus";
 import {imageInfoUpdate} from "../../api/tools.ts"
 import {Specification, addInfo, AddInfo} from "../../api/Book/products.ts";
+import { getTypeListInfo } from '../../api/Book/products.ts'
 import {router} from "../../router";
 import Header from '../ManagerHead.vue';
+
+interface ProductType {
+  typeId: number;
+  typeName: string;
+}
 
 const title = ref('');
 const price = ref(0);
@@ -13,6 +19,21 @@ const description = ref('');
 const cover = ref('');
 const detail = ref('');
 const specificationsTableData = ref([]);
+
+const categoryList = ref<ProductType[]>([])
+const selectedTypeIds = ref<number[]>([])
+async function fetchCategories() {
+  try {
+    const res = await getTypeListInfo()
+    categoryList.value = res.data.data.map((item: any) => ({
+      typeId: item.typeId,
+      typeName: item.typeName
+    }))
+  } catch (err) {
+    ElMessage.error("获取分类失败")
+  }
+}
+fetchCategories();
 
 const hasTelInput = computed(() => title.value != '')
 const hasPriceInput = computed(() => price.value != '')
@@ -116,15 +137,18 @@ const handleDelete = (index) => {
 //
 const handleUpdate = async () => {
   try {
-    // 1. 构造 UpdateInfo 对象
     const specificationsSet = new Set<Specification>();
     specificationsTableData.value.forEach(item => {
       specificationsSet.add({
         item: item.item,
         value: item.value,
         id: item.id
+      });
     });
-    });
+
+    const typeSet = new Set(
+        selectedTypeIds.value.map(id => ({ typeId: id }))
+    );
 
     const addData: AddInfo = {
       title: title.value,
@@ -134,12 +158,11 @@ const handleUpdate = async () => {
       cover: cover.value,
       detail: detail.value,
       specifications: Array.from(specificationsSet),
+      types: Array.from(typeSet) // 添加 types 字段
     };
 
-    // 2. 调用 updateInfo 函数
     const response = await addInfo(addData);
 
-    // 3. 处理响应
     if (response.data.code === '200') {
       ElMessage.success('添加成功');
     } else if(response.data.code === '400') {
@@ -174,6 +197,21 @@ const handleUpdate = async () => {
         </el-form-item>
         <el-form-item label="详细信息">
           <el-input type="textarea" v-model="detail" />
+        </el-form-item>
+        <el-form-item label="商品类型">
+          <el-select
+              v-model="selectedTypeIds"
+              multiple
+              placeholder="请选择商品类型"
+              style="width: 100%"
+          >
+            <el-option
+                v-for="type in categoryList"
+                :key="type.typeId"
+                :label="type.typeName"
+                :value="type.typeId"
+            />
+          </el-select>
         </el-form-item>
 
         <el-form-item label="封面图片">

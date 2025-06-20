@@ -4,16 +4,19 @@ import { userInfo } from '../api/user.ts'
 import { CircleCloseFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { addTypeInfo, deleteTypeInfo, getTypeListInfo, getTopList, searchList} from '../api/Book/products.ts'
-import { getADVListInfo} from '../api/Adv/advertisements'
 import { useRoute, useRouter } from "vue-router";
 import 'element-plus/dist/index.css'
 
 const route = useRoute()
 const router = useRouter()
 
+// === 搜索的选择状态集合 ======================
+const selectedCategory = ref("")
+const currentKeyword = route.params.keyword as string;
+// =========================================
+
 // === 侧边栏 ===============================
 // 状态定义
-const selectedCategory = ref("")
 const isExpanded = ref(false)
 let deleteType = ref(false)
 
@@ -46,11 +49,11 @@ function selectCategory(category: string) {
   if (!deleteType.value) {
     if (selectedCategory.value === category) {
       selectedCategory.value = "" // 点击已选中项时取消选择
-      getProductList("", 0)
+      getProductList(currentKeyword, 0)
     } else {
       selectedCategory.value = category
       const typeId = getTypeIdByName(category)
-      getProductList("", typeId)
+      getProductList(currentKeyword, typeId)
     }
   } else {
     const typeId = getTypeIdByName(category)
@@ -132,6 +135,15 @@ const showTopList = ref(false);
 const topList = ref<string[]>([]);
 const isFocused = ref(false);
 
+// 点击搜索按钮
+function onSearchClick() {
+  const keyword = search.value.trim();
+  const typeId = selectedCategory.value
+      ? getTypeIdByName(selectedCategory.value)
+      : 0;
+  router.push(`/searchMain/${keyword}`)
+}
+
 // 聚焦时显示 top5 热榜 + 展开动画
 function onSearchFocus() {
   isFocused.value = true;
@@ -159,42 +171,6 @@ function onHotItemClick(item: string) {
   showTopList.value = false;
 }
 // ================================================
-
-// === 广告 ========================================
-interface banner{
-  id: string;
-  title: string;
-  content: string;
-  imageUrl: string;
-  productId: string;
-  discount: string,
-  limitNum: string,
-}
-const banners = ref<banner[]>([])
-const showAddDialog = ref(false)
-
-// 加载广告列表
-async function getBannersList() {
-  try {
-    const res = await getADVListInfo();
-    if (res.data.code === '200') {
-      // 使用 map 只提取需要的字段
-      banners.value =( res.data.data || [] ).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        content: item.content,
-        imageUrl: item.imageUrl? item.imageUrl : "../assets/DefaultBanner.png",
-        productId: item.productId,
-      }));
-    } else {
-      ElMessage.error(res.data.msg || "获取广告失败");
-    }
-  } catch (err) {
-    ElMessage.error("加载广告列表失败");
-  }
-}
-getBannersList();
-// =================================================
 
 // === 商品列表 =====================================
 interface Product {
@@ -318,11 +294,12 @@ getUserInfo()
           <el-button
               type="primary"
               icon="el-icon-search"
+              @click="onSearchClick"
               style="margin-left: 5px"
-              @click="$router.push(`/searchMain/${encodeURIComponent(search)}`)"
           >
             搜索
           </el-button>
+          <el-button type="primary" icon="el-icon-house" @click="$router.push('/main')">首页</el-button>
         </div>
       </div>
     </el-header>
@@ -379,22 +356,6 @@ getUserInfo()
       </el-aside>
 
       <el-main>
-        <!-- 轮播图 -->
-        <el-carousel height="300px">
-          <el-carousel-item v-for="(banner, index) in banners" :key="index">
-            <img
-                :src="banner.imageUrl"
-                class="banner-img"
-                @click="$router.push(`/advertisementDetail/${banner.id}`)"
-                style="cursor: pointer;"
-            />
-            <div class="banner-caption">
-              <h3>{{ banner.title }}</h3>
-              <p>{{ banner.content }}</p>
-            </div>
-          </el-carousel-item>
-        </el-carousel>
-
         <!-- 商品展示 -->
         <div class="product-list">
           <el-card v-for="product in productList"
@@ -409,63 +370,8 @@ getUserInfo()
           </el-card>
         </div>
       </el-main>
-
-      <!-- 用户信息面板 -->
-      <el-aside width="250px" class="user-panel">
-        <el-card class="user-card">
-          <el-link @click="$router.push('/dashboard')" class="user-avatar-link">
-            <el-avatar :src="avatar" class="user-avatar" />
-          </el-link>
-          <p class="welcome-text">欢迎：{{ username }}</p>
-          <el-space direction="vertical" size="large" alignment="center">
-            <el-button type="primary" plain icon="el-icon-edit" @click="$router.push('/createProduct')" v-if="role === 'admin'">
-              创建书籍
-            </el-button>
-            <el-button type="warning" plain icon="el-icon-picture" @click="$router.push('/editAdvertisements')" v-if="role === 'admin'">
-              编辑广告
-            </el-button>
-            <el-button type="success" plain icon="el-icon-shopping-cart-full" @click="$router.push('/cart')">
-              前往购物车
-            </el-button>
-            <el-button type="danger" plain icon="el-icon-shopping-cart-full" @click="$router.push('/orderList')">
-              前往订单
-            </el-button>
-          </el-space>
-        </el-card>
-      </el-aside>
     </el-container>
   </div>
-
-  <!-- 添加广告的弹窗 -->
-  <el-dialog v-model="showAddDialog" title="添加广告" width="500px">
-    <el-form :model="newBanner" label-width="80px">
-      <el-form-item label="标题">
-        <el-input v-model="newBanner.title" />
-      </el-form-item>
-      <el-form-item label="描述">
-        <el-input type="textarea" v-model="newBanner.content" />
-      </el-form-item>
-      <el-form-item label="广告图片" prop="image">
-        <el-form-item label="头像">
-          <img :src="newBanner" class="image" />
-          <input type="file" accept="image/*" @change="handleAvatarUpload" />
-        </el-form-item>
-      </el-form-item>
-      <el-form-item label="商品ID">
-        <el-select v-model="newBanner.productId" placeholder="选择关联商品">
-          <el-option
-              v-for="item in productList"
-              :key="item.id"
-              :label="item.title"
-              :value="item.id"
-          />
-        </el-select>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button type="primary" @click="confirmAddBanner">确认添加</el-button>
-    </template>
-  </el-dialog>
 
   <!-- 添加分类栏的弹窗 -->
   <el-dialog v-model="showAddCategoryDialog" title="创建新分类" width="400px">
@@ -480,7 +386,6 @@ getUserInfo()
     </template>
   </el-dialog>
 </template>
-
 
 <style>
 // =============================
