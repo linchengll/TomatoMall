@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import {getOrderDetial, getOrderProducts, cancelOrder, getOrderItems, initiatePayment} from "../../api/order.ts";
+import {getOrderDetial, getOrderProducts, cancelOrder, initiatePayment} from "../../api/order.ts";
 import { ElMessage } from "element-plus";
+
 
 interface OrderDetail {
   orderId: string;
@@ -23,7 +24,7 @@ interface ProductItem {
 
 const router = useRouter();
 const route = useRoute();
-const orderId = route.params.orderId as string;
+const orderId = route.params.id as string;
 
 const orderDetail = ref<OrderDetail | null>(null);
 const productList = ref<ProductItem[]>([]);
@@ -114,7 +115,7 @@ const handleCancelOrder = async () => {
 // 发起支付
 async function handlePayment() {
   try {
-    const res = await initiatePayment(orderInfo.value.orderId); // 调用支付接口
+    const res = await initiatePayment(orderId); // 调用支付接口
     if (res.data.code === '200') {
       const paymentForm = res.data.data.paymentForm; // 获取支付表单HTML
       const paymentWindow = window.open('', '_blank'); // 打开新窗口
