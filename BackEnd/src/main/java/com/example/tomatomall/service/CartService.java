@@ -8,7 +8,7 @@ import com.example.tomatomall.vo.ShippingAddress;
 import java.util.List;
 
 public interface CartService {
-    CartVO addCart(String productId,Integer quantity,Integer discount);
+    CartVO addCart(Integer productId,Integer quantity,Float discount);
     String deleteCartItem(String cartItemId);
     String updateCartItem(String cartItemId,Integer quantity);
     CartItemsVO getCartList();

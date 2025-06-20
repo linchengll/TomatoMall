@@ -15,8 +15,8 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping
-    public Response<CartVO>addCart(@RequestBody Map<Object,Integer> Body) {
-        return Response.buildSuccess(cartService.addCart(String.valueOf(Body.get("productId")),Body.get("quantity"),Body.get("discount")));
+    public Response<CartVO> addCart(@RequestBody Map<Object,Float> Body) {
+        return Response.buildSuccess(cartService.addCart(Math.round(Body.get("productId")),Math.round(Body.get("quantity")),Body.get("discount")));
     }
 
     @DeleteMapping("/{cartItemId}")

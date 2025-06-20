@@ -43,7 +43,7 @@ public class Advertisement {
         vo.setContent(content);
         vo.setImageUrl(imageUrl);
         vo.setProductId(productId);
-        vo.setDiscount(discount);
+        vo.setDiscount((float) (discount / 100.0));
         vo.setLimitNum(limitNum);
         return vo;
     }

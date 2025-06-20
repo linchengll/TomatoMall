@@ -30,5 +30,5 @@ public class Cart {
     private boolean ordered = false;
 
     @Column(name="discount")
-    private Integer discount;
+    private Float discount;
 }
