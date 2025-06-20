@@ -23,23 +23,23 @@ export const getOrderItems = async (userId:string) => {
 };
 
 // 获取订单详情
-export const getOrderDetial = (userId:string) => {
-    return axios.get(`/api/orders/${userId}`)
+export const getOrderDetial = (orderId:string) => {
+    return axios.get(`/api/orders/${orderId}`)
         .then(res => {
             return res
         })
 }
 
 //获取订单商品列表
-export const getOrderProducts = async (userId:string) => {
-    return axios.get(`/api/orders/productOFOrder/${userId}`).then(res => {
+export const getOrderProducts = async (orderId:string) => {
+    return axios.get(`/api/orders/productOfOrder/${orderId}`).then(res => {
         return res;
     });
 };
 
 //取消订单
-export const cancelOrder = async (userId:string) => {
-    return axios.delete(`/api/orders/${userId}`).then(res => {
+export const cancelOrder = async (orderId:string) => {
+    return axios.delete(`/api/orders/${orderId}`).then(res => {
         return res;
     });
 };
