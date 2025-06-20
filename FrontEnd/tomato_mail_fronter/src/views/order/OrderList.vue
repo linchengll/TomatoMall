@@ -17,7 +17,7 @@ interface OrderItem {
 
 const router = useRouter();
 const username = ref(sessionStorage.getItem("username"));
-const userId = ref("");
+const userId = ref(sessionStorage.getItem("userId"));
 const orders = ref<OrderItem[]>([]);
 
 // const orders = ref<OrderItem[]>([
@@ -39,15 +39,6 @@ const orders = ref<OrderItem[]>([]);
 //   }
 // ]);
 
-// 获取用户信息
-const fetchUserId = async () => {
-  if (username.value) {
-    const res = await userInfo(username.value);
-    if (res.data && res.data.userId) {
-      userId.value = res.data.userId;
-    }
-  }
-};
 
 // 获取订单信息
 const fetchOrders = async () => {
@@ -81,7 +72,6 @@ const fetchOrders = async () => {
 
 // 页面加载时获取数据
 onMounted(async () => {
-  await fetchUserId();
   await fetchOrders();
 });
 

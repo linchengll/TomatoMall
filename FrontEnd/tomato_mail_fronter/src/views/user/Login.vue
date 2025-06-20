@@ -38,6 +38,7 @@ function handleLogin() {
         console.log(res)
         sessionStorage.setItem('username', res.data.data.username)
         sessionStorage.setItem('role', res.data.data.role)
+        sessionStorage.setItem('userId',res.data.data.id)
         router.push({path: "/main"})
       })
     } else if (res.data.code === '400') {
