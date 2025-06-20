@@ -483,7 +483,7 @@ getUserInfo()
 
 
 <style>
-// =============================
+
 .aside {
   position: relative;
   background: #f5f7fa;
@@ -514,7 +514,7 @@ getUserInfo()
   cursor: pointer;
   font-size: 16px;
 }
-// ================================
+
 .banner-caption {
   position: absolute;
   bottom: 20px;

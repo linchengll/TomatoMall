@@ -207,10 +207,10 @@ const handleAvatarUpload: UploadProps['onChange'] = async (uploadFile) => {
       <el-form-item label="折扣力度">
         <el-input-number
             v-model="newBanner.discount"
-            :min="1"
-            :max="10"
-            :step="1"
-            :precision="1"
+            :min="0"
+            :max="0.99"
+            :step="0.01"
+            :precision="2"
             controls-position="right"
         />
       </el-form-item>
