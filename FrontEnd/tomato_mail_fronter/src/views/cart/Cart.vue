@@ -52,6 +52,7 @@ async function fetchCartItems() {
         cover: item.cover,
         detail: item.detail,
         quantity: item.quantity,
+        discount: item.discount,
       }));
       calculateTotal();
     } else {
@@ -101,7 +102,7 @@ async function removeItem(cartItemId: string) {
 function calculateTotal() {
   totalAmount.value = cartItems.value
       .filter(item => selectedItems.value.includes(item.cartItemId))
-      .reduce((sum, item) => sum + item.price * item.quantity, 0);
+      .reduce((sum, item) => sum + item.price * item.quantity*item.discount/10, 0);
 }
 
 // 提交订单
@@ -163,7 +164,7 @@ fetchCartItems();
     <div class="cart-container">
       <div class="cart-item" v-for="item in cartItems" :key="item.cartItemId">
         <div class="item-name">{{ item.title }}</div>
-        <div class="item-price">{{ item.price }}¥</div>
+        <div class="item-price">{{ item.price*item.discount/10 }}¥</div>
         <el-input-number
             class="item-quantity"
             v-model="item.quantity"
