@@ -5,10 +5,12 @@ import { CircleCloseFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { addTypeInfo, deleteTypeInfo, getTypeListInfo, getTopList, searchList} from '../api/Book/products.ts'
 import { getADVListInfo} from '../api/Adv/advertisements'
-import NavBar from '../views/NavHead.vue'
-import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
+// === 搜索的选择状态集合 ======================
+const selectedCategory = ref("")
+const selectedSearch = ref("")
+// =========================================
 
 // === 侧边栏 ===============================
 // 状态定义
@@ -19,7 +21,6 @@ const showAddCategoryDialog = ref(false)
 const newCategoryName = ref("")
 const categoryList = ref<{ typeId: number; typeName: string }[]>([])
 const categories = ref<string[]>([])
-const selectedCategory = ref("")
 
 // 用来排序分类（按字母）
 const sortedCategories = computed(() => {
@@ -45,10 +46,11 @@ function selectCategory(category: string) {
   if (!deleteType.value) {
     if (selectedCategory.value === category) {
       selectedCategory.value = "" // 点击已选中项时取消选择
+      getProductList(selectedSearch, "")
     } else {
       selectedCategory.value = category
       const typeId = getTypeIdByName(category)
-      getProductList("", typeId)
+      getProductList(selectedSearch, typeId)
     }
   } else {
     const typeId = getTypeIdByName(category)
@@ -136,6 +138,7 @@ function onSearchClick() {
   const typeId = selectedCategory.value
       ? getTypeIdByName(selectedCategory.value)
       : 0;
+  selectedSearch.value = keyword
   getProductList(keyword, typeId);
 }
 
