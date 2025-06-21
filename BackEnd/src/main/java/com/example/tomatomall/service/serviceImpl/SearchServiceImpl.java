@@ -29,7 +29,7 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     ProductService productService;
 
-    private static final int pageSizeLimit=114;
+    private static final int pageSizeLimit=10000;//unused
 
     @Override
     public List<ProductBasicVO> getTop() {
