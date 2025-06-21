@@ -19,7 +19,7 @@ const banner = ref({
   content: '',
   imageUrl: '',
   productId: '',
-  discount: '',
+  discount: 0,
   limitNum: '',
 });
 
