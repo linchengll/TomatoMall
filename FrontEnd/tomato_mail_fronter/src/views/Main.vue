@@ -81,7 +81,7 @@ function selectCategory(category: string) {
           ElMessage.success('分类删除成功！');
           // 可以刷新分类列表或重置选中项等逻辑
           selectedCategory.value = ""
-          deleteType = false
+          deleteType.value = false
           fetchCategories()
         } else {
           ElMessage.error(res.data.msg || '删除失败');
@@ -247,7 +247,7 @@ async function getProductList(searchString: string, type: number, page: number, 
         cover: item.cover || "../assets/DefaultCover.png",
       }));
 
-      totalProducts.value = res.data.data.pageCount * pageSize;
+      totalProducts.value = res.data.data.itemCount;
     } else {
       ElMessage.error(res.data.msg || "获取失败");
     }
@@ -385,10 +385,33 @@ getProductList(searchString,0, 0, pageSize);
     <el-container>
       <el-aside width="200px" class="aside">
         <div v-if="role === 'admin'" class="add-category">
-          <el-button type="primary" icon="el-icon-plus" @click="showAddCategoryDialog = true">添加分类</el-button>
-          <el-button type="danger" icon="el-icon-plus" v-if="deleteType === false" @click="deleteType = true">删除分类</el-button>
-          <el-button type="danger" icon="el-icon-plus" v-if="deleteType === true" @click="deleteType = false">取消删除</el-button>
-        </div>
+            <el-button
+                type="primary"
+                :icon="Plus"
+                @click="showAddCategoryDialog = true"
+            >
+              添加分类
+            </el-button>
+
+            <!-- 删除分类 与 取消删除 分类：互斥显示 -->
+            <el-button
+                v-if="!deleteType"
+                type="danger"
+                :icon="Delete"
+                @click="deleteType = true"
+            >
+              删除分类
+            </el-button>
+
+            <el-button
+                v-else
+                type="warning"
+                :icon="Close"
+                @click="deleteType = false"
+            >
+              取消删除
+            </el-button>
+          </div>
 
         <!-- 分类列表容器，带滚动 -->
         <div class="scrollable-category">
@@ -634,6 +657,12 @@ getProductList(searchString,0, 0, pageSize);
   grid-template-columns: repeat(6, 1fr); /* 一行六列 */
   gap: 20px; /* 卡片间距 */
   padding: 20px;
+}
+
+.add-category {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .product-card {
