@@ -139,9 +139,6 @@ const isFocused = ref(false);
 // 点击搜索按钮
 function onSearchClick() {
   const keyword = search.value.trim();
-  const typeId = selectedCategory.value
-      ? getTypeIdByName(selectedCategory.value)
-      : 0;
   router.push(`/searchMain/${keyword}`)
 }
 
@@ -203,7 +200,7 @@ async function getProductList(searchString: string, type: number) {
     ElMessage.error("加载商品列表失败");
   }
 }
-getProductList("",0);
+getProductList(currentKeyword,0);
 // =================================================
 
 // === 用户信息 ======================================

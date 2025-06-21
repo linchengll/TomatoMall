@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed} from 'vue'
+import { ref, computed, watch} from 'vue'
 import { userInfo } from '../api/user.ts'
 import { CircleCloseFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -256,6 +256,22 @@ function getUserInfo() {
 getUserInfo()
 // =================================================
 
+// ======= 分页逻辑 =========================
+// 每页商品数
+const pageSize = 12
+// 当前页码
+const currentPage = ref(1)
+// 商品总数（通常来自后端返回）
+const totalProducts = computed(() => productList.value.length)
+// 当前页展示的商品
+const pagedProducts = computed(() =>
+    productList.value.slice((currentPage.value - 1) * pageSize, currentPage.value * pageSize)
+)
+watch(productList, () => {
+  currentPage.value = 1
+})
+currentPage.value = 1
+// ========================================
 
 </script>
 
@@ -397,9 +413,7 @@ getUserInfo()
 
         <!-- 商品展示 -->
         <div class="product-list">
-          <el-card v-for="product in productList"
-                   :key="product.id"
-                   class="product-card"
+          <el-card v-for="product in pagedProducts" :key="product.id" class="product-card"
                    @click="$router.push(`/productDetail/${product.id}`)">
             <img :src="product.cover" class="product-img" />
             <div class="product-info">
@@ -407,6 +421,16 @@ getUserInfo()
               <p class="price">{{ product.price }}¥</p>
             </div>
           </el-card>
+        </div>
+
+        <div class="pagination-wrapper">
+          <el-pagination
+              background
+              layout="prev, pager, next"
+              :page-size="pageSize"
+              :total="totalProducts"
+              v-model:current-page="currentPage"
+          />
         </div>
       </el-main>
 
@@ -483,6 +507,12 @@ getUserInfo()
 
 
 <style>
+.pagination-wrapper {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
 // =============================
 .aside {
   position: relative;
