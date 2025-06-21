@@ -149,7 +149,7 @@ public class CartServiceImpl implements CartService {
                 VO.setCover(product.getCover());
                 VO.setDetail(product.getDetail());
                 items.add(VO);
-                sum+=VO.getDiscount()!=null ? VO.getDiscount()*VO.getPrice()*VO.getQuantity()/10 : VO.getPrice()*VO.getQuantity();
+                sum+=VO.getDiscount()!=null ? VO.getDiscount()*VO.getPrice()*VO.getQuantity() : VO.getPrice()*VO.getQuantity();
                 total++;
             }
         cartList.setItems(items);
@@ -177,7 +177,7 @@ public class CartServiceImpl implements CartService {
             Cart item=cartRepository.findById(new Integer(id)).get();
             ProductStockpile ps=productStockpileRepository.findByProductId(item.getProductId());
             if(item.getDiscount()!=null){
-                totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice()*item.getDiscount()/10;
+                totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice()*item.getDiscount();
             }else{
             totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice();
             }
