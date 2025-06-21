@@ -557,7 +557,7 @@ getProductList(searchString,0, 0, pageSize);
   justify-content: center;
 }
 
-// =============================
+
 .aside {
   position: relative;
   background: #f5f7fa;
@@ -588,7 +588,7 @@ getProductList(searchString,0, 0, pageSize);
   cursor: pointer;
   font-size: 16px;
 }
-// ================================
+
 .banner-caption {
   position: absolute;
   bottom: 20px;

@@ -206,7 +206,7 @@ fetchCartItems();
     <el-dialog v-model="showOrderDialog" title="订单信息" width="50%">
       <p>订单号：{{ orderInfo.orderId }}</p>
       <p>总金额：{{ orderInfo.totalAmount }}¥</p>
-      <p>支付方式：{{ orderInfo.paymentMethod }}</p>
+      <p>支付方式：{{ orderInfo.payMethod }}</p>
       <p>创建时间：{{ orderInfo.createTime }}</p>
       <p>订单状态：{{ orderInfo.status }}</p>
       <div class="dialog-footer">

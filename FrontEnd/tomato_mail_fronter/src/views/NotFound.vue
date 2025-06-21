@@ -11,7 +11,7 @@
         sub-title="您访问的页面不存在"
     >
       <template #extra>
-        <router-link to="/home">
+        <router-link to="/main">
           <el-button type="primary">回到主页</el-button>
         </router-link>
       </template>
