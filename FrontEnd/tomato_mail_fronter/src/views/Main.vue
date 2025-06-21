@@ -11,9 +11,21 @@ import 'element-plus/dist/index.css'
 const route = useRoute()
 const router = useRouter()
 
+// ===== 全局 ============================
+// 每页商品数
+const pageSize = 12
+// 当前页码
+const currentPage = ref(1)
+// 被选中的类型
+const selectedCategory = ref("")
+// 搜索内容（此页面为空）
+const searchString = ""
+
+const totalProducts = ref(0)
+// ====================================
+
 // === 侧边栏 ===============================
 // 状态定义
-const selectedCategory = ref("")
 const isExpanded = ref(false)
 let deleteType = ref(false)
 
@@ -46,11 +58,11 @@ function selectCategory(category: string) {
   if (!deleteType.value) {
     if (selectedCategory.value === category) {
       selectedCategory.value = "" // 点击已选中项时取消选择
-      getProductList("", 0)
+      getProductList(searchString, 0, 0, pageSize)
     } else {
       selectedCategory.value = category
       const typeId = getTypeIdByName(category)
-      getProductList("", typeId)
+      getProductList(searchString, typeId, 0, pageSize)
     }
   } else {
     const typeId = getTypeIdByName(category)
@@ -129,18 +141,30 @@ const confirmAddCategory = async () => {
 // === 搜索 ========================================
 const search = ref('');
 const showTopList = ref(false);
-const topList = ref<string[]>([]);
+const topList = ref<Array<{ id: number, title: string }>>([]);
 const isFocused = ref(false);
 
 // 聚焦时显示 top5 热榜 + 展开动画
-function onSearchFocus() {
+async function onSearchFocus() {
   isFocused.value = true;
-  getTopList().then((res) => {
-    topList.value = Array.isArray(res.data) ? res.data.slice(0, 5) : [];
-  }).catch(() => {
-    topList.value = []; // 请求失败时设为空数组
-  });
-  console.log("topList", topList);
+
+  try {
+    const res = await getTopList();
+    if (res.data.code === "200" && Array.isArray(res.data.data)) {
+      topList.value = res.data.data.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        cover: item.cover,
+      }));
+    } else {
+      topList.value = [];
+    }
+  } catch (err) {
+    topList.value = [];
+    ElMessage.error("加载热门图书失败");
+  }
+
   showTopList.value = true;
 }
 
@@ -205,12 +229,15 @@ interface Product {
 }
 const productList = ref<Product[]>([]);
 
-async function getProductList(searchString: string, type: number) {
+async function getProductList(searchString: string, type: number, page: number, size: number) {
   try {
     const res = await searchList({
-      searchString: searchString,
-      type: type
+      searchString,
+      type,
+      page,
+      size
     });
+
     if (res.data.code === '200') {
       const list = res.data.data.productList || [];
       productList.value = list.map((item: any) => ({
@@ -219,6 +246,8 @@ async function getProductList(searchString: string, type: number) {
         id: item.id,
         cover: item.cover || "../assets/DefaultCover.png",
       }));
+
+      totalProducts.value = res.data.data.pageCount * pageSize;
     } else {
       ElMessage.error(res.data.msg || "获取失败");
     }
@@ -226,7 +255,6 @@ async function getProductList(searchString: string, type: number) {
     ElMessage.error("加载商品列表失败");
   }
 }
-getProductList("",0);
 // =================================================
 
 // === 用户信息 ======================================
@@ -257,22 +285,26 @@ getUserInfo()
 // =================================================
 
 // ======= 分页逻辑 =========================
-// 每页商品数
-const pageSize = 12
-// 当前页码
-const currentPage = ref(1)
-// 商品总数（通常来自后端返回）
-const totalProducts = computed(() => productList.value.length)
 // 当前页展示的商品
 const pagedProducts = computed(() =>
     productList.value.slice((currentPage.value - 1) * pageSize, currentPage.value * pageSize)
 )
-watch(productList, () => {
-  currentPage.value = 1
-})
-currentPage.value = 1
-// ========================================
 
+function handlePageChange(page: number) {
+  currentPage.value = page
+}
+
+// 监听页码变化 -> 加载对应页的数据
+watch(currentPage, (newPage) => {
+  const typeId = getTypeIdByName(selectedCategory.value) || 0;
+  console.log("page", newPage)
+  getProductList(searchString, typeId, newPage - 1, pageSize);
+});
+// =====================================================
+
+// ========= 初始加载页面时调用 =============================
+getProductList(searchString,0, 0, pageSize);
+// ==========================================================
 </script>
 
 <template>
@@ -307,23 +339,30 @@ currentPage.value = 1
                   v-show="showTopList"
                   class="top-list"
                   style="
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                margin-top: -1px;
-                border-radius: 0 0 8px 8px;
-              "
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    width: 100%;
+                    margin-top: -1px;
+                    border-radius: 0 0 8px 8px;
+                    height: 150px;          /* 设置固定高度 */
+                    overflow-y: auto;       /* 内容超出时出现滚动条 */
+                    background: white;      /* 背景色 */
+                    border: 1px solid #dcdfe6; /* 边框 */
+                    z-index: 1000;
+                  "
               >
-                <ul v-if="topList.length > 0">
-                  <li
+                <div v-if="topList.length > 0" style="color: #333;">
+                  <div>热搜榜：</div>
+                  <div
                       v-for="(item, index) in topList"
-                      :key="index"
-                      @mousedown="onHotItemClick(item)"
+                      :key="item.id"
+                      @mousedown="onHotItemClick(item.title)"
+                      style="padding: 4px 8px; cursor: pointer;"
                   >
-                    {{ item }}
-                  </li>
-                </ul>
+                    {{ index + 1 }}. {{ item.title }}
+                  </div>
+                </div>
                 <div v-else class="empty-placeholder">
                   暂无数据
                 </div>
@@ -413,8 +452,12 @@ currentPage.value = 1
 
         <!-- 商品展示 -->
         <div class="product-list">
-          <el-card v-for="product in pagedProducts" :key="product.id" class="product-card"
-                   @click="$router.push(`/productDetail/${product.id}`)">
+          <el-card
+              v-for="product in productList"
+              :key="product.id"
+              class="product-card"
+              @click="$router.push(`/productDetail/${product.id}`)"
+          >
             <img :src="product.cover" class="product-img" />
             <div class="product-info">
               <p>{{ product.title }}</p>
@@ -423,6 +466,7 @@ currentPage.value = 1
           </el-card>
         </div>
 
+        <!-- 分页控件 -->
         <div class="pagination-wrapper">
           <el-pagination
               background
@@ -673,6 +717,7 @@ currentPage.value = 1
   left: 0;
   width: 100%;
   background: white;
+  height: 100px;
   border: 1px solid #dcdfe6;
   z-index: 1000; /* 确保在最上层 */
   opacity: 1; /* 强制不透明 */

@@ -38,10 +38,12 @@ export type AddInfo = {
 
 export type SearchInfo = {
     searchString: string,
-    type: number,
+    type?: number,
+    page?: number,
+    size?: number,
 }
 
-//搜索指定商品
+//搜索商品
 export const searchList = (searchInfo: SearchInfo) => {
     return axios.post(`${SEARCH_MODULE}`, searchInfo, {
         headers: { 'Content-Type': 'application/json' }
