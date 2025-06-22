@@ -30,7 +30,7 @@ const showOrderDialog = ref(false);
 const orderInfo = ref({
   orderId: '',
   totalAmount: 0,
-  paymentMethod: '',
+  payMethod: '',
   createTime: '',
   status: '',
 });

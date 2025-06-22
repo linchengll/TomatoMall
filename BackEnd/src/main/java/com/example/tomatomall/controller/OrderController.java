@@ -41,13 +41,14 @@ public class OrderController {
             return;
         }
         String tradeStatus = params.get("trade_status");
-        String orderId = params.get("out_trade_no"); // 您的订单号
+        String orderId = params.get("out_trade_no"); // 例如 "123_1620000000000"
+        String originalOrderId = orderId.split("_")[0];// 您的订单号
         String alipayTradeNo = params.get("trade_no"); // 支付宝交易号
         String amount = params.get("total_amount"); // 支付金额
         switch (tradeStatus) {
             case "TRADE_SUCCESS":
                 // 支付成功
-                orderService.handleSuccess(orderId);
+                orderService.handleSuccess(originalOrderId);
                 response.getWriter().print("success");
                 break;
 
@@ -55,7 +56,7 @@ public class OrderController {
                 // 交易关闭（支付超时）
                 // 检查是否是支付超时（而不是退款导致的关闭）
                 if ("PAYMENT_TIMEOUT".equals(params.get("sub_code"))) {
-                    orderService.handleTimeout(orderId);
+                    orderService.handleTimeout(originalOrderId);
                 }
                 response.getWriter().print("timeout");
                 break;
@@ -68,7 +69,7 @@ public class OrderController {
 
             default:
                 // 其他未知状态或支付失败
-                orderService.handleFailure(orderId);
+                orderService.handleFailure(originalOrderId);
                 response.getWriter().print("fail");
                 break;
         }

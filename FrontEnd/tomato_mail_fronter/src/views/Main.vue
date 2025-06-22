@@ -353,7 +353,7 @@ getProductList(searchString,0, 0, pageSize);
                   "
               >
                 <div v-if="topList.length > 0" style="color: #333;">
-                  <div>热搜榜：</div>
+                  <div>热度榜：</div>
                   <div
                       v-for="(item, index) in topList"
                       :key="item.id"

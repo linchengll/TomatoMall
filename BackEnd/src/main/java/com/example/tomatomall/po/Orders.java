@@ -27,7 +27,7 @@ public class Orders {
      private Float totalAmount;
 
      @Column(name="pay_method")
-     private PaymentEnum payMethod=PaymentEnum.ALIPAY;
+     private PaymentEnum payMethod;
 
      @Column(name="status")
      private StatusEnum status=StatusEnum.PENDING;
