@@ -1,6 +1,7 @@
 package com.example.tomatomall.controller;
 
 
+import com.example.tomatomall.annotation.InterfaceLog;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.vo.*;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ public class CartController {
     @Resource
     private CartService cartService;
 
+    @InterfaceLog(description = "添加购物车")
     @PostMapping
     public Response<CartVO> addCart(@RequestBody Map<Object,Float> Body) {
         return Response.buildSuccess(cartService.addCart(Math.round(Body.get("productId")),Math.round(Body.get("quantity")),Body.get("discount")));
@@ -34,6 +36,7 @@ public class CartController {
         return Response.buildSuccess(cartService.getCartList());
     }
 
+    @InterfaceLog(description = "下单")
     @PostMapping("/checkout")
     public Response<OrderVO> submitOrder(@RequestBody OrderBodyVO Body){
         return Response.buildSuccess(cartService.submitOrder(Body.getCartItemIds(), Body.getShippingAddress(), Body.getPaymentMethod()));

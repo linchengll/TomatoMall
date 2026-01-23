@@ -2,12 +2,13 @@ package com.example.tomatomall.controller;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.example.tomatomall.annotation.InterfaceLog;
 import com.example.tomatomall.service.OrderService;
+import com.example.tomatomall.util.AlipayProperties;
 import com.example.tomatomall.vo.OrderVO;
 import com.example.tomatomall.vo.PaymentVO;
 import com.example.tomatomall.vo.ProductOfOrderVO;
 import com.example.tomatomall.vo.Response;
-import com.example.tomatomall.util.AlipayProperties;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,6 +27,7 @@ public class OrderController {
     @Resource
     AlipayProperties alipayProperties;
 
+    @InterfaceLog(description = "支付")
     @PostMapping("/{orderId}/pay")
     public Response<PaymentVO> handlePayment(@PathVariable String orderId){
          return Response.buildSuccess(orderService.handlePayment(orderId));

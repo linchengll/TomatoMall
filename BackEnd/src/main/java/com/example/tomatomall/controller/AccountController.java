@@ -1,6 +1,5 @@
 package com.example.tomatomall.controller;
 
-import com.example.tomatomall.annotation.InterfaceLog;
 import com.example.tomatomall.service.AccountService;
 import com.example.tomatomall.vo.AccountVO;
 import com.example.tomatomall.vo.Response;
@@ -47,7 +46,6 @@ public class AccountController {
     /**
      * 登录
      */
-    @InterfaceLog(description = "登录")
     @PostMapping("/login")
     public Response<String> login(@RequestBody AccountVO accountVO) {
         return Response.buildSuccess(accountService.login(accountVO.getUsername(), accountVO.getPassword()));
