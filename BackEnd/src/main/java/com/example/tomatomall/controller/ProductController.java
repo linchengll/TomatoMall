@@ -7,7 +7,6 @@ import com.example.tomatomall.vo.Response;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -17,12 +16,12 @@ public class ProductController {
     @Resource
     private ProductService productService;
 
-    //////可能即将弃用！
-    @GetMapping //获取所有商品 权限：无
-    public Response<List<ProductVO>> getProducts(){
-        return Response.buildSuccess(productService.getProductList());
-    }
-    //////可能即将弃用！
+//    //////可能即将弃用！
+//    @GetMapping //获取所有商品 权限：无
+//    public Response<List<ProductVO>> getProducts(){
+//        return Response.buildSuccess(productService.getProductList());
+//    }
+//    //////可能即将弃用！
 
     @GetMapping("/{id}") //获取指定商品 目标：id 权限：无
     public Response<ProductVO> getProductById(@PathVariable String id){

@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -155,6 +154,7 @@ public class OrderServiceImpl implements OrderService {
             throw TomatoMallException.orderNotExist();
         Orders order=orderRepository.findById(new Integer(orderId)).get();
         if(order.getStatus().equals(StatusEnum.PENDING)){
+            updateStock(orderId,false);
             orderRepository.delete(order);
             List<OrderArchive> orderArchiveList=orderArchiveRepository.findByOrderId(new Integer(orderId));
             orderArchiveRepository.deleteAll(orderArchiveList);

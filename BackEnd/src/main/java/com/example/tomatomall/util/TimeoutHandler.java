@@ -30,7 +30,7 @@ public class TimeoutHandler {
     @Autowired
     CartRepository cartRepository;
 
-    private static final long TIMEOUT_DURATION = 12*300*1000; //300s,调试的时候改短点
+    private static final long TIMEOUT_DURATION = 3600*1000; //1h
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private boolean orderTimeoutActive = false;
 
@@ -57,7 +57,7 @@ public class TimeoutHandler {
         orderTimeoutActive=true;
     }
 
-    private void handleTimeout(String orderId) {//解耦
+    private void handleTimeout(String orderId) {//
         Orders order;
         if(orderRepository.findById(new Integer(orderId)).isPresent())
             order=orderRepository.findById(new Integer(orderId)).get();
@@ -71,9 +71,9 @@ public class TimeoutHandler {
         for(OrderArchive archive:orderArchiveList){
             ProductStockpile ps=productStockpileRepository.findByProductId(archive.getProductId());
             if(ps==null)
-                throw TomatoMallException.orderCartProductInvalid();//处理订单中被删除的商品，这样不安全
+                throw TomatoMallException.orderCartProductInvalid();
             else if (ps.getFrozen() < archive.getQuantity()) {
-                System.err.println("##### order amount invalid???");//我搞不出这个
+                System.err.println("##### order amount invalid???");
                 throw TomatoMallException.duplicateOrderUpdate(orderId);
             }else {
                 ps.setFrozen(ps.getFrozen() - archive.getQuantity());

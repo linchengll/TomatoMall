@@ -27,9 +27,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String requestURI = request.getRequestURI();
-        System.out.println("#####请求路径：" + requestURI);
         String token = request.getHeader("token");
-        System.out.println("#####token: "+token);
         if (token != null && tokenUtil.verifyToken(token)) {
             request.getSession().setAttribute("currentUser",tokenUtil.getUser(token));
             return true;

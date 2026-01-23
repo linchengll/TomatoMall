@@ -181,9 +181,6 @@ public class CartServiceImpl implements CartService {
             }else{
             totalAmount += item.getQuantity()*productRepository.findById(item.getProductId()).get().getPrice();
             }
-            //显然这里可以使同一购物车商品多次添加到不同订单，但这个版本选择不处理，到自由需求阶段修改po再处理
-            //1.删除购物车商品/标记无效
-            //2.限制用户只能有一个订单
             if(item.isOrdered())
                 throw TomatoMallException.orderCartProductInvalid();
             ProductStockpile productStockpile = productStockpileRepository.findByProductId(cartRepository.findById(new Integer(id)).get().getProductId());

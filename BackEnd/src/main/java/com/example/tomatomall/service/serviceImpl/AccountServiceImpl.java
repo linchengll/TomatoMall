@@ -67,8 +67,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Boolean updateUser(AccountVO accountVO) {
-        //Account account=securityUtil.getCurrentUser();
-        //必填用户名？用户名可修改？其他均非必填等于可以更新完全没变化？？？
         Account account=accountRepository.findByUsername(accountVO.getUsername());
         try{
             if (!Objects.equals(account.getId(), securityUtil.getCurrentUser().getId()))
